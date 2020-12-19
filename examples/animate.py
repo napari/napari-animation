@@ -14,3 +14,6 @@ with napari.gui_qt():
     viewer = napari.view_image(blobs.astype(float), name='blobs')
     labeled = ndi.label(blobs)[0]
     viewer.add_labels(labeled, name='blob ID')
+
+    animation = Animation(viewer)
+    viewer.update_console({'animation': animation})
