@@ -26,7 +26,7 @@ def interpolate_state(initial_state, final_state, fraction):
     state : dict
         Description of viewer state.
     """
-    if isinstance(initial_state, dict):
+    if isinstance(initial_state, dict) and isinstance(final_state, dict):
         state = dict()
         for k in initial_state.keys():
             v0 = initial_state[k]
@@ -34,13 +34,13 @@ def interpolate_state(initial_state, final_state, fraction):
             state[k] = interpolate_state(v0, v1, fraction)
         return state
 
-    elif isinstance(initial_state, float):
+    elif isinstance(initial_state, float) and isinstance(final_state, float):
         return _interpolate_float(initial_state, final_state, fraction)
 
-    elif isinstance(initial_state, int):
+    elif isinstance(initial_state, int) and isinstance(final_state, int):
         return _interpolate_int(initial_state, final_state, fraction)
 
-    elif isinstance(initial_state, (list, tuple)):
+    elif isinstance(initial_state, (list, tuple)) and isinstance(final_state, (list, tuple)):
         return tuple(interpolate_state(v0, v1, fraction) for v0, v1 in zip(initial_state, final_state))
 
     else:  
