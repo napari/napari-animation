@@ -12,24 +12,20 @@ A plugin to make animations with napari
 
 This [napari] plugin was generated with [Cookiecutter] using with [@napari]'s [cookiecutter-napari-plugin] template.
 
-<!--
-Don't miss the full getting started guide to set up your new package:
-https://github.com/napari/cookiecutter-napari-plugin#getting-started
+It is built off of great work from @guiwitz in [naparimovie](https://github.com/guiwitz/naparimovie) which was initially submitted to napari in [PR#851](https://github.com/napari/napari/pull/780).
 
-and review the napari docs for plugin developers:
-https://napari.org/docs/plugins/index.html
--->
+It is currently pre-release and under active development. APIs are likely to change before it's first 0.0.1 release,
+but feedback and contributions welcome.
 
 ## Installation
 
-You can install `napari-animation` via [pip]:
+You can clone this repository with install locally with
 
-    pip install napari-animation
+    pip install -e .
 
 ## Contributing
 
-Contributions are very welcome. Tests can be run with [tox], please ensure
-the coverage at least stays the same before you submit a pull request.
+Contributions are very welcome. Tests and additional infrastructure are being setup.
 
 ## License
 
@@ -43,12 +39,7 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 [napari]: https://github.com/napari/napari
 [Cookiecutter]: https://github.com/audreyr/cookiecutter
 [@napari]: https://github.com/napari
-[MIT]: http://opensource.org/licenses/MIT
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
-[GNU GPL v3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
-[GNU LGPL v3.0]: http://www.gnu.org/licenses/lgpl-3.0.txt
-[Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
-[Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
 [cookiecutter-napari-plugin]: https://github.com/napari/cookiecutter-napari-plugin
 [file an issue]: https://github.com/sofroniewn/napari-animation/issues
 [napari]: https://github.com/napari/napari

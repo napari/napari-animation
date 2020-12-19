@@ -50,13 +50,11 @@ class Animation:
             self.frame = frame
 
         new_state = {'viewer': self._get_viewer_state(), 'steps': steps, 'ease': ease}
-        print('capture', self.frame, ' of ', len(self.key_frames) + 1)
         if insert or self.frame == -1:
             self.key_frames.insert(self.frame + 1, new_state)
             self.frame += 1
         else:
             self.key_frames[self.frame] = new_state
-        print('current frame', self.frame)
 
     def set_to_keyframe(self, frame):
         """Set the viewer to a given key-frame

@@ -1,9 +1,9 @@
 from qtpy.QtWidgets import QWidget, QHBoxLayout
 
-from qtpy.QtWidgets import QWidget, QFormLayout, QSpinBox
+from qtpy.QtWidgets import QListWidget
 
-
-class KeyFramesListWidget(QWidget):
+# NOT IMPLEMENTED YET
+class KeyFramesListWidget(QListWidget):
     """List of Key Frames.
     """
     def __init__(self, animation, parent=None):
