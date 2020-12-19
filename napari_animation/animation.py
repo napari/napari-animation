@@ -1,8 +1,8 @@
 import imageio
-import copy
 import skimage.transform
 import skimage.io
 import numpy as np
+from copy import deepcopy
 from pathlib import Path
 
 from .utils import interpolate_state
@@ -56,7 +56,7 @@ class Animation:
         self.viewer.bind_key("Alt-a", None)
         self.viewer.bind_key("Alt-b", None)
 
-    def get_state(self):
+    def get_viewer_state(self):
         """Capture current viewer state
 
         Returns
@@ -66,38 +66,59 @@ class Animation:
         """
 
         new_state = {
-            "camera": self.viewer.camera.asdict(),
-            "dims": self.viewer.dims.asdict(),
+            'camera': self.viewer.camera.asdict(),
+            'dims': self.viewer.dims.asdict(),
         }
-
+        # Log transform zoom for linear interpolation
+        new_state['camera']['zoom'] = np.log10(new_state['camera']['zoom'])
         return new_state
 
-    def set_state(self, state):
+    def set_viewer_state(self, state):
         """Sets the current viewer state
 
         Parameters
         ----------
         state : dict
             Description of viewer state.
-        """        
-        self.viewer.camera.update(state['camera'])
+        """
+        # Undo log transform zoom for linear interpolation
+        camera_state = deepcopy(state['camera'])
+        camera_state['zoom'] = np.power(10, camera_state['zoom'])
+
+        self.viewer.camera.update(camera_state)
         self.viewer.dims.update(state['dims'])
+
+    def capture_keyframe(self, steps=30, ease=None, insert=True):
+        """Record current key-frame
+        
+        Parameters
+        ----------
+        steps : int
+            Number of interpolation steps between last keyframe and captured one.
+        ease : callable, optional
+            If provided this method should make from `[0, 1]` to `[0, 1]` and will
+            be used as an easing function for the transition between the last state
+            and captured one.
+        insert : bool
+            If capture keyframe should insert into current list or replace the current
+            keyframe.
+        """
+        new_state = {'viewer': self.get_viewer_state(), 'steps': steps, 'ease': ease}
+        print('capture', self.frame, ' of ', len(self.key_frames) + 1)
+        if insert or self.frame == -1:
+            self.key_frames.insert(self.frame + 1, new_state)
+            self.frame += 1
+        else:
+            self.key_frames[self.frame] = new_state
+        print('current frame', self.frame)
 
     def _capture_keyframe_callback(self, viewer):
         """Record current key-frame"""
-
-        print('capture', self.frame, ' of ', len(self.key_frames) + 1)
-        new_state = self.get_state()
-        self.key_frames.insert(self.frame + 1, new_state)
-        self.frame += 1
-        print('current frame', self.frame)
+        self.capture_keyframe()
 
     def _replace_keyframe_callback(self, viewer):
         """Replace current key-frame with new view"""
-
-        new_state = self.get_state()
-        self.key_frames[self.frame] = new_state
-        print('current frame', self.frame)
+        self.capture_keyframe(insert=False)
 
     def _delete_keyframe_callback(self, viewer):
         """Delete current key-frame"""
@@ -117,7 +138,7 @@ class Animation:
         """
         self.frame = frame
         if len(self.key_frames) > 0 and self.frame > -1:
-            self.set_state(self.key_frames[frame])
+            self.set_viewer_state(self.key_frames[frame])
 
     def _key_adv_frame(self, viewer):
         """Go forwards in key-frame list"""
@@ -133,27 +154,32 @@ class Animation:
         self._set_to_keyframe(new_frame)
         print('current frame', self.frame)
 
-    def _state_generator(self, interpolation_steps=15):
+    def _state_generator(self):
         if len(self.key_frames) < 2:
             raise ValueError(f'Must have at least 2 key frames, recieved {len(self.key_frames)}')
-
         for frame in range(len(self.key_frames) - 1):
+            initial_state = self.key_frames[frame]["viewer"]
+            final_state = self.key_frames[frame + 1]["viewer"]
+            interpolation_steps = self.key_frames[frame + 1]["steps"]
+            ease = self.key_frames[frame + 1]["ease"]
             for interp in range(interpolation_steps):
                 fraction = interp / interpolation_steps
-                state = interpolate_state(self.key_frames[frame], self.key_frames[frame + 1], fraction)
-                print('qq', frame, interp, fraction, state['camera'])
+                if ease is not None:
+                    fraction = ease(fraction)
+                state = interpolate_state(initial_state, final_state, fraction)
                 yield state
 
-    def _frame_generator(self, interpolation_steps=15, canvas_only=True):
-        for state in self._state_generator(interpolation_steps=interpolation_steps):
-            self.set_state(state)
+    def _frame_generator(self, canvas_only=True):
+        total = np.sum([f["steps"] for f in self.key_frames[1:]])
+        for i, state in enumerate(self._state_generator()):
+            print('Rendering frame ', i + 1, 'of', total)
+            self.set_viewer_state(state)
             frame = self.viewer.screenshot(canvas_only=canvas_only)            
             yield frame
 
     def animate(
         self,
-        name="movie.mp4",
-        interpolation_steps=15,
+        path,
         fps=20,
         quality=5,
         format=None,
@@ -164,8 +190,8 @@ class Animation:
 
         Parameters
         -------
-        name : str
-            name to use for saving the movie (can also be a path)
+        path : str
+            path to use for saving the movie (can also be a path)
             should be either .mp4 or .gif. If no extension is provided,
             images are saved as a folder of PNGs
         interpolation_steps : int
@@ -185,14 +211,14 @@ class Animation:
         """
 
         # create a frame generator
-        frame_gen = self._frame_generator(interpolation_steps=interpolation_steps, canvas_only=canvas_only)
+        frame_gen = self._frame_generator(canvas_only=canvas_only)
 
         # create path object
-        path = Path(name)
+        path_obj = Path(path)
 
         # if path has no extension, save as fold of PNG
         save_as_folder = False
-        if path.suffix == "":
+        if path_obj.suffix == "":
             save_as_folder = True
 
         # try to create an ffmpeg writer. If not installed default to folder creation
@@ -201,19 +227,18 @@ class Animation:
                 # create imageio writer and add all frames
                 if quality is not None:
                     writer = imageio.get_writer(
-                        name, fps=fps, quality=quality, format=format,
+                        path, fps=fps, quality=quality, format=format,
                     )
                 else:
-                    writer = imageio.get_writer(name, fps=fps, format=format)
+                    writer = imageio.get_writer(path, fps=fps, format=format)
             except ImportError as err:
                 print(err)
                 print('Your movie will be saved as a series of PNG files.')
                 save_as_folder = True
-
-        # if movie is saved as series of PNG, create a folder
-        if save_as_folder:
-            folder_path = path.absolute()
-            folder_path = path.parent.joinpath(path.stem)
+        else:
+            # if movie is saved as series of PNG, create a folder
+            folder_path = path_obj.absolute()
+            folder_path = path_obj.parent.joinpath(path.stem)
             folder_path.mkdir(exist_ok=True)
 
         # save frames
@@ -227,7 +252,7 @@ class Animation:
                 writer.append_data(frame)
             else:
                 skimage.io.imsave(
-                    folder_path.joinpath(path.stem + '_' + str(ind) + '.png'),
+                    folder_path.joinpath(path_obj.stem + '_' + str(ind) + '.png'),
                     frame,
                 )
 
