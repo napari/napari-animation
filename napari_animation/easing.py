@@ -9,7 +9,7 @@ from enum import Enum
 tau = pi * 2
 
 
-class Easing(Enum):
+class Easing(str, Enum):
     """Easing: easing function to use for a transition.
 
     Selects a preset easing function
