@@ -1,6 +1,10 @@
 """
 The easing functions here were adapted from
 https://gist.github.com/zeffii/c1e14dd6620ad855d81ec2e89a859719
+original c code:
+https://raw.githubusercontent.com/warrenm/AHEasing/master/AHEasing/easing.c
+Copyright (c) 2011, Auerhaus Development, LLC
+http://sam.zoy.org/wtfpl/COPYING for more details.
 """
 
 from math import sqrt, pow, sin, cos, pi
