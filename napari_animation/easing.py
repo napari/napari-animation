@@ -51,16 +51,16 @@ class Easing(str, Enum):
                 y = (1/2)*(1-((1-x)^3-(1-x)*sin((1-x)*pi))+1) ; [0.5, 1]
             * bounce: bounce easing in and out.
     """
-    LINEAR = 1
-    QUADRATIC = 2
-    CUBIC = 3
-    QUINTIC = 4
-    SINE = 5
-    CIRCULAR = 6
-    EXPONENTIAL = 7
-    ELASTIC = 8
-    BACK = 9
-    BOUNCE = 10
+    LINEAR = 'linear'
+    QUADRATIC = 'quadratic'
+    CUBIC = 'cubic'
+    QUINTIC = 'quintic'
+    SINE = 'sine'
+    CIRCULAR = 'circular'
+    EXPONENTIAL = 'exponential'
+    ELASTIC = 'elastic'
+    BACK = 'back'
+    BOUNCE = 'bounce'
 
 
 def linear_interpolation(p):
