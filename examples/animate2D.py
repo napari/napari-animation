@@ -9,26 +9,25 @@ from napari_animation import Animation
 import napari
 
 
-with napari.gui_qt():
-    blobs = data.binary_blobs(length=128, volume_fraction=0.1, n_dim=3)
-    viewer = napari.view_image(blobs.astype(float), name='blobs')
-    labeled = ndi.label(blobs)[0]
-    viewer.add_labels(labeled, name='blob ID')
+blobs = data.binary_blobs(length=128, volume_fraction=0.1, n_dim=3)
+viewer = napari.view_image(blobs.astype(float), name='blobs')
+labeled = ndi.label(blobs)[0]
+viewer.add_labels(labeled, name='blob ID')
 
-    animation = Animation(viewer)
-    viewer.update_console({'animation': animation})
+animation = Animation(viewer)
+viewer.update_console({'animation': animation})
 
-    animation.capture_keyframe()
-    viewer.camera.zoom = 0.2
-    animation.capture_keyframe()
-    viewer.camera.zoom = 10.0
-    viewer.camera.center = (0, 40.0, 10.0)
-    animation.capture_keyframe()
-    viewer.dims.current_step = (60, 0, 0)
-    animation.capture_keyframe(steps=60)
-    viewer.dims.current_step = (0, 0, 0)
-    animation.capture_keyframe(steps=60)
-    viewer.reset_view()
-    animation.capture_keyframe()
-    animation.animate('demo2D.mov', canvas_only=False)
+animation.capture_keyframe()
+viewer.camera.zoom = 0.2
+animation.capture_keyframe()
+viewer.camera.zoom = 10.0
+viewer.camera.center = (0, 40.0, 10.0)
+animation.capture_keyframe()
+viewer.dims.current_step = (60, 0, 0)
+animation.capture_keyframe(steps=60)
+viewer.dims.current_step = (0, 0, 0)
+animation.capture_keyframe(steps=60)
+viewer.reset_view()
+animation.capture_keyframe()
+animation.animate('demo2D.mov', canvas_only=False)
 
