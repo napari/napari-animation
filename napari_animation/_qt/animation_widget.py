@@ -74,17 +74,24 @@ class AnimationWidget(QWidget):
     def _get_interpolation_steps(self):
         return int(self.frameWidget.stepsSpinBox.value())
 
+    def _get_easing_function(self):
+        easing_name = str(self.frameWidget.easeComboBox.currentText())
+        #TODO insert logic to go from name to easing function and return function
+        # instead of None 
+        print('easing', easing_name)
+        return None
+
     def _set_current_frame(self):
         return self.frameWidget.frameSpinBox.setValue(self.animation.frame)
 
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
-        self.animation.capture_keyframe(steps=self._get_interpolation_steps())
+        self.animation.capture_keyframe(steps=self._get_interpolation_steps(), ease=self._get_easing_function())
         self._set_current_frame()
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
-        self.animation.capture_keyframe(steps=self._get_interpolation_steps(), insert=False)
+        self.animation.capture_keyframe(steps=self._get_interpolation_steps(), ease=self._get_easing_function(), insert=False)
         self._set_current_frame()
 
     def _delete_keyframe_callback(self, event=None):
