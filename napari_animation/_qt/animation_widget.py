@@ -19,7 +19,7 @@ class AnimationWidget(QWidget):
     frame : int
         Currently shown key frame.
     """
-    def __init__(self, viewer, parent=None):
+    def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
         super().__init__(parent=parent)
 
         
