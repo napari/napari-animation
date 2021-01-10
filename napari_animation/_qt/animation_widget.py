@@ -1,6 +1,7 @@
 from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
 
 from ..animation import Animation
+from ..easing import Easing
 from .frame_widget import FrameWidget
 
 
@@ -22,7 +23,6 @@ class AnimationWidget(QWidget):
     def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
         super().__init__(parent=parent)
 
-        
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
@@ -76,17 +76,16 @@ class AnimationWidget(QWidget):
 
     def _get_easing_function(self):
         easing_name = str(self.frameWidget.easeComboBox.currentText())
-        #TODO insert logic to go from name to easing function and return function
-        # instead of None 
-        print('easing', easing_name)
-        return None
+        easing_func = Easing[easing_name.upper()].value
+        return easing_func
 
     def _set_current_frame(self):
         return self.frameWidget.frameSpinBox.setValue(self.animation.frame)
 
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
-        self.animation.capture_keyframe(steps=self._get_interpolation_steps(), ease=self._get_easing_function())
+        self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
+                                        ease=self._get_easing_function())
         self._set_current_frame()
 
     def _replace_keyframe_callback(self, event=None):
@@ -121,6 +120,6 @@ class AnimationWidget(QWidget):
         print('Saving animation to', path)
         self.animation.animate(path)
 
-    def close():
+    def close(self):
         self._release_callbacks()
         super().close()
