@@ -6,61 +6,11 @@ https://raw.githubusercontent.com/warrenm/AHEasing/master/AHEasing/easing.c
 Copyright (c) 2011, Auerhaus Development, LLC
 http://sam.zoy.org/wtfpl/COPYING for more details.
 """
-
+from functools import partial
 from math import sqrt, pow, sin, cos, pi
 from enum import Enum
 
 tau = pi * 2
-
-
-class Easing(str, Enum):
-    """Easing: easing function to use for a transition.
-
-    Selects a preset easing function
-            * linear: linear interpolation between start and endpoint.
-            * quadratic: quadratic easing in and out.
-                Modeled after the piecewise quadratic
-                y = (1/2)((2x)^2)             ; [0, 0.5)
-                y = -(1/2)((2x-1)*(2x-3) - 1) ; [0.5, 1]
-            * cubic: cubic easing in and out.
-                Modeled after the piecewise cubic
-                y = (1/2)((2x)^3)       ; [0, 0.5)
-                y = (1/2)((2x-2)^3 + 2) ; [0.5, 1]
-            * quintic: quintic easing in and out.
-                Modeled after the piecewise quintic
-                y = (1/2)((2x)^5)       ; [0, 0.5)
-                y = (1/2)((2x-2)^5 + 2) ; [0.5, 1]
-            * sine: sinusoidal easing in and out.
-                Modeled after half sine wave
-                y = 0.5 * (1 - cos(x * pi))
-            * circular: circular easing in and out.
-                Modeled after the piecewise circular function
-                y = (1/2)(1 - sqrt(1 - 4x^2))           ; [0, 0.5)
-                y = (1/2)(sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
-            * exponential: exponential easing in and out.
-                Modeled after the piecewise exponential
-                y = (1/2)2^(10(2x - 1))         ; [0,0.5)
-                y = -(1/2)*2^(-10(2x - 1))) + 1 ; [0.5,1]
-            * elastic: elastic easing in and out.
-                Modeled after the piecewise exponentially-damped sine wave:
-                y = (1/2)*sin(13pi/2*(2*x))*pow(2, 10 * ((2*x) - 1))      ; [0, 0.5)
-                y = (1/2)*(sin(-13pi/2*((2x-1)+1))*pow(2,-10(2*x-1)) + 2) ; [0.5, 1]
-            * back: back easing in and out.
-                Modeled after the piecewise overshooting cubic function:
-                y = (1/2)*((2x)^3-(2x)*sin(2*x*pi))           ; [0, 0.5)
-                y = (1/2)*(1-((1-x)^3-(1-x)*sin((1-x)*pi))+1) ; [0.5, 1]
-            * bounce: bounce easing in and out.
-    """
-    LINEAR = 'linear'
-    QUADRATIC = 'quadratic'
-    CUBIC = 'cubic'
-    QUINTIC = 'quintic'
-    SINE = 'sine'
-    CIRCULAR = 'circular'
-    EXPONENTIAL = 'exponential'
-    ELASTIC = 'elastic'
-    BACK = 'back'
-    BOUNCE = 'bounce'
 
 
 def linear_interpolation(p):
@@ -260,7 +210,7 @@ def back_ease_in_out(p):
         f = 2 * p
         return 0.5 * (f * f * f - f * sin(f * pi))
     else:
-        f = (1 - (2*p - 1))
+        f = (1 - (2 * p - 1))
         return (0.5 * (1 - (f * f * f - f * sin(f * pi)))) + 0.5
 
 
@@ -269,21 +219,71 @@ def bounce_ease_in(p):
 
 
 def bounce_ease_out(p):
-    if p < 4/11.0:
+    if p < 4 / 11.0:
         return (121 * p * p) / 16.0
 
-    elif p < 8/11.0:
-        return ((363/40.0) * p * p) - ((99/10.0) * p) + (17 / 5.0)
+    elif p < 8 / 11.0:
+        return ((363 / 40.0) * p * p) - ((99 / 10.0) * p) + (17 / 5.0)
 
-    elif p < 9/10.0:
-        return ((4356/361.0) * p * p) - ((35442/1805.0) * p) + (16061 / 1805.0)
+    elif p < 9 / 10.0:
+        return ((4356 / 361.0) * p * p) - ((35442 / 1805.0) * p) + (16061 / 1805.0)
 
     else:
-        return ((54/5.0) * p * p) - ((513/25.0) * p) + (268/25.0)
+        return ((54 / 5.0) * p * p) - ((513 / 25.0) * p) + (268 / 25.0)
 
 
 def bounce_ease_in_out(p):
     if p < 0.5:
-        return 0.5 * bounce_ease_in(p*2)
+        return 0.5 * bounce_ease_in(p * 2)
     else:
         return (0.5 * bounce_ease_out(p * 2 - 1)) + 0.5
+
+
+class Easing(Enum):
+    """Easing: easing function to use for a transition.
+
+    Selects a preset easing function
+            * linear: linear interpolation between start and endpoint.
+            * quadratic: quadratic easing in and out.
+                Modeled after the piecewise quadratic
+                y = (1/2)((2x)^2)             ; [0, 0.5)
+                y = -(1/2)((2x-1)*(2x-3) - 1) ; [0.5, 1]
+            * cubic: cubic easing in and out.
+                Modeled after the piecewise cubic
+                y = (1/2)((2x)^3)       ; [0, 0.5)
+                y = (1/2)((2x-2)^3 + 2) ; [0.5, 1]
+            * quintic: quintic easing in and out.
+                Modeled after the piecewise quintic
+                y = (1/2)((2x)^5)       ; [0, 0.5)
+                y = (1/2)((2x-2)^5 + 2) ; [0.5, 1]
+            * sine: sinusoidal easing in and out.
+                Modeled after half sine wave
+                y = 0.5 * (1 - cos(x * pi))
+            * circular: circular easing in and out.
+                Modeled after the piecewise circular function
+                y = (1/2)(1 - sqrt(1 - 4x^2))           ; [0, 0.5)
+                y = (1/2)(sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
+            * exponential: exponential easing in and out.
+                Modeled after the piecewise exponential
+                y = (1/2)2^(10(2x - 1))         ; [0,0.5)
+                y = -(1/2)*2^(-10(2x - 1))) + 1 ; [0.5,1]
+            * elastic: elastic easing in and out.
+                Modeled after the piecewise exponentially-damped sine wave:
+                y = (1/2)*sin(13pi/2*(2*x))*pow(2, 10 * ((2*x) - 1))      ; [0, 0.5)
+                y = (1/2)*(sin(-13pi/2*((2x-1)+1))*pow(2,-10(2*x-1)) + 2) ; [0.5, 1]
+            * back: back easing in and out.
+                Modeled after the piecewise overshooting cubic function:
+                y = (1/2)*((2x)^3-(2x)*sin(2*x*pi))           ; [0, 0.5)
+                y = (1/2)*(1-((1-x)^3-(1-x)*sin((1-x)*pi))+1) ; [0.5, 1]
+            * bounce: bounce easing in and out.
+    """
+    LINEAR = partial(linear_interpolation)
+    QUADRATIC = partial(quadratic_ease_in_out)
+    CUBIC = partial(cubic_ease_in_out)
+    QUINTIC = partial(quintic_ease_in_out)
+    SINE = partial(sine_ease_in_out)
+    CIRCULAR = partial(circular_ease_in_out)
+    EXPONENTIAL = partial(exponential_ease_in_out)
+    ELASTIC = partial(elastic_ease_in_out)
+    BACK = partial(back_ease_in_out)
+    BOUNCE = partial(bounce_ease_in_out)

@@ -18,7 +18,7 @@ class FrameWidget(QWidget):
         self.frameSpinBox.setValue(0)
 
         self.easeComboBox = QComboBox()
-        self.easeComboBox.addItems([e.lower() for e in Easing])
+        self.easeComboBox.addItems([e.name.lower() for e in Easing])
         index = self.easeComboBox.findText(
             'linear', Qt.MatchFixedString
         )
