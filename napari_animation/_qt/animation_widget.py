@@ -1,6 +1,7 @@
 from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
 
 from ..animation import Animation
+from ..easing import Easing
 from .frame_widget import FrameWidget
 
 
@@ -22,7 +23,6 @@ class AnimationWidget(QWidget):
     def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
         super().__init__(parent=parent)
 
-        
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
@@ -74,17 +74,23 @@ class AnimationWidget(QWidget):
     def _get_interpolation_steps(self):
         return int(self.frameWidget.stepsSpinBox.value())
 
+    def _get_easing_function(self):
+        easing_name = str(self.frameWidget.easeComboBox.currentText())
+        easing_func = Easing[easing_name.upper()].value
+        return easing_func
+
     def _set_current_frame(self):
         return self.frameWidget.frameSpinBox.setValue(self.animation.frame)
 
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
-        self.animation.capture_keyframe(steps=self._get_interpolation_steps())
+        self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
+                                        ease=self._get_easing_function())
         self._set_current_frame()
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
-        self.animation.capture_keyframe(steps=self._get_interpolation_steps(), insert=False)
+        self.animation.capture_keyframe(steps=self._get_interpolation_steps(), ease=self._get_easing_function(), insert=False)
         self._set_current_frame()
 
     def _delete_keyframe_callback(self, event=None):
@@ -114,6 +120,6 @@ class AnimationWidget(QWidget):
         print('Saving animation to', path)
         self.animation.animate(path)
 
-    def close():
+    def close(self):
         self._release_callbacks()
         super().close()
