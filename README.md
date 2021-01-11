@@ -1,4 +1,4 @@
-# napari-animation
+# napari-animation (WIP under active development)
 
 [![License](https://img.shields.io/pypi/l/napari-animation.svg?color=green)](https://github.com/napari/napari-animation/raw/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-animation.svg?color=green)](https://pypi.org/project/napari-animation)
