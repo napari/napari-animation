@@ -3,6 +3,7 @@ from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
 from ..animation import Animation
 from ..easing import Easing
 from .frame_widget import FrameWidget
+from .keyframeslist_widget import KeyFramesListWidget
 
 
 class AnimationWidget(QWidget):
@@ -47,6 +48,10 @@ class AnimationWidget(QWidget):
 
         # Create animation
         self.animation = Animation(viewer)
+
+        # Add keyframes list widget
+        self.keyframesListWidget = KeyFramesListWidget(self.animation, parent=self)
+        self._layout.addWidget(self.keyframesListWidget)
 
         # establish key bindings
         self._add_callbacks()
