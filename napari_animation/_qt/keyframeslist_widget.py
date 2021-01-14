@@ -1,6 +1,9 @@
-from qtpy.QtWidgets import QWidget, QHBoxLayout
+from skimage.transform import resize
+import numpy as np
 
-from qtpy.QtWidgets import QListWidget, QAbstractItemView
+from qtpy.QtWidgets import QListWidget, QListWidgetItem
+from qtpy.QtGui import QImage, QIcon, QPixmap
+from qtpy.QtCore import QSize
 
 # NOT IMPLEMENTED YET
 class KeyFramesListWidget(QListWidget):
@@ -10,9 +13,11 @@ class KeyFramesListWidget(QListWidget):
         super().__init__(parent=parent)
 
         self.animation = animation
+        self._id_to_label = {}
+
         self._connect_key_frame_events()
         self.setDragDropMode(super().InternalMove)
-        self._id_to_label = {}
+        self.setIconSize(QSize(32, 32))
 
     def _capture_key_frame(self, *args):
         """generate label for current keyframe and add id to id_to_label dict
@@ -20,8 +25,24 @@ class KeyFramesListWidget(QListWidget):
         # +1 because insertion happens prior to incrementation of 'frame'
         key_frame_id = id(self.animation.key_frames[self.animation.frame + 1])
         label = f'key frame {self.animation.frame + 1}'
+        item = QListWidgetItem(label)
+        item.setIcon(self._generate_thumbnail())
         self.addItem(label)
         self._id_to_label[key_frame_id] = label
+
+    def _generate_thumbnail(self):
+        """generate icon from viewer
+        """
+        screenshot = self.animation.viewer.screenshot(canvas_only=True)
+        thumbnail = resize(screenshot, (32, 32), anti_aliasing=True)
+        thumbnail = QImage(
+            thumbnail,
+            thumbnail.shape[1],
+            thumbnail.shape[0],
+            QImage.Format_RGBA64,
+        )
+        thumbnail = QIcon(QPixmap.fromImage(thumbnail))
+        return thumbnail
 
     def dropEvent(self, event):
         """update animation state on 'drop' of frame in key frames list
@@ -41,7 +62,6 @@ class KeyFramesListWidget(QListWidget):
         """
         self.clear()
         self.addItems(self.key_frame_labels)
-        print('updating from animaton!')
 
     def _connect_key_frame_events(self):
         self.animation.key_frames.events.inserted.connect(self._capture_key_frame)
