@@ -34,12 +34,13 @@ class KeyFramesListWidget(QListWidget):
         """generate icon from viewer
         """
         screenshot = self.animation.viewer.screenshot(canvas_only=True)
-        thumbnail = resize(screenshot, (32, 32), anti_aliasing=True)
+        thumbnail = resize(screenshot, (32, 32), anti_aliasing=True).astype(np.uint8)
+        print(thumbnail.shape, thumbnail.dtype)
         thumbnail = QImage(
             thumbnail,
             thumbnail.shape[1],
             thumbnail.shape[0],
-            QImage.Format_RGBA64,
+            QImage.Format_RGBA8888,
         )
         thumbnail = QIcon(QPixmap.fromImage(thumbnail))
         return thumbnail
