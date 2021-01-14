@@ -4,6 +4,7 @@ import skimage.io
 import numpy as np
 from copy import deepcopy
 from pathlib import Path
+from napari.utils.events import EventedList
 
 from .utils import interpolate_state
 
@@ -26,12 +27,12 @@ class Animation:
     def __init__(self, viewer):
         self.viewer = viewer
 
-        self.key_frames = []
+        self.key_frames = EventedList()
         self.frame = -1
 
     def capture_keyframe(self, steps=30, ease=None, insert=True, frame=None):
         """Record current key-frame
-        
+
         Parameters
         ----------
         steps : int
@@ -121,7 +122,7 @@ class Animation:
         for i, state in enumerate(self._state_generator()):
             print('Rendering frame ', i + 1, 'of', total)
             self._set_viewer_state(state)
-            frame = self.viewer.screenshot(canvas_only=canvas_only)            
+            frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
 
     def animate(

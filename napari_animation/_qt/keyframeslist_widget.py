@@ -1,6 +1,6 @@
 from qtpy.QtWidgets import QWidget, QHBoxLayout
 
-from qtpy.QtWidgets import QListWidget, QFormLayout, QAbstractItemView, QPushButton
+from qtpy.QtWidgets import QListWidget, QAbstractItemView
 
 # NOT IMPLEMENTED YET
 class KeyFramesListWidget(QListWidget):
@@ -10,7 +10,8 @@ class KeyFramesListWidget(QListWidget):
         super().__init__(parent=parent)
 
         self.animation = animation
-        self.setDragDropMode(QAbstractItemView.InternalMove)
+        self._connect_key_frame_events()
+        self.setDragDropMode(super().InternalMove)
         self._id_to_label = {}
 
     def add_current_keyframe(self):
@@ -20,12 +21,6 @@ class KeyFramesListWidget(QListWidget):
         label = f'key frame {self.animation.frame}'
         self.addItem(label)
         self._id_to_label[key_frame_id] = label
-
-    def _update_from_animation(self):
-        """update GUI state from self.animation state
-        """
-        self.keyframeslist.clear()
-        self.keyframeslist.addItems(self.key_frame_labels)
 
     def dropEvent(self, event):
         """update animation state on 'drop' of frame in key frames list
@@ -38,6 +33,22 @@ class KeyFramesListWidget(QListWidget):
         """
         new_key_frames = [self.animation_state_map[label] for label in self.gui_labels]
         self.animation.key_frames = new_key_frames
+        print('updating animation!')
+
+    def _update_from_animation(self):
+        """update GUI state from self.animation state
+        """
+        self.keyframeslist.clear()
+        self.keyframeslist.addItems(self.key_frame_labels)
+        print('updating from animaton!')
+
+    def _connect_key_frame_events(self):
+        pass
+        # self.animation.key_frames.events.inserted.connect(self._update_from_animation)
+        # self.animation.key_frames.events.removed.connect(self._update_from_animation)
+        # self.animation.key_frames.events.moved.connect(self._update_from_animation)
+        # self.animation.key_frames.events.changed.connect(self._update_from_animation)
+        # self.animation.key_frames.events.reordered.connect(self._update_from_animation)
 
     @property
     def items(self):
