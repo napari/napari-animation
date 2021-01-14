@@ -14,11 +14,12 @@ class KeyFramesListWidget(QListWidget):
         self.setDragDropMode(super().InternalMove)
         self._id_to_label = {}
 
-    def add_current_keyframe(self):
+    def _capture_key_frame(self, *args):
         """generate label for current keyframe and add id to id_to_label dict
         """
-        key_frame_id = id(self.animation.key_frames[self.animation.frame])
-        label = f'key frame {self.animation.frame}'
+        # +1 because insertion happens prior to incrementation of 'frame'
+        key_frame_id = id(self.animation.key_frames[self.animation.frame + 1])
+        label = f'key frame {self.animation.frame + 1}'
         self.addItem(label)
         self._id_to_label[key_frame_id] = label
 
@@ -35,20 +36,19 @@ class KeyFramesListWidget(QListWidget):
         self.animation.key_frames = new_key_frames
         print('updating animation!')
 
-    def _update_from_animation(self):
+    def _update_from_animation(self, *args):
         """update GUI state from self.animation state
         """
-        self.keyframeslist.clear()
-        self.keyframeslist.addItems(self.key_frame_labels)
+        self.clear()
+        self.addItems(self.key_frame_labels)
         print('updating from animaton!')
 
     def _connect_key_frame_events(self):
-        pass
-        # self.animation.key_frames.events.inserted.connect(self._update_from_animation)
-        # self.animation.key_frames.events.removed.connect(self._update_from_animation)
-        # self.animation.key_frames.events.moved.connect(self._update_from_animation)
-        # self.animation.key_frames.events.changed.connect(self._update_from_animation)
-        # self.animation.key_frames.events.reordered.connect(self._update_from_animation)
+        self.animation.key_frames.events.inserted.connect(self._capture_key_frame)
+        self.animation.key_frames.events.removed.connect(self._update_from_animation)
+        self.animation.key_frames.events.moved.connect(self._update_from_animation)
+        self.animation.key_frames.events.changed.connect(self._update_from_animation)
+        self.animation.key_frames.events.reordered.connect(self._update_from_animation)
 
     @property
     def items(self):
