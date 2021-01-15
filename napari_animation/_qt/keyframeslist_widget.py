@@ -1,4 +1,5 @@
 from skimage.transform import resize
+from skimage import img_as_ubyte
 import numpy as np
 
 from qtpy.QtWidgets import QListWidget, QListWidgetItem
@@ -17,7 +18,7 @@ class KeyFramesListWidget(QListWidget):
 
         self._connect_key_frame_events()
         self.setDragDropMode(super().InternalMove)
-        self.setIconSize(QSize(32, 32))
+        self.setIconSize(QSize(64, 64))
 
     def _capture_key_frame(self, *args):
         """generate label for current keyframe and add id to id_to_label dict
@@ -27,15 +28,14 @@ class KeyFramesListWidget(QListWidget):
         label = f'key frame {self.animation.frame + 1}'
         item = QListWidgetItem(label)
         item.setIcon(self._generate_thumbnail())
-        self.addItem(label)
+        self.addItem(item)
         self._id_to_label[key_frame_id] = label
 
     def _generate_thumbnail(self):
         """generate icon from viewer
         """
         screenshot = self.animation.viewer.screenshot(canvas_only=True)
-        thumbnail = resize(screenshot, (32, 32), anti_aliasing=True).astype(np.uint8)
-        print(thumbnail.shape, thumbnail.dtype)
+        thumbnail = img_as_ubyte(resize(screenshot, (32, 32), anti_aliasing=True))
         thumbnail = QImage(
             thumbnail,
             thumbnail.shape[1],
@@ -56,7 +56,6 @@ class KeyFramesListWidget(QListWidget):
         """
         new_key_frames = [self.animation_state_map[label] for label in self.gui_labels]
         self.animation.key_frames = new_key_frames
-        print('updating animation!')
 
     def _update_from_animation(self, *args):
         """update GUI state from self.animation state
