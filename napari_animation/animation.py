@@ -50,7 +50,13 @@ class Animation:
         if frame is not None:
             self.frame = frame
 
-        new_state = {'viewer': self._get_viewer_state(), 'steps': steps, 'ease': ease}
+        new_state = {
+            'viewer': self._get_viewer_state(),
+            'thumbnail': self._generate_thumbnail(),
+            'steps': steps,
+            'ease': ease,
+        }
+
         if insert or self.frame == -1:
             self.key_frames.insert(self.frame + 1, new_state)
             self.frame += 1
@@ -124,6 +130,15 @@ class Animation:
             self._set_viewer_state(state)
             frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
+
+    def _generate_thumbnail(self):
+        """generate a thumbnail from viewer
+        """
+        screenshot = self.viewer.screenshot(canvas_only=True)
+        thumbnail = skimage.img_as_ubyte(
+            skimage.transform.resize(screenshot, (32, 32), anti_aliasing=True)
+        )
+        return thumbnail
 
     def animate(
         self,

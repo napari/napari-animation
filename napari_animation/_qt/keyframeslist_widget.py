@@ -6,10 +6,12 @@ from qtpy.QtWidgets import QListWidget, QListWidgetItem
 from qtpy.QtGui import QImage, QIcon, QPixmap
 from qtpy.QtCore import QSize
 
+
 # NOT IMPLEMENTED YET
 class KeyFramesListWidget(QListWidget):
     """List of Key Frames.
     """
+
     def __init__(self, animation, parent=None):
         super().__init__(parent=parent)
 
@@ -20,77 +22,103 @@ class KeyFramesListWidget(QListWidget):
         self.setDragDropMode(super().InternalMove)
         self.setIconSize(QSize(64, 64))
 
-    def _capture_key_frame(self, *args):
-        """generate label for current keyframe and add id to id_to_label dict
+    def _connect_key_frame_events(self):
+        """Connect events on the key frame list to their callbacks
         """
-        # +1 because insertion happens prior to incrementation of 'frame'
-        key_frame_id = id(self.animation.key_frames[self.animation.frame + 1])
-        label = f'key frame {self.animation.frame + 1}'
-        item = QListWidgetItem(label)
-        item.setIcon(self._generate_thumbnail())
-        self.addItem(item)
-        self._id_to_label[key_frame_id] = label
+        self.animation.key_frames.events.inserted.connect(self._add_key_frame)
+        self.animation.key_frames.events.removed.connect(self._update_frontend)
+        self.animation.key_frames.events.moved.connect(self._update_frontend)
+        self.animation.key_frames.events.changed.connect(self._update_frontend)
+        self.animation.key_frames.events.reordered.connect(self._update_frontend)
 
-    def _generate_thumbnail(self):
-        """generate icon from viewer
+    def dropEvent(self, event):
+        """update animation state on 'drop' of frame in key frames list
         """
-        screenshot = self.animation.viewer.screenshot(canvas_only=True)
-        thumbnail = img_as_ubyte(resize(screenshot, (32, 32), anti_aliasing=True))
+        super().dropEvent(event)
+        self._update_backend()
+
+    def _update_backend(self):
+        """push current GUI state to self.animation
+        """
+        new_key_frames = [self.labels_to_key_frames[label] for label in
+                          self.frontend_key_frame_labels]
+        self.animation.key_frames = new_key_frames
+
+    def _update_frontend(self, *args):
+        """update GUI state from self.animation state
+        """
+        list_items = [self._generate_list_item(idx) for idx, _ in enumerate(self.frontend_items)]
+        self.clear()
+        self.addItems(list_items)
+
+    def _add_key_frame(self, *args):
+        """Generate list item for current keyframe and store its unique id
+        """
+        # +1 because insertion happens prior to incrementation of 'frame' attribute
+        key_frame_idx = self.animation.frame + 1
+        self.addItem(self._generate_list_item(key_frame_idx))
+        self._store_key_frame_id(key_frame_idx)
+
+    def _generate_list_item(self, key_frame_idx):
+        """Generate a QListWidgetItem from a key frame at key_frame_idx
+        """
+        item = QListWidgetItem(self._generate_label(key_frame_idx))
+        key_frame = self._get_key_frame(key_frame_idx)
+        item.setIcon(self._icon_from_key_frame(key_frame))
+        return item
+
+    def _store_key_frame_id(self, key_frame_idx):
+        """Store the unique id of the key frame at key_frame_idx in a dict of {id: key_frame_label}
+        """
+        key_frame_id = id(self._get_key_frame(key_frame_idx))
+        self._id_to_label[key_frame_id] = self._generate_label(key_frame_idx)
+
+    def _icon_from_key_frame(self, key_frame):
+        """Generate QIcon from a key frame
+        """
+        thumbnail = key_frame['thumbnail']
         thumbnail = QImage(
             thumbnail,
             thumbnail.shape[1],
             thumbnail.shape[0],
             QImage.Format_RGBA8888,
         )
-        thumbnail = QIcon(QPixmap.fromImage(thumbnail))
-        return thumbnail
+        icon = QIcon(QPixmap.fromImage(thumbnail))
+        return icon
 
-    def dropEvent(self, event):
-        """update animation state on 'drop' of frame in key frames list
+    def _get_key_frame(self, key_frame_idx):
+        """Get key frame dict from key frames list at key_frame_idx
         """
-        super().dropEvent(event)
-        self._update_animation()
+        return self.animation.key_frames[key_frame_idx]
 
-    def _update_animation(self):
-        """push current GUI state to self.animation
+    def _generate_label(self, key_frame_idx):
+        """Generate a label for a given list index
         """
-        new_key_frames = [self.animation_state_map[label] for label in self.gui_labels]
-        self.animation.key_frames = new_key_frames
-
-    def _update_from_animation(self, *args):
-        """update GUI state from self.animation state
-        """
-        self.clear()
-        self.addItems(self.key_frame_labels)
-
-    def _connect_key_frame_events(self):
-        self.animation.key_frames.events.inserted.connect(self._capture_key_frame)
-        self.animation.key_frames.events.removed.connect(self._update_from_animation)
-        self.animation.key_frames.events.moved.connect(self._update_from_animation)
-        self.animation.key_frames.events.changed.connect(self._update_from_animation)
-        self.animation.key_frames.events.reordered.connect(self._update_from_animation)
+        return f'key frame {key_frame_idx}'
 
     @property
-    def items(self):
-        """iterate over items in the keyframes list
+    def frontend_items(self):
+        """Iterate over frontend_items in the keyframes list
         """
         for i in range(self.count()):
             yield self.item(i)
 
     @property
-    def gui_labels(self):
-        """text representation of items in keyframes list
+    def frontend_key_frame_labels(self):
+        """Labels for items currently in the keyframes list
         """
-        for item in self.items:
+        for item in self.frontend_items:
             yield item.text()
 
     @property
-    def key_frame_labels(self):
-        """current gui_labels according to key frames of animation
+    def backend_key_frame_labels(self):
+        """labels for key frames in the order present in the backend
         """
         return [self._id_to_label[id(obj)] for obj in self.animation.key_frames]
 
     @property
-    def animation_state_map(self):
-        return {label : state for label, state in zip(self.key_frame_labels,
-                                                      self.animation.key_frames)}
+    def labels_to_key_frames(self):
+        """a dict of {label : key_frame}
+        """
+        return {label: key_frame for label, key_frame in zip(self.backend_key_frame_labels,
+                                                             self.animation.key_frames)}
