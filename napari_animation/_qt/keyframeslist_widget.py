@@ -114,7 +114,7 @@ class KeyFramesListWidget(QListWidget):
     def backend_key_frame_labels(self):
         """labels for key frames in the order present in the backend
         """
-        return [self._id_to_label[id(obj)] for obj in self.animation.key_frames]
+        return [self._id_to_label[id(key_frame)] for key_frame in self.animation.key_frames]
 
     @property
     def labels_to_key_frames(self):

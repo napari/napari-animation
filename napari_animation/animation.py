@@ -135,10 +135,27 @@ class Animation:
         """generate a thumbnail from viewer
         """
         screenshot = self.viewer.screenshot(canvas_only=True)
-        thumbnail = skimage.img_as_ubyte(
-            skimage.transform.resize(screenshot, (32, 32), anti_aliasing=True)
+        thumbnail = self._coerce_image_into_thumbnail_shape(screenshot)
+        return skimage.img_as_ubyte(thumbnail)
+
+    def _coerce_image_into_thumbnail_shape(self, image):
+        """Resizes an image to self._thumbnail_shape with padding
+        """
+        scale_factor = np.min(
+            np.divide(self._thumbnail_shape, image.shape)
         )
+        intermediate_xy_dims = np.multiply(image.shape, scale_factor)[:-1].astype(int)
+        intermediate_image = skimage.transform.resize(image, intermediate_xy_dims,
+                                                      anti_aliasing=True)
+
+        padding_needed = np.subtract(self._thumbnail_shape, intermediate_image.shape)
+        pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
+        thumbnail = np.pad(intermediate_image, pad_amounts, mode='constant')
         return thumbnail
+
+    @property
+    def _thumbnail_shape(self):
+        return (32, 32, 4)
 
     def animate(
         self,

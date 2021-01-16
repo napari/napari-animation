@@ -24,6 +24,9 @@ class AnimationWidget(QWidget):
     def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
         super().__init__(parent=parent)
 
+        # Create animation
+        self.animation = Animation(viewer)
+
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
@@ -38,6 +41,9 @@ class AnimationWidget(QWidget):
 
         self._layout.addStretch(1)
 
+        self.keyframesListWidget = KeyFramesListWidget(self.animation, parent=self)
+        self._layout.addWidget(self.keyframesListWidget)
+
         self.pathText = QLineEdit(parent=self)
         self.pathText.setText('demo.mp4')
         self._layout.addWidget(self.pathText)
@@ -45,13 +51,6 @@ class AnimationWidget(QWidget):
         self.saveButton = QPushButton('Save Animation', parent=self)
         self.saveButton.clicked.connect(self._save_callback)
         self._layout.addWidget(self.saveButton)
-
-        # Create animation
-        self.animation = Animation(viewer)
-
-        # Add keyframes list widget
-        self.keyframesListWidget = KeyFramesListWidget(self.animation, parent=self)
-        self._layout.addWidget(self.keyframesListWidget)
 
         # establish key bindings
         self._add_callbacks()
