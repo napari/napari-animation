@@ -1,17 +1,13 @@
-from skimage.transform import resize
-from skimage import img_as_ubyte
-import numpy as np
-
 from qtpy.QtWidgets import QListWidget, QListWidgetItem
 from qtpy.QtGui import QImage, QIcon, QPixmap
 from qtpy.QtCore import QSize
 
+from napari.utils.events import EventedList
 
 # NOT IMPLEMENTED YET
 class KeyFramesListWidget(QListWidget):
     """List of Key Frames.
     """
-
     def __init__(self, animation, parent=None):
         super().__init__(parent=parent)
 
@@ -25,7 +21,6 @@ class KeyFramesListWidget(QListWidget):
     def _connect_key_frame_events(self):
         """Connect events on the key frame list to their callbacks
         """
-        self.animation.key_frames.events.inserted.connect(self._add_key_frame)
         self.animation.key_frames.events.removed.connect(self._update_frontend)
         self.animation.key_frames.events.moved.connect(self._update_frontend)
         self.animation.key_frames.events.changed.connect(self._update_frontend)
@@ -37,27 +32,32 @@ class KeyFramesListWidget(QListWidget):
         super().dropEvent(event)
         self._update_backend()
 
+    def add_key_frame(self, *args):
+        """Generate list item for current keyframe and store its unique id
+        """
+        key_frame_idx = self.animation.frame
+        self.addItem(self._generate_list_item(key_frame_idx))
+        self._store_key_frame_id(key_frame_idx)
+
     def _update_backend(self):
         """push current GUI state to self.animation
         """
-        new_key_frames = [self.labels_to_key_frames[label] for label in
+        new_key_frames = [self._label_to_key_frame(label) for label in
                           self.frontend_key_frame_labels]
-        self.animation.key_frames = new_key_frames
+
+        # recreating the EventedList here and reconnecting events simplifies handling events
+        # which fire when we modify the list in place
+        self.animation.key_frames = EventedList(new_key_frames)
+        self._connect_key_frame_events()
 
     def _update_frontend(self, *args):
         """update GUI state from self.animation state
         """
-        list_items = [self._generate_list_item(idx) for idx, _ in enumerate(self.frontend_items)]
+        # can't use a list comprehension because self.addItems() only takes labels,
+        # not QListWidgetItem objects
         self.clear()
-        self.addItems(list_items)
-
-    def _add_key_frame(self, *args):
-        """Generate list item for current keyframe and store its unique id
-        """
-        # +1 because insertion happens prior to incrementation of 'frame' attribute
-        key_frame_idx = self.animation.frame + 1
-        self.addItem(self._generate_list_item(key_frame_idx))
-        self._store_key_frame_id(key_frame_idx)
+        for idx, _ in enumerate(self.frontend_items):
+            self.addItem(self._generate_list_item(idx))
 
     def _generate_list_item(self, key_frame_idx):
         """Generate a QListWidgetItem from a key frame at key_frame_idx
@@ -95,6 +95,11 @@ class KeyFramesListWidget(QListWidget):
         """Generate a label for a given list index
         """
         return f'key frame {key_frame_idx}'
+
+    def _label_to_key_frame(self, label):
+        """gets the key frame associated with a given label in the frontend
+        """
+        return self.labels_to_key_frames[label]
 
     @property
     def frontend_items(self):

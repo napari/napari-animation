@@ -91,6 +91,7 @@ class AnimationWidget(QWidget):
         self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
                                         ease=self._get_easing_function())
         self._set_current_frame()
+        self.keyframesListWidget.add_key_frame()
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
