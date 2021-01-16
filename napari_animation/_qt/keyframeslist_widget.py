@@ -17,6 +17,7 @@ class KeyFramesListWidget(QListWidget):
         self._connect_key_frame_events()
         self.setDragDropMode(super().InternalMove)
         self.setIconSize(QSize(64, 64))
+        self.itemClicked.connect(self._on_click_callback)
 
     def _connect_key_frame_events(self):
         """Connect events on the key frame list to their callbacks
@@ -36,8 +37,14 @@ class KeyFramesListWidget(QListWidget):
         """Generate list item for current keyframe and store its unique id
         """
         key_frame_idx = self.animation.frame
-        self.addItem(self._generate_list_item(key_frame_idx))
+        self.insertItem(key_frame_idx, self._generate_list_item(key_frame_idx))
         self._store_key_frame_id(key_frame_idx)
+
+    def _on_click_callback(self, item):
+        """
+        """
+        selected_index = self.indexFromItem(item).row()
+        self.animation.frame = selected_index
 
     def _update_backend(self):
         """push current GUI state to self.animation
