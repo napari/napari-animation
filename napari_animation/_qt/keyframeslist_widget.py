@@ -34,11 +34,10 @@ class KeyFramesListWidget(QListWidget):
     def _connect_key_frame_events(self):
         """Connect events on the key frame list to their callbacks
         """
-        # self.animation.key_frames.events.inserted.connect(self._add)
         self.animation.key_frames.events.removed.connect(self._remove)
         self.animation.key_frames.events.moved.connect(self._update_frontend)
         self.animation.key_frames.events.changed.connect(self._update_frontend)
-        self.animation.key_frames.events.reordered.connect(self._update_frontend)
+        self.animation.key_frames.events.reordered.connect(self._reorder)
 
     def dropEvent(self, event):
         """update animation state on 'drop' of frame in key frames list
@@ -53,11 +52,13 @@ class KeyFramesListWidget(QListWidget):
     def _add(self):
         """Generate QListWidgetItem for current keyframe, store its unique id and add it to self
         """
+        print(self.animation.frame)
         key_frame_idx = self.animation.frame
         item = self._generate_list_item(key_frame_idx)
 
         self.insertItem(key_frame_idx, item)
         self.setCurrentIndex(self.indexFromItem(item))
+        self._update_frame_number()
 
         self._map_key_frame_to_id(key_frame_idx)
         self._map_label_to_qlistwidgetitem(key_frame_idx)
@@ -67,8 +68,20 @@ class KeyFramesListWidget(QListWidget):
         """Remove QListWidgetItem at event.index
         """
         self.takeItem(event.index)
-        self.animation.frame -= 1
+        self._remove_key_frame_id(event.value)
+        self._update_frame_number()
 
+    def _remove_key_frame_id(self, key_frame):
+        """Remove key-frame id from self._key_frame_id_to_label_map
+        """
+        self._key_frame_id_to_label_map.pop(id(key_frame))
+
+    def _reorder(self, event):
+        """Reorder QListWidgetItems
+        """
+        self.clear()
+        for idx, _ in enumerate(self.animation.key_frames):
+            self.addItem(self._generate_list_item(idx))
 
     def _update_backend(self):
         """push current GUI state to self.animation
@@ -94,9 +107,7 @@ class KeyFramesListWidget(QListWidget):
     def _update_frame_number(self):
         """update the frame number of self.animation based on selected item in frontend
         """
-        [item] = self.selectedItems()
-        selected_index = self.indexFromItem(item).row()
-        self.animation.frame = selected_index
+        self.animation.frame = self._get_selected_index()
 
     def _generate_list_item(self, key_frame_idx):
         """Generate a QListWidgetItem from a key frame at key_frame_idx
@@ -137,6 +148,15 @@ class KeyFramesListWidget(QListWidget):
         """Get key frame dict from key frames list at key_frame_idx
         """
         return self.animation.key_frames[key_frame_idx]
+
+    def _get_selected_index(self):
+        """Get index of currently selected row
+        """
+        idxs = self.selectedIndexes()
+        if len(idxs) == 0:
+            return -1
+        else:
+            return idxs[-1].row()
 
     def _generate_label(self, key_frame_idx):
         """Generate a label for a given key frame list index

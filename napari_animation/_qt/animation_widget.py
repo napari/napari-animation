@@ -41,7 +41,7 @@ class AnimationWidget(QWidget):
 
         self.deleteButton = QPushButton('Delete Frame', parent=self)
         self.deleteButton.clicked.connect(self._delete_keyframe_callback)
-        self._layout.addWidget(self.deleteButton)\
+        self._layout.addWidget(self.deleteButton)
 
         self._layout.addStretch(1)
 
@@ -104,8 +104,8 @@ class AnimationWidget(QWidget):
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
-
-        self.animation.key_frames.pop(self.animation.frame)
+        if len(self.animation.key_frames) > 0:
+            self.animation.key_frames.pop(self.animation.frame)
         # self.animation.frame = (self.animation.frame - 1) % len(self.animation.key_frames)
         # self.animation.set_to_keyframe(self.animation.frame)
         # # self._set_current_frame()
