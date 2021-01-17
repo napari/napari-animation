@@ -158,13 +158,13 @@ class Animation:
         return (32, 32, 4)
 
     def animate(
-        self,
-        path,
-        fps=20,
-        quality=5,
-        format=None,
-        canvas_only=True,
-        scale_factor=None,
+            self,
+            path,
+            fps=20,
+            quality=5,
+            format=None,
+            canvas_only=True,
+            scale_factor=None,
     ):
         """Create a movie based on key-frames
 
