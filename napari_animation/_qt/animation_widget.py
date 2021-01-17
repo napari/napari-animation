@@ -39,6 +39,10 @@ class AnimationWidget(QWidget):
         self.captureButton.clicked.connect(self._capture_keyframe_callback)
         self._layout.addWidget(self.captureButton)
 
+        self.deleteButton = QPushButton('Delete Frame', parent=self)
+        self.deleteButton.clicked.connect(self._delete_keyframe_callback)
+        self._layout.addWidget(self.deleteButton)\
+
         self._layout.addStretch(1)
 
         self.keyframesListWidget = KeyFramesListWidget(self.animation, parent=self)
@@ -83,51 +87,48 @@ class AnimationWidget(QWidget):
         easing_func = Easing[easing_name.upper()].value
         return easing_func
 
-    def _set_current_frame(self):
-        return self.frameWidget.frameSpinBox.setValue(self.animation.frame)
+    # def _set_current_frame(self):
+    #     return self.frameWidget.frameSpinBox.setValue(self.animation.frame)
 
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
         self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
                                         ease=self._get_easing_function())
-        self._set_current_frame()
-        self.keyframesListWidget.add_key_frame()
+        # self._set_current_frame()
+        self.keyframesListWidget._add()
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
         self.animation.capture_keyframe(steps=self._get_interpolation_steps(), ease=self._get_easing_function(), insert=False)
-        self._set_current_frame()
+        # self._set_current_frame()
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
 
         self.animation.key_frames.pop(self.animation.frame)
-        self.animation.frame = (self.animation.frame - 1) % len(self.animation.key_frames)
-        self.animation.set_to_keyframe(self.animation.frame)
-        self._set_current_frame()
+        # self.animation.frame = (self.animation.frame - 1) % len(self.animation.key_frames)
+        # self.animation.set_to_keyframe(self.animation.frame)
+        # # self._set_current_frame()
 
     def _key_adv_frame(self, event=None):
         """Go forwards in key-frame list"""
 
         new_frame = (self.animation.frame + 1) % len(self.animation.key_frames)
         self.animation.set_to_keyframe(new_frame)
-        self._set_current_frame()
+        # self._set_current_frame()
 
     def _key_back_frame(self, event=None):
         """Go backwards in key-frame list"""
 
         new_frame = (self.animation.frame - 1) % len(self.animation.key_frames)
         self.animation.set_to_keyframe(new_frame)
-        self._set_current_frame()
+        # self._set_current_frame()
 
     def _save_callback(self, event=None):
         path = self.pathText.text()
         print('Saving animation to', path)
         self.animation.animate(path)
 
-    def _update_keyframelist_callback(self):
-        # self.keyframesListWidget.
-        pass
 
     def close(self):
         self._release_callbacks()

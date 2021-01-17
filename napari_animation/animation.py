@@ -75,6 +75,11 @@ class Animation:
         if len(self.key_frames) > 0 and self.frame > -1:
             self._set_viewer_state(self.key_frames[frame])
 
+    def set_to_current_keyframe(self):
+        """Set the viewer to the current key-frame
+        """
+        self._set_viewer_state(self.key_frames[self.frame])
+
     def _get_viewer_state(self):
         """Capture current viewer state
 
@@ -102,11 +107,11 @@ class Animation:
             Description of viewer state.
         """
         # Undo log transform zoom for linear interpolation
-        camera_state = deepcopy(state['camera'])
+        camera_state = deepcopy(state['viewer']['camera'])
         camera_state['zoom'] = np.power(10, camera_state['zoom'])
 
         self.viewer.camera.update(camera_state)
-        self.viewer.dims.update(state['dims'])
+        self.viewer.dims.update(state['viewer']['dims'])
 
     def _state_generator(self):
         if len(self.key_frames) < 2:

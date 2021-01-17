@@ -23,17 +23,19 @@ class KeyFramesListWidget(QListWidget):
 
         self.animation = animation
         self._frame_counter = 0
-        self._key_frame_id_to_label = {}
+        self._key_frame_id_to_label_map = {}
+        self._label_to_qlistwidgetitem_map = {}
 
         self._connect_key_frame_events()
         self.setDragDropMode(super().InternalMove)
         self.setIconSize(QSize(64, 64))
-        self.itemClicked.connect(self._on_click_callback)
+        self.itemClicked.connect(self._selection_callback)
 
     def _connect_key_frame_events(self):
         """Connect events on the key frame list to their callbacks
         """
-        self.animation.key_frames.events.removed.connect(self._update_frontend)
+        # self.animation.key_frames.events.inserted.connect(self._add)
+        self.animation.key_frames.events.removed.connect(self._remove)
         self.animation.key_frames.events.moved.connect(self._update_frontend)
         self.animation.key_frames.events.changed.connect(self._update_frontend)
         self.animation.key_frames.events.reordered.connect(self._update_frontend)
@@ -44,16 +46,29 @@ class KeyFramesListWidget(QListWidget):
         super().dropEvent(event)
         self._update_backend()
 
-    def _on_click_callback(self, item):
-        self._update_animation_frame()
+    def _selection_callback(self, event):
+        self._update_frame_number()
+        self.animation.set_to_current_keyframe()
 
-    def add_key_frame(self, *args):
-        """Generate list item for current keyframe and store its unique id
+    def _add(self):
+        """Generate QListWidgetItem for current keyframe, store its unique id and add it to self
         """
         key_frame_idx = self.animation.frame
-        self.insertItem(key_frame_idx, self._generate_list_item(key_frame_idx))
-        self._store_key_frame_id(key_frame_idx)
+        item = self._generate_list_item(key_frame_idx)
+
+        self.insertItem(key_frame_idx, item)
+        self.setCurrentIndex(self.indexFromItem(item))
+
+        self._map_key_frame_to_id(key_frame_idx)
+        self._map_label_to_qlistwidgetitem(key_frame_idx)
         self._frame_counter += 1
+
+    def _remove(self, event):
+        """Remove QListWidgetItem at event.index
+        """
+        self.takeItem(event.index)
+        self.animation.frame -= 1
+
 
     def _update_backend(self):
         """push current GUI state to self.animation
@@ -65,18 +80,18 @@ class KeyFramesListWidget(QListWidget):
         # which fire when we modify the list in place
         self.animation.key_frames = EventedList(new_key_frames)
         self._connect_key_frame_events()
-        self._update_animation_frame()
+        self._update_frame_number()
 
     def _update_frontend(self, *args):
         """update GUI state from self.animation state
         """
-        # can't use a list comprehension because self.addItems() only takes labels,
-        # not QListWidgetItem objects
+        # can't use self.addItems() and a list comprehension because self.addItems() only takes
+        # labels, not QListWidgetItem objects
         self.clear()
-        for idx, _ in enumerate(self.frontend_items):
+        for idx, _ in enumerate(self.animation.key_frames):
             self.addItem(self._generate_list_item(idx))
 
-    def _update_animation_frame(self):
+    def _update_frame_number(self):
         """update the frame number of self.animation based on selected item in frontend
         """
         [item] = self.selectedItems()
@@ -91,11 +106,19 @@ class KeyFramesListWidget(QListWidget):
         item.setIcon(self._icon_from_key_frame(key_frame))
         return item
 
-    def _store_key_frame_id(self, key_frame_idx):
+    def _map_key_frame_to_id(self, key_frame_idx):
         """Store the unique id of the key frame at key_frame_idx in a dict of {id: key_frame_label}
         """
         key_frame_id = id(self._get_key_frame(key_frame_idx))
-        self._key_frame_id_to_label[key_frame_id] = self._generate_label(key_frame_idx)
+        self._key_frame_id_to_label_map[key_frame_id] = self._generate_label(key_frame_idx)
+
+    def _map_label_to_qlistwidgetitem(self, key_frame_idx):
+        """Store the qlistwidgetitem associated with a particular label in a dict of
+        {label: qlistwidgetitem}
+        """
+        label = self._generate_label(key_frame_idx)
+        item = self.item(key_frame_idx)
+        self._label_to_qlistwidgetitem_map[label] = item
 
     def _icon_from_key_frame(self, key_frame):
         """Generate QIcon from a key frame
@@ -118,11 +141,10 @@ class KeyFramesListWidget(QListWidget):
     def _generate_label(self, key_frame_idx):
         """Generate a label for a given key frame list index
         """
-        key_frame_id = id(self._get_key_frame(key_frame_idx))
-
-        if key_frame_id in self._key_frame_id_to_label.keys():
-            label = self._key_frame_id_to_label[key_frame_id]
-        else:
+        key_frame = self._get_key_frame(key_frame_idx)
+        try:
+            label = self._key_frame_to_label(key_frame)
+        except KeyError:
             label = f'key frame {self._frame_counter}'
         return label
 
@@ -130,6 +152,15 @@ class KeyFramesListWidget(QListWidget):
         """gets the key frame associated with a given label in the frontend
         """
         return self.labels_to_key_frames[label]
+
+    def _label_to_qlistwidgetitem(self, label):
+        return self._label_to_qlistwidgetitem_map[label]
+
+    def _key_frame_to_label(self, key_frame):
+        """gets the label associated with a key frame
+        """
+        key_frame_id = id(key_frame)
+        return self._key_frame_id_to_label_map[key_frame_id]
 
     @property
     def frontend_items(self):
@@ -149,7 +180,7 @@ class KeyFramesListWidget(QListWidget):
     def backend_key_frame_labels(self):
         """labels for key frames in the order present in the backend
         """
-        return [self._key_frame_id_to_label[id(key_frame)] for key_frame in self.animation.key_frames]
+        return [self._key_frame_id_to_label_map[id(key_frame)] for key_frame in self.animation.key_frames]
 
     @property
     def labels_to_key_frames(self):

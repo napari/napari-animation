@@ -14,8 +14,8 @@ class FrameWidget(QWidget):
         self.stepsSpinBox = QSpinBox()
         self.stepsSpinBox.setValue(15)
 
-        self.frameSpinBox = QSpinBox()
-        self.frameSpinBox.setValue(0)
+        # self.frameSpinBox = QSpinBox()
+        # self.frameSpinBox.setValue(0)
 
         self.easeComboBox = QComboBox()
         self.easeComboBox.addItems([e.name.lower() for e in Easing])
@@ -26,4 +26,4 @@ class FrameWidget(QWidget):
 
         self._layout.addRow('Steps', self.stepsSpinBox)
         self._layout.addRow('Ease', self.easeComboBox)
-        self._layout.addRow('Frame', self.frameSpinBox)
+        # self._layout.addRow('Frame', self.frameSpinBox)
