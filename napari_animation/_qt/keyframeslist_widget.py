@@ -52,7 +52,6 @@ class KeyFramesListWidget(QListWidget):
     def _add(self):
         """Generate QListWidgetItem for current keyframe, store its unique id and add it to self
         """
-        print(self.animation.frame)
         key_frame_idx = self.animation.frame
         item = self._generate_list_item(key_frame_idx)
 
@@ -63,6 +62,7 @@ class KeyFramesListWidget(QListWidget):
         self._map_key_frame_to_id(key_frame_idx)
         self._map_label_to_qlistwidgetitem(key_frame_idx)
         self._frame_counter += 1
+        self._update_visibility()
 
     def _remove(self, event):
         """Remove QListWidgetItem at event.index
@@ -70,6 +70,13 @@ class KeyFramesListWidget(QListWidget):
         self.takeItem(event.index)
         self._remove_key_frame_id(event.value)
         self._update_frame_number()
+        self._update_visibility()
+
+    def _update_visibility(self):
+        if len(self.animation.key_frames) >= 1:
+            self.show()
+        else:
+            self.hide()
 
     def _remove_key_frame_id(self, key_frame):
         """Remove key-frame id from self._key_frame_id_to_label_map
