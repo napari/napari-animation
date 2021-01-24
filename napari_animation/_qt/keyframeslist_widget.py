@@ -4,7 +4,7 @@ from qtpy.QtCore import QSize
 
 from napari.utils.events import EventedList
 
-# NOT IMPLEMENTED YET
+
 class KeyFramesListWidget(QListWidget):
     """List of key frames for an animation
 
@@ -18,6 +18,7 @@ class KeyFramesListWidget(QListWidget):
     animation : napari_animation.Animation
         napari-animation animation in sync with the GUI.
     """
+
     def __init__(self, animation, parent=None):
         super().__init__(parent=parent)
 
@@ -208,7 +209,8 @@ class KeyFramesListWidget(QListWidget):
     def backend_key_frame_labels(self):
         """labels for key frames in the order present in the backend
         """
-        return [self._key_frame_id_to_label_map[id(key_frame)] for key_frame in self.animation.key_frames]
+        return [self._key_frame_id_to_label_map[id(key_frame)] for key_frame in
+                self.animation.key_frames]
 
     @property
     def labels_to_key_frames(self):

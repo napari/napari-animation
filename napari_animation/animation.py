@@ -162,6 +162,10 @@ class Animation:
     def _thumbnail_shape(self):
         return (32, 32, 4)
 
+    @property
+    def current_key_frame(self):
+        return self.key_frames[self.frame]
+
     def animate(
             self,
             path,
