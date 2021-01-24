@@ -56,13 +56,18 @@ class KeyFramesListWidget(QListWidget):
         item = self._generate_list_item(key_frame_idx)
 
         self.insertItem(key_frame_idx, item)
-        self.setCurrentIndex(self.indexFromItem(item))
-        self._update_frame_number()
 
         self._map_key_frame_to_id(key_frame_idx)
         self._map_label_to_qlistwidgetitem(key_frame_idx)
         self._frame_counter += 1
         self._update_visibility()
+
+    def insertItem(self, row, item):
+        """overrides QListWidget.insertItem to also update current index and frame number
+        """
+        super().insertItem(row, item)
+        self.setCurrentIndex(self.indexFromItem(item))
+        self._update_frame_number()
 
     def _remove(self, event):
         """Remove QListWidgetItem at event.index
@@ -142,12 +147,8 @@ class KeyFramesListWidget(QListWidget):
         """Generate QIcon from a key frame
         """
         thumbnail = key_frame['thumbnail']
-        thumbnail = QImage(
-            thumbnail,
-            thumbnail.shape[1],
-            thumbnail.shape[0],
-            QImage.Format_RGBA8888,
-        )
+        thumbnail = QImage(thumbnail, thumbnail.shape[1], thumbnail.shape[0],
+                           QImage.Format_RGBA8888)
         icon = QIcon(QPixmap.fromImage(thumbnail))
         return icon
 
