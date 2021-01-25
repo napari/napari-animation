@@ -1,7 +1,6 @@
 from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
 
 from ..animation import Animation
-from ..easing import Easing
 from .frame_widget import FrameWidget
 from .keyframeslist_widget import KeyFramesListWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
@@ -22,6 +21,7 @@ class AnimationWidget(QWidget):
     frame : int
         Currently shown key frame.
     """
+
     def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
         super().__init__(parent=parent)
 

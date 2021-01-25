@@ -27,12 +27,13 @@ class KeyFramesListWidget(QListWidget):
         self._key_frame_id_to_label_map = {}
         self._label_to_qlistwidgetitem_map = {}
 
-        self._connect_key_frame_events()
+        self._connect_key_frame_callbacks()
         self.setDragDropMode(super().InternalMove)
         self.setIconSize(QSize(64, 64))
+
         self.itemClicked.connect(self._selection_callback)
 
-    def _connect_key_frame_events(self):
+    def _connect_key_frame_callbacks(self):
         """Connect events on the key frame list to their callbacks
         """
         self.animation.key_frames.events.removed.connect(self._remove)
@@ -98,7 +99,7 @@ class KeyFramesListWidget(QListWidget):
         # recreating the EventedList here and reconnecting events simplifies handling events
         # which fire when we modify the list in place
         self.animation.key_frames = EventedList(new_key_frames)
-        self._connect_key_frame_events()
+        self._connect_key_frame_callbacks()
         self._update_frame_number()
 
     def _update_frontend(self, *args):
