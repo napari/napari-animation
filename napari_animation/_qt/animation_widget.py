@@ -6,6 +6,7 @@ from .frame_widget import FrameWidget
 from .keyframeslist_widget import KeyFramesListWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
 
+
 class AnimationWidget(QWidget):
     """Widget for interatviely making animations using the napari viewer.
 
@@ -32,7 +33,6 @@ class AnimationWidget(QWidget):
 
         self._layout.addWidget(QLabel('Animation Wizard', parent=self))
 
-        self._init_frame_widget()
         self._init_capture_button()
 
         self._layout.addStretch(1)
@@ -40,6 +40,7 @@ class AnimationWidget(QWidget):
         self._init_keyframes_list_control_widget()
 
         self._init_keyframes_list_widget()
+        self._init_frame_widget()
 
         self.pathText = QLineEdit(parent=self)
         self.pathText.setText('demo.mp4')
@@ -50,9 +51,12 @@ class AnimationWidget(QWidget):
         self._layout.addWidget(self.saveButton)
 
         # establish key bindings
+        self._add_keybind_callbacks()
+
+        # establish callbacks
         self._add_callbacks()
 
-    def _add_callbacks(self):
+    def _add_keybind_callbacks(self):
         """Bind keys"""
 
         self.animation.viewer.bind_key("Alt-f", self._capture_keyframe_callback)
@@ -61,6 +65,12 @@ class AnimationWidget(QWidget):
 
         self.animation.viewer.bind_key("Alt-a", self._key_adv_frame)
         self.animation.viewer.bind_key("Alt-b", self._key_back_frame)
+
+    def _add_callbacks(self):
+        """Establish callbacks"""
+        self.keyframesListControlWidget.keyframeDeleteButton.clicked.connect(
+            self._delete_keyframe_callback
+        )
 
     def _release_callbacks(self):
         """Release keys"""
@@ -75,6 +85,7 @@ class AnimationWidget(QWidget):
     def _init_frame_widget(self):
         self.frameWidget = FrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
+        self.frameWidget.hide()
 
     def _init_capture_button(self):
         self.captureButton = QPushButton('Capture Frame', parent=self)
@@ -96,9 +107,7 @@ class AnimationWidget(QWidget):
         return int(self.frameWidget.stepsSpinBox.value())
 
     def _get_easing_function(self):
-        easing_name = str(self.frameWidget.easeComboBox.currentText())
-        easing_func = Easing[easing_name.upper()].value
-        return easing_func
+        return self.frameWidget.get_easing_func()
 
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
@@ -108,9 +117,10 @@ class AnimationWidget(QWidget):
         if len(self.animation.key_frames) == 1:
             self.keyframesListControlWidget.show()
             self.keyframesListWidget.show()
+            self.frameWidget.show()
 
-    def _update_from_animation(self):
-        self.frameWidget._update_from_animation()
+    def _update_frame_widget_from_animation(self):
+        self.frameWidget.update_from_animation()
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
@@ -121,6 +131,10 @@ class AnimationWidget(QWidget):
         """Delete current key-frame"""
         if len(self.animation.key_frames) > 0:
             self.animation.key_frames.pop(self.animation.frame)
+        if len(self.animation.key_frames) == 0:
+            self.keyframesListControlWidget.hide()
+            self.keyframesListWidget.hide()
+            self.frameWidget.hide()
 
     def _key_adv_frame(self, event=None):
         """Go forwards in key-frame list"""

@@ -2,6 +2,8 @@ from copy import deepcopy
 
 import numpy as np
 
+from .easing import Easing
+
 
 def interpolate_state(initial_state, final_state, fraction):
     """Interpolate a state between two states
@@ -42,7 +44,7 @@ def interpolate_state(initial_state, final_state, fraction):
     elif isinstance(initial_state, (list, tuple)) and isinstance(final_state, (list, tuple)):
         return tuple(interpolate_state(v0, v1, fraction) for v0, v1 in zip(initial_state, final_state))
 
-    else:  
+    else:
         return _interpolate_bool(initial_state, final_state, fraction)
 
 
@@ -59,3 +61,8 @@ def _interpolate_bool(a, b, fraction):
         return a
     else:
         return b
+
+
+def _easing_func_to_name(func):
+    [name] = [e.name for e in Easing if e.value is func]
+    return name

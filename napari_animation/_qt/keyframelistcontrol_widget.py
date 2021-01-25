@@ -10,7 +10,8 @@ class KeyFrameListControlWidget(QFrame):
 
         layout = QHBoxLayout()
         layout.addStretch(1)
-        layout.addWidget(KeyFrameDeleteButton(self.animation))
+        self.keyframeDeleteButton = KeyFrameDeleteButton(self.animation)
+        layout.addWidget(self.keyframeDeleteButton)
 
         self.setLayout(layout)
 
@@ -20,12 +21,5 @@ class KeyFrameDeleteButton(QPushButton):
         super().__init__()
 
         self.animation = animation
-        self.clicked.connect(self._remove_current_key_frame)
         self.setToolTip('Delete selected key-frame')
         self.setText('Delete')
-
-    def _remove_current_key_frame(self, event):
-        if len(self.animation.key_frames) > 0:
-            self.animation.key_frames.pop(self.animation.frame)
-        if len(self.animation.key_frames) == 0:
-            self.parentWidget().hide()
