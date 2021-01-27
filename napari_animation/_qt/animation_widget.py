@@ -33,10 +33,6 @@ class AnimationWidget(QWidget):
 
         self._layout.addWidget(QLabel('Animation Wizard', parent=self))
 
-        self._init_capture_button()
-
-        self._layout.addStretch(1)
-
         self._init_keyframes_list_control_widget()
 
         self._init_keyframes_list_widget()
@@ -68,9 +64,10 @@ class AnimationWidget(QWidget):
 
     def _add_callbacks(self):
         """Establish callbacks"""
-        self.keyframesListControlWidget.keyframeDeleteButton.clicked.connect(
+        self.keyframesListControlWidget.deleteButton.clicked.connect(
             self._delete_keyframe_callback
         )
+        self.keyframesListControlWidget.captureButton.clicked.connect(self._capture_keyframe_callback)
 
     def _release_callbacks(self):
         """Release keys"""
@@ -85,23 +82,18 @@ class AnimationWidget(QWidget):
     def _init_frame_widget(self):
         self.frameWidget = FrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
-        self.frameWidget.hide()
-
-    def _init_capture_button(self):
-        self.captureButton = QPushButton('Capture Frame', parent=self)
-        self.captureButton.clicked.connect(self._capture_keyframe_callback)
-        self._layout.addWidget(self.captureButton)
+        self.frameWidget.setEnabled(False)
 
     def _init_keyframes_list_control_widget(self):
         self.keyframesListControlWidget = KeyFrameListControlWidget(
             animation=self.animation, parent=self)
         self._layout.addWidget(self.keyframesListControlWidget)
-        self.keyframesListControlWidget.hide()
+        self.keyframesListControlWidget.deleteButton.setEnabled(False)
 
     def _init_keyframes_list_widget(self):
         self.keyframesListWidget = KeyFramesListWidget(self.animation, parent=self)
         self._layout.addWidget(self.keyframesListWidget)
-        self.keyframesListWidget.hide()
+        self.keyframesListWidget.setEnabled(False)
 
     def _get_interpolation_steps(self):
         return int(self.frameWidget.stepsSpinBox.value())
@@ -115,9 +107,9 @@ class AnimationWidget(QWidget):
                                         ease=self._get_easing_function())
         self.keyframesListWidget._add()
         if len(self.animation.key_frames) == 1:
-            self.keyframesListControlWidget.show()
-            self.keyframesListWidget.show()
-            self.frameWidget.show()
+            self.keyframesListControlWidget.deleteButton.setEnabled(True)
+            self.keyframesListWidget.setEnabled(True)
+            self.frameWidget.setEnabled(True)
 
     def _update_frame_widget_from_animation(self):
         self.frameWidget.update_from_animation()
@@ -132,9 +124,9 @@ class AnimationWidget(QWidget):
         if len(self.animation.key_frames) > 0:
             self.animation.key_frames.pop(self.animation.frame)
         if len(self.animation.key_frames) == 0:
-            self.keyframesListControlWidget.hide()
-            self.keyframesListWidget.hide()
-            self.frameWidget.hide()
+            self.keyframesListControlWidget.deleteButton.setEnabled(False)
+            self.keyframesListWidget.setEnabled(False)
+            self.frameWidget.setEnabled(False)
 
     def _key_adv_frame(self, event=None):
         """Go forwards in key-frame list"""
