@@ -4,6 +4,7 @@ import skimage.io
 import numpy as np
 from copy import deepcopy
 from pathlib import Path
+from napari.utils.events import EventedList
 
 from .utils import interpolate_state
 
@@ -26,12 +27,12 @@ class Animation:
     def __init__(self, viewer):
         self.viewer = viewer
 
-        self.key_frames = []
+        self.key_frames = EventedList()
         self.frame = -1
 
     def capture_keyframe(self, steps=30, ease=None, insert=True, frame=None):
         """Record current key-frame
-        
+
         Parameters
         ----------
         steps : int
@@ -49,7 +50,13 @@ class Animation:
         if frame is not None:
             self.frame = frame
 
-        new_state = {'viewer': self._get_viewer_state(), 'steps': steps, 'ease': ease}
+        new_state = {
+            'viewer': self._get_viewer_state(),
+            'thumbnail': self._generate_thumbnail(),
+            'steps': steps,
+            'ease': ease,
+        }
+
         if insert or self.frame == -1:
             self.key_frames.insert(self.frame + 1, new_state)
             self.frame += 1
@@ -67,6 +74,11 @@ class Animation:
         self.frame = frame
         if len(self.key_frames) > 0 and self.frame > -1:
             self._set_viewer_state(self.key_frames[frame])
+
+    def set_to_current_keyframe(self):
+        """Set the viewer to the current key-frame
+        """
+        self._set_viewer_state(self.key_frames[self.frame]['viewer'])
 
     def _get_viewer_state(self):
         """Capture current viewer state
@@ -121,17 +133,47 @@ class Animation:
         for i, state in enumerate(self._state_generator()):
             print('Rendering frame ', i + 1, 'of', total)
             self._set_viewer_state(state)
-            frame = self.viewer.screenshot(canvas_only=canvas_only)            
+            frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
 
+    def _generate_thumbnail(self):
+        """generate a thumbnail from viewer
+        """
+        screenshot = self.viewer.screenshot(canvas_only=True)
+        thumbnail = self._coerce_image_into_thumbnail_shape(screenshot)
+        return skimage.img_as_ubyte(thumbnail)
+
+    def _coerce_image_into_thumbnail_shape(self, image):
+        """Resizes an image to self._thumbnail_shape with padding
+        """
+        scale_factor = np.min(
+            np.divide(self._thumbnail_shape, image.shape)
+        )
+        intermediate_xy_dims = np.multiply(image.shape, scale_factor)[:-1].astype(int)
+        intermediate_image = skimage.transform.resize(image, intermediate_xy_dims,
+                                                      anti_aliasing=True)
+
+        padding_needed = np.subtract(self._thumbnail_shape, intermediate_image.shape)
+        pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
+        thumbnail = np.pad(intermediate_image, pad_amounts, mode='constant')
+        return thumbnail
+
+    @property
+    def _thumbnail_shape(self):
+        return (32, 32, 4)
+
+    @property
+    def current_key_frame(self):
+        return self.key_frames[self.frame]
+
     def animate(
-        self,
-        path,
-        fps=20,
-        quality=5,
-        format=None,
-        canvas_only=True,
-        scale_factor=None,
+            self,
+            path,
+            fps=20,
+            quality=5,
+            format=None,
+            canvas_only=True,
+            scale_factor=None,
     ):
         """Create a movie based on key-frames
 
