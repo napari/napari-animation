@@ -1,12 +1,12 @@
-import os
-from typing import Any, Callable
 from pathlib import Path
+from typing import Any, Callable
+
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 
 class SaveAnimationDialog(QFileDialog):
     """
-    Dialog to choose save location of animation
+    Dialog to choose the save location of animation
 
     Parameters
     ----------
@@ -32,10 +32,10 @@ class SaveAnimationDialog(QFileDialog):
         self.animate_function = animate_function
 
     def accept(self):
-        save_path = self.selectedFiles()[0]
-        if os.path.splitext(save_path)[1] == '':
-            save_path = save_path + '.png'
-            if os.path.exists(save_path):
+        save_path = Path(self.selectedFiles()[0])
+        if save_path.suffix == '':
+            save_path = save_path.parent / (save_path.stem + '.png')
+            if save_path.exists():
                 res = QMessageBox().warning(
                     self,
                     'Confirm overwrite',
@@ -48,4 +48,3 @@ class SaveAnimationDialog(QFileDialog):
                     self.exec_()
         self.animate_function(save_path)
         return super().accept()
-
