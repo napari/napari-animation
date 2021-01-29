@@ -34,7 +34,6 @@ class KeyFramesListWidget(QListWidget):
 
     def _init_styling(self):
         self.setIconSize(QSize(64, 64))
-        self.setAutoFillBackground(False)
         stylesheet = '\n'.join(
             [self._item_background_color, self._transparent_background]
         )
