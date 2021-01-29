@@ -1,8 +1,7 @@
-from qtpy.QtWidgets import QListWidget, QListWidgetItem
-from qtpy.QtGui import QImage, QIcon, QPixmap
-from qtpy.QtCore import QSize
-
 from napari.utils.events import EventedList
+from qtpy.QtCore import QSize
+from qtpy.QtGui import QIcon, QImage, QPixmap
+from qtpy.QtWidgets import QListWidget, QListWidgetItem
 
 
 class KeyFramesListWidget(QListWidget):
@@ -29,9 +28,17 @@ class KeyFramesListWidget(QListWidget):
 
         self._connect_key_frame_callbacks()
         self.setDragDropMode(super().InternalMove)
-        self.setIconSize(QSize(64, 64))
+        self._init_styling()
 
         self.itemClicked.connect(self._selection_callback)
+
+    def _init_styling(self):
+        self.setIconSize(QSize(64, 64))
+        self.setAutoFillBackground(False)
+        stylesheet = '\n'.join(
+            [self._item_background_color, self._transparent_background]
+        )
+        self.setStyleSheet(stylesheet)
 
     def _connect_key_frame_callbacks(self):
         """Connect events on the key frame list to their callbacks
@@ -184,6 +191,14 @@ class KeyFramesListWidget(QListWidget):
         """
         key_frame_id = id(key_frame)
         return self._key_frame_id_to_label_map[key_frame_id]
+
+    @property
+    def _item_background_color(self):
+        return 'QListView::item:selected{background-color: rgb(0,122,204);}'
+
+    @property
+    def _transparent_background(self):
+        return 'QListView{background: transparent;}'
 
     @property
     def frontend_items(self):
