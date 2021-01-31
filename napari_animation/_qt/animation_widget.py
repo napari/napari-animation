@@ -27,6 +27,7 @@ class AnimationWidget(QWidget):
 
         # Create animation
         self.animation = Animation(viewer)
+        self.viewer = viewer
 
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -45,6 +46,9 @@ class AnimationWidget(QWidget):
         self.saveButton = QPushButton('Save Animation', parent=self)
         self.saveButton.clicked.connect(self._save_callback)
         self._layout.addWidget(self.saveButton)
+
+        self.viewer.events.theme.connect(self._update_theme)
+        self._update_theme()
 
         # establish key bindings
         self._add_keybind_callbacks()
@@ -144,6 +148,22 @@ class AnimationWidget(QWidget):
         path = self.pathText.text()
         print('Saving animation to', path)
         self.animation.animate(path)
+
+    def _update_theme(self, event=None):
+        """Update from the napari GUI theme"""
+        from napari.utils.theme import get_theme, template
+
+        # get theme and raw stylesheet from napari viewer
+        theme = get_theme(self.viewer.theme)
+        raw_stylesheet = self.viewer.window.qt_viewer.raw_stylesheet
+
+        # template and apply the primary stylesheet
+        templated_stylesheet = template(raw_stylesheet, **theme)
+        self.setStyleSheet(templated_stylesheet)
+
+        # update styling of KeyFramesListWidget
+        self.keyframesListWidget._update_theme(theme)
+
 
     def close(self):
         self._release_callbacks()

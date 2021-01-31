@@ -28,7 +28,6 @@ class KeyFramesListWidget(QListWidget):
 
         self._connect_key_frame_callbacks()
         self.setDragDropMode(super().InternalMove)
-        self._init_styling()
 
         self.itemClicked.connect(self._selection_callback)
 
@@ -191,13 +190,36 @@ class KeyFramesListWidget(QListWidget):
         key_frame_id = id(key_frame)
         return self._key_frame_id_to_label_map[key_frame_id]
 
-    @property
-    def _item_background_color(self):
-        return 'QListView::item:selected{background-color: rgb(0,122,204);}'
+    def _update_theme(self, theme):
+        """
+        Update styling based on the napari theme dictionary and any other attributes
 
-    @property
-    def _transparent_background(self):
-        return 'QListView{background: transparent;}'
+        Parameters
+        ----------
+        theme : dict
+                theme dict from napari
+        """
+        deselected_bg_color = theme['foreground']
+        deselected_bg_color_qss = f'QListView::item:deselected' \
+                                  f'{{background-color: {deselected_bg_color};}}'
+
+        selected_bg_color = theme['current']
+        selected_bg_color_qss = f'QListView::item:selected' \
+                                f'{{background-color: {selected_bg_color};}}'
+
+        transparent_background_qss = 'QListView{background: transparent;}'
+
+        style_sheet_components = [
+            deselected_bg_color_qss,
+            selected_bg_color_qss,
+            transparent_background_qss
+        ]
+        style_sheet = '\n'.join(style_sheet_components)
+
+        self.setStyleSheet(style_sheet)
+        self.setIconSize(QSize(64, 64))
+        self.setSpacing(2)
+        print(self.styleSheet())
 
     @property
     def frontend_items(self):
