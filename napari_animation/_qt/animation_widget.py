@@ -4,6 +4,7 @@ from ..animation import Animation
 from .frame_widget import FrameWidget
 from .keyframeslist_widget import KeyFramesListWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
+from .dialogs import SaveAnimationDialog
 
 
 class AnimationWidget(QWidget):
@@ -37,10 +38,6 @@ class AnimationWidget(QWidget):
 
         self._init_keyframes_list_widget()
         self._init_frame_widget()
-
-        self.pathText = QLineEdit(parent=self)
-        self.pathText.setText('demo.mp4')
-        self._layout.addWidget(self.pathText)
 
         self.saveButton = QPushButton('Save Animation', parent=self)
         self.saveButton.clicked.connect(self._save_callback)
@@ -141,9 +138,7 @@ class AnimationWidget(QWidget):
         self.animation.set_to_keyframe(new_frame)
 
     def _save_callback(self, event=None):
-        path = self.pathText.text()
-        print('Saving animation to', path)
-        self.animation.animate(path)
+        SaveAnimationDialog(self.animation.animate, parent=self).exec_()
 
     def close(self):
         self._release_callbacks()
