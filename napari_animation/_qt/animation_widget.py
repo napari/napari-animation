@@ -1,9 +1,9 @@
-from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
+from qtpy.QtWidgets import QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from ..animation import Animation
 from .frame_widget import FrameWidget
-from .keyframeslist_widget import KeyFramesListWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
+from .keyframeslist_widget import KeyFramesListWidget
+from ..animation import Animation
 
 
 class AnimationWidget(QWidget):
@@ -71,7 +71,8 @@ class AnimationWidget(QWidget):
         self.keyframesListControlWidget.deleteButton.clicked.connect(
             self._delete_keyframe_callback
         )
-        self.keyframesListControlWidget.captureButton.clicked.connect(self._capture_keyframe_callback)
+        self.keyframesListControlWidget.captureButton.clicked.connect(
+            self._capture_keyframe_callback)
 
     def _release_callbacks(self):
         """Release keys"""
@@ -163,7 +164,6 @@ class AnimationWidget(QWidget):
 
         # update styling of KeyFramesListWidget
         self.keyframesListWidget._update_theme(theme)
-
 
     def close(self):
         self._release_callbacks()
