@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Callable
 
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from qtpy.QtWidgets import QFileDialog, QMessageBox
 
 
 class SaveAnimationDialog(QFileDialog):
