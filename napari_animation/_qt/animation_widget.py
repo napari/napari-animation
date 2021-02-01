@@ -167,4 +167,5 @@ class AnimationWidget(QWidget):
 
     def close(self):
         self._release_callbacks()
+        self.viewer.events.theme.disconnect(self._update_theme)
         super().close()
