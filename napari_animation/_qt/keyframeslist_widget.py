@@ -219,7 +219,6 @@ class KeyFramesListWidget(QListWidget):
         self.setStyleSheet(style_sheet)
         self.setIconSize(QSize(64, 64))
         self.setSpacing(2)
-        print(self.styleSheet())
 
     @property
     def frontend_items(self):
