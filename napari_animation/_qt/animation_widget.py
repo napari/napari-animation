@@ -64,7 +64,8 @@ class AnimationWidget(QWidget):
         self.keyframesListControlWidget.deleteButton.clicked.connect(
             self._delete_keyframe_callback
         )
-        self.keyframesListControlWidget.captureButton.clicked.connect(self._capture_keyframe_callback)
+        self.keyframesListControlWidget.captureButton.clicked.connect(
+            self._capture_keyframe_callback)
 
     def _release_callbacks(self):
         """Release keys"""
@@ -140,6 +141,22 @@ class AnimationWidget(QWidget):
     def _save_callback(self, event=None):
         SaveAnimationDialog(self.animation.animate, parent=self).exec_()
 
+    def _update_theme(self, event=None):
+        """Update from the napari GUI theme"""
+        from napari.utils.theme import get_theme, template
+
+        # get theme and raw stylesheet from napari viewer
+        theme = get_theme(self.viewer.theme)
+        raw_stylesheet = self.viewer.window.qt_viewer.raw_stylesheet
+
+        # template and apply the primary stylesheet
+        templated_stylesheet = template(raw_stylesheet, **theme)
+        self.setStyleSheet(templated_stylesheet)
+
+        # update styling of KeyFramesListWidget
+        self.keyframesListWidget._update_theme(theme)
+
     def close(self):
         self._release_callbacks()
+        self.viewer.events.theme.disconnect(self._update_theme)
         super().close()
