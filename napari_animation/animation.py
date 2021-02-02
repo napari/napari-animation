@@ -1,11 +1,11 @@
-import imageio
-from scipy import ndimage as ndi
-import skimage
-from skimage import transform
-import numpy as np
 from copy import deepcopy
-from pathlib import Path
+
+import imageio
+import numpy as np
 from napari.utils.events import EventedList
+from napari.utils.io import imsave
+from pathlib import Path
+from scipy import ndimage as ndi
 
 from .utils import interpolate_state
 
@@ -25,6 +25,7 @@ class Animation:
     frame : int
         Currently shown key frame.
     """
+
     def __init__(self, viewer):
         self.viewer = viewer
 
@@ -232,17 +233,13 @@ class Animation:
         # save frames
         for ind, frame in enumerate(frame_gen):
             if scale_factor is not None:
-                frame = skimage.transform.rescale(
-                    frame, scale_factor, multichannel=True, preserve_range=True
-                )
+                frame = ndi.zoom(frame, (scale_factor, scale_factor, 1))
                 frame = frame.astype(np.uint8)
             if not save_as_folder:
                 writer.append_data(frame)
             else:
-                skimage.io.imsave(
-                    folder_path.joinpath(path_obj.stem + '_' + str(ind) + '.png'),
-                    frame,
-                )
+                fname = path_obj.stem + '_' + str(ind) + '.png'
+                imsave(fname, frame)
 
         if not save_as_folder:
             writer.close()
