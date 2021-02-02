@@ -52,7 +52,6 @@ class AnimationWidget(QWidget):
         self._init_frame_widget()
         self._init_save_button()
 
-
     def _add_keybind_callbacks(self):
         """Bind keys"""
 
