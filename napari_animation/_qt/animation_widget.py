@@ -29,25 +29,24 @@ class AnimationWidget(QWidget):
         # Create animation
         self.animation = Animation(viewer)
 
+        # Initialise UI
+        self._init_ui()
+
+        # establish key bindings and callbacks
+        self._add_keybind_callbacks()
+        self._add_callbacks()
+
+    def _init_ui(self):
+        """Initialise user interface"""
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
         self._layout.addWidget(QLabel('Animation Wizard', parent=self))
 
         self._init_keyframes_list_control_widget()
-
         self._init_keyframes_list_widget()
         self._init_frame_widget()
-
-        self.saveButton = QPushButton('Save Animation', parent=self)
-        self.saveButton.clicked.connect(self._save_callback)
-        self._layout.addWidget(self.saveButton)
-
-        # establish key bindings
-        self._add_keybind_callbacks()
-
-        # establish callbacks
-        self._add_callbacks()
+        self._init_save_button()
 
     def _add_keybind_callbacks(self):
         """Bind keys"""
@@ -66,6 +65,7 @@ class AnimationWidget(QWidget):
         )
         self.keyframesListControlWidget.captureButton.clicked.connect(
             self._capture_keyframe_callback)
+        self.saveButton.clicked.connect(self._save_callback)
 
     def _release_callbacks(self):
         """Release keys"""
@@ -93,6 +93,10 @@ class AnimationWidget(QWidget):
         self._layout.addWidget(self.keyframesListWidget)
         self.keyframesListWidget.setEnabled(False)
 
+    def _init_save_button(self):
+        self.saveButton = QPushButton('Save Animation', parent=self)
+        self._layout.addWidget(self.saveButton)
+
     def _get_interpolation_steps(self):
         return int(self.frameWidget.stepsSpinBox.value())
 
@@ -103,7 +107,6 @@ class AnimationWidget(QWidget):
         """Record current key-frame"""
         self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
                                         ease=self._get_easing_function())
-        self.keyframesListWidget._add()
         if len(self.animation.key_frames) == 1:
             self.keyframesListControlWidget.deleteButton.setEnabled(True)
             self.keyframesListWidget.setEnabled(True)
