@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QPushButton
+from qtpy.QtWidgets import QFrame, QHBoxLayout, QPushButton
 
 
 class KeyFrameListControlWidget(QFrame):
