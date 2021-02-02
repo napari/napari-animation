@@ -6,7 +6,7 @@
 [![tests](https://github.com/sofroniewn/napari-animation/workflows/tests/badge.svg)](https://github.com/sofroniewn/napari-animation/actions)
 [![codecov](https://codecov.io/gh/sofroniewn/napari-animation/branch/master/graph/badge.svg)](https://codecov.io/gh/sofroniewn/napari-animation)
 
-A plugin to make animations with napari
+**napari-animation** is a plugin for making animations in [napari].
 
 ----------------------------------
 
@@ -14,8 +14,15 @@ This [napari] plugin was generated with [Cookiecutter] using with [@napari]'s [c
 
 It is built off of great work from @guiwitz in [naparimovie](https://github.com/guiwitz/naparimovie) which was initially submitted to napari in [PR#851](https://github.com/napari/napari/pull/780).
 
-It is currently pre-release and under active development. APIs are likely to change before it's first 0.0.1 release,
-but feedback and contributions welcome.
+----------------------------------
+## Overview
+
+**napari-animation** provides a framework for the creation of animations in napari and features:
+- an easy to use GUI for interactive creation of animations
+- Python tools for programmatic creation of animations
+
+This plugin is currently pre-release and under active development. APIs are likely to change before it's first 0.0.1 release,
+but feedback and contributions are welcome.
 
 ## Installation
 
