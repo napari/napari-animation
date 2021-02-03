@@ -1,10 +1,11 @@
-import imageio
-import skimage.transform
-import skimage.io
-import numpy as np
 from copy import deepcopy
-from pathlib import Path
+
+import imageio
+import numpy as np
 from napari.utils.events import EventedList
+from napari.utils.io import imsave
+from pathlib import Path
+from scipy import ndimage as ndi
 
 from .utils import interpolate_state
 
@@ -24,6 +25,7 @@ class Animation:
     frame : int
         Currently shown key frame.
     """
+
     def __init__(self, viewer):
         self.viewer = viewer
 
@@ -141,7 +143,7 @@ class Animation:
         """
         screenshot = self.viewer.screenshot(canvas_only=True)
         thumbnail = self._coerce_image_into_thumbnail_shape(screenshot)
-        return skimage.img_as_ubyte(thumbnail)
+        return thumbnail
 
     def _coerce_image_into_thumbnail_shape(self, image):
         """Resizes an image to self._thumbnail_shape with padding
@@ -149,9 +151,7 @@ class Animation:
         scale_factor = np.min(
             np.divide(self._thumbnail_shape, image.shape)
         )
-        intermediate_xy_dims = np.multiply(image.shape, scale_factor)[:-1].astype(int)
-        intermediate_image = skimage.transform.resize(image, intermediate_xy_dims,
-                                                      anti_aliasing=True)
+        intermediate_image = ndi.zoom(image, (scale_factor, scale_factor, 1))
 
         padding_needed = np.subtract(self._thumbnail_shape, intermediate_image.shape)
         pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
@@ -233,17 +233,13 @@ class Animation:
         # save frames
         for ind, frame in enumerate(frame_gen):
             if scale_factor is not None:
-                frame = skimage.transform.rescale(
-                    frame, scale_factor, multichannel=True, preserve_range=True
-                )
+                frame = ndi.zoom(frame, (scale_factor, scale_factor, 1))
                 frame = frame.astype(np.uint8)
             if not save_as_folder:
                 writer.append_data(frame)
             else:
-                skimage.io.imsave(
-                    folder_path.joinpath(path_obj.stem + '_' + str(ind) + '.png'),
-                    frame,
-                )
+                fname = path_obj.stem + '_' + str(ind) + '.png'
+                imsave(fname, frame)
 
         if not save_as_folder:
             writer.close()
