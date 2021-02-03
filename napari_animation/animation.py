@@ -4,6 +4,7 @@ import imageio
 import numpy as np
 from napari.utils.events import EventedList
 from napari.utils.io import imsave
+from napari.layers.utils.layer_utils import convert_to_uint8
 from pathlib import Path
 from scipy import ndimage as ndi
 
@@ -156,7 +157,16 @@ class Animation:
         padding_needed = np.subtract(self._thumbnail_shape, intermediate_image.shape)
         pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
         thumbnail = np.pad(intermediate_image, pad_amounts, mode='constant')
-        return thumbnail
+        thumbnail = convert_to_uint8(thumbnail)
+
+        # blend thumbnail with opaque black background
+        background = np.zeros(self._thumbnail_shape, dtype=np.uint8)
+        background[..., 3] = 255
+
+        f_dest = thumbnail[..., 3][..., None] / 255
+        f_source = 1 - f_dest
+        thumbnail = thumbnail * f_dest + background * f_source
+        return thumbnail.astype(np.uint8)
 
     @property
     def _thumbnail_shape(self):
