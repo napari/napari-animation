@@ -30,13 +30,6 @@ class KeyFramesListWidget(QListWidget):
 
         self.itemClicked.connect(self._selection_callback)
 
-    def _init_styling(self):
-        self.setIconSize(QSize(64, 64))
-        stylesheet = '\n'.join(
-            [self._item_background_color, self._transparent_background]
-        )
-        self.setStyleSheet(stylesheet)
-
     def _connect_key_frame_callbacks(self):
         """Connect events on the key frame list to their callbacks
         """
@@ -148,10 +141,14 @@ class KeyFramesListWidget(QListWidget):
 
         transparent_background_qss = 'QListView{background: transparent;}'
 
+        item_qss = 'QListView::item{margin: 0px; padding: 0px; min-height: 32px; max-height: 32px;}' \
+                   'QImage{margin: 0px; padding: 0px; qproperty-alignment: AlignLeft;}' \
+
         style_sheet_components = [
             deselected_bg_color_qss,
             selected_bg_color_qss,
-            transparent_background_qss
+            transparent_background_qss,
+            item_qss
         ]
         style_sheet = '\n'.join(style_sheet_components)
 
