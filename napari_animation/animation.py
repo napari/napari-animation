@@ -4,8 +4,6 @@ import imageio
 import numpy as np
 from napari.utils.events import EventedList
 from napari.utils.io import imsave
-from napari.layers.utils.layer_utils import convert_to_uint8
-from pathlib import Path
 from scipy import ndimage as ndi
 
 from .utils import interpolate_state
@@ -75,13 +73,13 @@ class Animation:
             Key-frame to visualize
         """
         self.frame = frame
-        if len(self.key_frames) > 0 and self.frame > -1:
-            self._set_viewer_state(self.key_frames[frame])
+        self.set_to_current_keyframe()
 
     def set_to_current_keyframe(self):
         """Set the viewer to the current key-frame
         """
-        self._set_viewer_state(self.key_frames[self.frame]['viewer'])
+        if len(self.key_frames) > 0 and self.frame > -1:
+            self._set_viewer_state(self.key_frames[self.frame]['viewer'])
 
     def _get_viewer_state(self):
         """Capture current viewer state
