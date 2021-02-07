@@ -1,4 +1,4 @@
-from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
+from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
 
 from ..animation import Animation
 from .frame_widget import FrameWidget
@@ -26,8 +26,9 @@ class AnimationWidget(QWidget):
     def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
         super().__init__(parent=parent)
 
-        # Create animation
-        self.animation = Animation(viewer)
+        # Store reference to viewer and create animation
+        self.viewer = viewer
+        self.animation = Animation(self.viewer)
 
         # Initialise UI
         self._init_ui()
@@ -35,6 +36,9 @@ class AnimationWidget(QWidget):
         # establish key bindings and callbacks
         self._add_keybind_callbacks()
         self._add_callbacks()
+
+        # Update theme
+        self._update_theme()
 
     def _init_ui(self):
         """Initialise user interface"""
@@ -64,8 +68,10 @@ class AnimationWidget(QWidget):
             self._delete_keyframe_callback
         )
         self.keyframesListControlWidget.captureButton.clicked.connect(
-            self._capture_keyframe_callback)
+            self._capture_keyframe_callback
+        )
         self.saveButton.clicked.connect(self._save_callback)
+        self.viewer.events.theme.connect(self._update_theme)
 
     def _release_callbacks(self):
         """Release keys"""
