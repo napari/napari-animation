@@ -30,6 +30,45 @@ You can clone this repository with install locally with
 
     pip install -e .
 
+## Examples
+Examples can be found in our [examples](examples) folder. Simple examples for both interactive and headless 
+use of the plugin follow.
+
+### Interactive
+**napari-animation** can be used interactively by creating an `AnimationWidget` from a napari `Viewer` and adding it to
+the viewer as a dock widget.
+
+```python
+animation_widget = AnimationWidget(viewer)
+viewer.window.add_dock_widget(animation_widget, area='right')
+```
+
+![AnimationWidget image](resources/screenshot-animation-widget.png)
+
+### Headless
+**napari-animation** can also be run headless, allowing for reproducible, scripted creation of animations.
+
+```python
+from napari_animation import Animation
+
+animation = Animation(viewer)
+viewer.update_console({'animation': animation})
+
+viewer.dims.ndisplay = 3
+viewer.camera.angles = (0.0, 0.0, 90.0)
+animation.capture_keyframe()
+viewer.camera.zoom = 2.4
+animation.capture_keyframe()
+viewer.camera.angles = (-7.0, 15.7, 62.4)
+animation.capture_keyframe(steps=60)
+viewer.camera.angles = (2.0, -24.4, -36.7)
+animation.capture_keyframe(steps=60)
+viewer.reset_view()
+viewer.camera.angles = (0.0, 0.0, 90.0)
+animation.capture_keyframe()
+animation.animate('demo.mov', canvas_only=False)
+```
+
 ## Contributing
 
 Contributions are very welcome. Tests and additional infrastructure are being setup.
