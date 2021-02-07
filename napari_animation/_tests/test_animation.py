@@ -30,7 +30,7 @@ def empty_animation(make_napari_viewer):
 
 @pytest.fixture
 def animation_with_keyframes(empty_animation):
-    for i in range(5):
+    for i in range(2):
         empty_animation.capture_keyframe()
         empty_animation.viewer.camera.zoom *= 2
     return empty_animation
@@ -60,7 +60,7 @@ def test_capture_key_frame(empty_animation):
 def test_set_to_key_frame(animation_with_keyframes):
     """Test Animation.set_to_key_frame()"""
     animation = animation_with_keyframes
-    for i in range(5):
+    for i in range(2):
         animation.set_to_keyframe(i)
         assert animation.frame == i
 
@@ -92,3 +92,21 @@ def test_set_viewer_state(animation_with_keyframes, viewer_state):
     # check that log transform is undone on zoom
     assert animation_camera_state['zoom'] == np.power(10, current_state['camera']['zoom'])
 
+
+def test_thumbnail_generation(empty_animation):
+    """Test thumbnail generation"""
+    animation = empty_animation
+    thumbnail = animation._generate_thumbnail()
+
+    assert thumbnail.shape == animation._thumbnail_shape
+    assert thumbnail.dtype == np.uint8
+    assert thumbnail.max() <= 255
+    assert thumbnail.min() >= 0
+
+
+def test_animate(animation_with_keyframes, tmp_path):
+    """Test that Animation.animate() produces files"""
+    for extension in ('.mp4', '.mov', ''):
+        output_filename = tmp_path / ('test' + extension)
+        animation_with_keyframes.animate(output_filename)
+        assert output_filename.exists()

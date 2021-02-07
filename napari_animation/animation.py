@@ -1,7 +1,9 @@
 from copy import deepcopy
+from pathlib import Path
 
 import imageio
 import numpy as np
+from napari.layers.utils.layer_utils import convert_to_uint8
 from napari.utils.events import EventedList
 from napari.utils.io import imsave
 from scipy import ndimage as ndi
