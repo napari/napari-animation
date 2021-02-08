@@ -39,6 +39,8 @@ use of the plugin follow.
 the viewer as a dock widget.
 
 ```python
+from napari_animation import AnimationWidget
+
 animation_widget = AnimationWidget(viewer)
 viewer.window.add_dock_widget(animation_widget, area='right')
 ```
@@ -52,7 +54,6 @@ viewer.window.add_dock_widget(animation_widget, area='right')
 from napari_animation import Animation
 
 animation = Animation(viewer)
-viewer.update_console({'animation': animation})
 
 viewer.dims.ndisplay = 3
 viewer.camera.angles = (0.0, 0.0, 90.0)
