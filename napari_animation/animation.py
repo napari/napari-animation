@@ -237,7 +237,7 @@ class Animation:
         else:
             # if movie is saved as series of PNG, create a folder
             folder_path = path_obj.absolute()
-            folder_path = path_obj.parent.joinpath(path.stem)
+            folder_path = path_obj.parent.joinpath(path_obj.stem)
             folder_path.mkdir(exist_ok=True)
 
         # save frames
@@ -248,7 +248,7 @@ class Animation:
             if not save_as_folder:
                 writer.append_data(frame)
             else:
-                fname = path_obj.stem + '_' + str(ind) + '.png'
+                fname = folder_path / (path_obj.stem + '_' + str(ind) + '.png')
                 imsave(fname, frame)
 
         if not save_as_folder:

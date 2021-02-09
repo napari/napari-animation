@@ -1,5 +1,7 @@
-import pytest
+from unittest.mock import patch
+
 import numpy as np
+import pytest
 
 from napari_animation import Animation
 
@@ -104,9 +106,20 @@ def test_thumbnail_generation(empty_animation):
     assert thumbnail.min() >= 0
 
 
-def test_animate(animation_with_keyframes, tmp_path):
-    """Test that Animation.animate() produces files"""
-    for extension in ('.mp4', '.mov', ''):
-        output_filename = tmp_path / ('test' + extension)
-        animation_with_keyframes.animate(output_filename)
-        assert output_filename.exists()
+@patch('napari_animation.animation.imsave')
+@patch('imageio.get_writer')
+@patch('napari_animation.Animation._frame_generator', return_value=['frame'] * 30)
+@pytest.mark.parametrize('ext', ['.mp4', '.mov', ''])
+def test_animate_filenames(frame_gen, get_writer, imsave, animation_with_keyframes, ext,
+                           tmp_path):
+    """Test that Animation.animate() produces files with the correct filenames"""
+    output_filename = tmp_path / f'test{ext}'
+    animation_with_keyframes.animate(output_filename)
+    if ext in ('.mp4', '.mov'):
+        expected_filename = output_filename
+        saved_filename = get_writer.call_args[0][0]
+        assert saved_filename == expected_filename
+    elif ext == '':
+        expected = [output_filename / f'test_{i}.png' for i in range(30)]
+        saved_files = ([call[0][0] for call in imsave.call_args_list])
+        assert saved_files == expected
