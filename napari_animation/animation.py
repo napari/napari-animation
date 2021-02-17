@@ -214,6 +214,7 @@ class Animation:
 
         # create path object
         path_obj = Path(path)
+        folder_path = path_obj.absolute().parent.joinpath(path_obj.stem)
 
         # if path has no extension, save as fold of PNG
         save_as_folder = False
@@ -234,10 +235,9 @@ class Animation:
                 print(err)
                 print('Your movie will be saved as a series of PNG files.')
                 save_as_folder = True
-        else:
+
+        if save_as_folder:
             # if movie is saved as series of PNG, create a folder
-            folder_path = path_obj.absolute()
-            folder_path = path_obj.parent.joinpath(path_obj.stem)
             folder_path.mkdir(exist_ok=True)
 
         # save frames
