@@ -14,3 +14,4 @@ def test_limits(easing_func):
     tolerance = 1e-7
     assert np.min(result) >= 0 - tolerance
     assert np.max(result) <= 1 + tolerance
+
