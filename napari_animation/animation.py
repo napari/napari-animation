@@ -96,6 +96,7 @@ class Animation:
         new_state = {
             'camera': self.viewer.camera.dict(),
             'dims': self.viewer.dims.dict(),
+            'layers': self._get_layer_state(),
         }
 
         # Log transform zoom for linear interpolation
@@ -116,6 +117,34 @@ class Animation:
 
         self.viewer.camera.update(camera_state)
         self.viewer.dims.update(state['dims'])
+        self._set_layer_state(state['layers'])
+
+    def _layer_names(self):
+        return [layer.name for layer in self.viewer.layers]
+
+    def _get_layer_visibility(self):
+        return {layer_name: self.viewer.layers[layer_name].visible for layer_name in
+                self._layer_names()}
+
+    def _get_layer_opacity(self):
+        return {layer_name: self.viewer.layers[layer_name].opacity for layer_name in
+                self._layer_names()}
+
+    def _get_layer_state(self):
+        """Store layer state attributes in a dict of dicts
+        dict keys are attribute names of the layers
+        dict values are a dict of form {layer_name: value} for each layer
+        """
+        layer_state = {
+            'visibile': self._get_layer_visibility(),
+            'opacity': self._get_layer_opacity()
+        }
+        return layer_state
+
+    def _set_layer_state(self, layer_state):
+        for attribute_name, value in layer_state.items():
+            for layer_name, attribute_value in value.items():
+                self.viewer.layers[layer_name].__setattr__(attribute_name, attribute_value)
 
     def _state_generator(self):
         if len(self.key_frames) < 2:
