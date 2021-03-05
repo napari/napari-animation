@@ -1,26 +1,11 @@
 import pytest
+from napari.utils._testsupport import make_napari_viewer  # noqa: F401
 
 from napari_animation import Animation
 
-@pytest.fixture
-def make_napari_viewer():
-    from napari import Viewer
-    viewers = []
-
-    def actual_factory(*model_args, viewer_class=Viewer, **model_kwargs):
-        model_kwargs.setdefault('show', False)
-        viewer = viewer_class(*model_args, **model_kwargs)
-        viewers.append(viewer)
-        return viewer
-
-    yield actual_factory
-
-    for viewer in viewers:
-        viewer.close()
-
 
 @pytest.fixture
-def empty_animation(make_napari_viewer):
+def empty_animation(make_napari_viewer):  # noqa: F811
     viewer = make_napari_viewer()
     animation = Animation(viewer)
     return animation
