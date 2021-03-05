@@ -93,8 +93,8 @@ class Animation:
         """
 
         new_state = {
-            'camera': self.viewer.camera.asdict(),
-            'dims': self.viewer.dims.asdict(),
+            'camera': self.viewer.camera.dict(),
+            'dims': self.viewer.dims.dict(),
         }
 
         # Log transform zoom for linear interpolation
