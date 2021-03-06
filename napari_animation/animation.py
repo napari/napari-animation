@@ -119,25 +119,39 @@ class Animation:
         self.viewer.dims.update(state['dims'])
         self._set_layer_state(state['layers'])
 
+    @property
+    def layers(self):
+        return self.viewer.layers
+
     def _layer_names(self):
-        return [layer.name for layer in self.viewer.layers]
+        return [layer.name for layer in self.layers]
 
-    def _get_layer_visibility(self):
-        return {layer_name: self.viewer.layers[layer_name].visible for layer_name in
-                self._layer_names()}
+    def _get_layer_attribute(self, attribute_name):
+        """Store layer attributes for all layers in a dict
+        key is layer name, value is named attribute from that layer
+        """
+        layer_attribute = {
+            layer_name: self.layers[layer_name].__getattribute__(attribute_name)
+            for layer_name in self._layer_names()
+        }
+        return layer_attribute
 
-    def _get_layer_opacity(self):
-        return {layer_name: self.viewer.layers[layer_name].opacity for layer_name in
-                self._layer_names()}
+    @property
+    def layer_attributes(self):
+        attributes = (
+            'visible',
+            'opacity',
+            'blending',
+        )
+        return attributes
 
     def _get_layer_state(self):
-        """Store layer state attributes in a dict of dicts
+        """Store layer state in a dict of dicts
         dict keys are attribute names of the layers
         dict values are a dict of form {layer_name: value} for each layer
         """
         layer_state = {
-            'visibile': self._get_layer_visibility(),
-            'opacity': self._get_layer_opacity()
+            a: self._get_layer_attribute(a) for a in self.layer_attributes
         }
         return layer_state
 
