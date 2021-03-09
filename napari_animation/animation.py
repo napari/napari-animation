@@ -76,7 +76,7 @@ class Animation:
         """
         self.frame = frame
         if len(self.key_frames) > 0 and self.frame > -1:
-            self._set_viewer_state(self.key_frames[frame])
+            self._set_viewer_state(self.key_frames[frame]['viewer'])
 
     def set_to_current_keyframe(self):
         """Set the viewer to the current key-frame
