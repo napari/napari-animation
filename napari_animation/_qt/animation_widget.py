@@ -140,12 +140,14 @@ class AnimationWidget(QWidget):
 
         new_frame = (self.animation.frame + 1) % len(self.animation.key_frames)
         self.animation.set_to_keyframe(new_frame)
+        self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _key_back_frame(self, event=None):
         """Go backwards in key-frame list"""
 
         new_frame = (self.animation.frame - 1) % len(self.animation.key_frames)
         self.animation.set_to_keyframe(new_frame)
+        self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _save_callback(self, event=None):
         SaveAnimationDialog(self.animation.animate, parent=self).exec_()
