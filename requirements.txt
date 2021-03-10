@@ -1,4 +1,5 @@
 imageio
+imageio-ffmpeg
 napari>=0.4.4
 napari-plugin-engine>=0.1.9
 numpy
