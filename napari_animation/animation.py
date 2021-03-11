@@ -1,11 +1,11 @@
 from copy import deepcopy
+from pathlib import Path
 
 import imageio
 import numpy as np
+from napari.layers.utils.layer_utils import convert_to_uint8
 from napari.utils.events import EventedList
 from napari.utils.io import imsave
-from napari.layers.utils.layer_utils import convert_to_uint8
-from pathlib import Path
 from scipy import ndimage as ndi
 
 from .utils import interpolate_state
@@ -75,13 +75,13 @@ class Animation:
             Key-frame to visualize
         """
         self.frame = frame
-        if len(self.key_frames) > 0 and self.frame > -1:
-            self._set_viewer_state(self.key_frames[frame]['viewer'])
+        self.set_to_current_keyframe()
 
     def set_to_current_keyframe(self):
         """Set the viewer to the current key-frame
         """
-        self._set_viewer_state(self.key_frames[self.frame]['viewer'])
+        if len(self.key_frames) > 0 and self.frame > -1:
+            self._set_viewer_state(self.key_frames[self.frame]['viewer'])
 
     def _get_viewer_state(self):
         """Capture current viewer state
@@ -93,8 +93,8 @@ class Animation:
         """
 
         new_state = {
-            'camera': self.viewer.camera.asdict(),
-            'dims': self.viewer.dims.asdict(),
+            'camera': self.viewer.camera.dict(),
+            'dims': self.viewer.dims.dict(),
         }
 
         # Log transform zoom for linear interpolation
@@ -214,6 +214,7 @@ class Animation:
 
         # create path object
         path_obj = Path(path)
+        folder_path = path_obj.absolute().parent.joinpath(path_obj.stem)
 
         # if path has no extension, save as fold of PNG
         save_as_folder = False
@@ -234,10 +235,9 @@ class Animation:
                 print(err)
                 print('Your movie will be saved as a series of PNG files.')
                 save_as_folder = True
-        else:
+
+        if save_as_folder:
             # if movie is saved as series of PNG, create a folder
-            folder_path = path_obj.absolute()
-            folder_path = path_obj.parent.joinpath(path.stem)
             folder_path.mkdir(exist_ok=True)
 
         # save frames
@@ -248,7 +248,7 @@ class Animation:
             if not save_as_folder:
                 writer.append_data(frame)
             else:
-                fname = path_obj.stem + '_' + str(ind) + '.png'
+                fname = folder_path / (path_obj.stem + '_' + str(ind) + '.png')
                 imsave(fname, frame)
 
         if not save_as_folder:
