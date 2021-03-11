@@ -3,13 +3,13 @@ discovery at test time.
 https://docs.pytest.org/en/stable/fixture.html
 """
 import pytest
-from napari.utils._testsupport import make_napari_viewer  # noqa: F401
 
 from napari_animation import Animation
 
 
 @pytest.fixture
-def empty_animation(make_napari_viewer):  # noqa: F811
+def empty_animation(make_napari_viewer):
+    # make_napari_viewer fixture is provided by napari
     viewer = make_napari_viewer()
     animation = Animation(viewer)
     return animation
