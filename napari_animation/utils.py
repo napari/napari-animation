@@ -1,7 +1,3 @@
-from copy import deepcopy
-
-import numpy as np
-
 from .easing import Easing
 
 
@@ -41,15 +37,20 @@ def interpolate_state(initial_state, final_state, fraction):
     elif isinstance(initial_state, int) and isinstance(final_state, int):
         return _interpolate_int(initial_state, final_state, fraction)
 
-    elif isinstance(initial_state, (list, tuple)) and isinstance(final_state, (list, tuple)):
-        return tuple(interpolate_state(v0, v1, fraction) for v0, v1 in zip(initial_state, final_state))
+    elif isinstance(initial_state, (list, tuple)) and isinstance(
+        final_state, (list, tuple)
+    ):
+        return tuple(
+            interpolate_state(v0, v1, fraction)
+            for v0, v1 in zip(initial_state, final_state)
+        )
 
     else:
         return _interpolate_bool(initial_state, final_state, fraction)
 
 
 def _interpolate_float(a, b, fraction):
-    return a + (b - a) * fraction
+    return float(a + (b - a) * fraction)
 
 
 def _interpolate_int(a, b, fraction):
@@ -63,6 +64,6 @@ def _interpolate_bool(a, b, fraction):
         return b
 
 
-def _easing_func_to_name(func):
-    [name] = [e.name for e in Easing if e.value is func]
+def _easing_func_to_name(easing_function):
+    [name] = [e.name for e in Easing if e.value is easing_function]
     return name
