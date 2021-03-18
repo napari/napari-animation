@@ -231,9 +231,9 @@ class Animation:
                     )
                 else:
                     writer = imageio.get_writer(path, fps=fps, format=format)
-            except ImportError as err:
+            except ValueError as err:
                 print(err)
-                print('Your movie will be saved as a series of PNG files.')
+                print('Your file will be saved as an .mp4 file.')
                 save_as_folder = True
 
         if save_as_folder:
