@@ -26,7 +26,7 @@ class SaveAnimationDialog(QFileDialog):
         super().__init__(parent=parent)
         self.setAcceptMode(QFileDialog.AcceptSave)
         self.setFileMode(QFileDialog.AnyFile)
-        self.setNameFilters({'Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)', 'Any files (*)'})
+        self.setNameFilters({'Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)', 'Folder of PNGs (*)'})
         self.setDirectory(directory)
 
         self.animate_function = animate_function
