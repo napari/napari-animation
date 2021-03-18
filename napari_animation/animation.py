@@ -225,7 +225,7 @@ class Animation:
         if not save_as_folder:
             try:
                 # create imageio writer and add all frames
-                if quality is not None:
+                if path_obj.suffix in ['mov', 'avi', 'mpg', 'mpeg', 'mp4', 'mkv', 'wmv']:
                     writer = imageio.get_writer(
                         path, fps=fps, quality=quality, format=format,
                     )
