@@ -26,7 +26,7 @@ class SaveAnimationDialog(QFileDialog):
         super().__init__(parent=parent)
         self.setAcceptMode(QFileDialog.AcceptSave)
         self.setFileMode(QFileDialog.AnyFile)
-        self.setNameFilter('Video files (*.mp4)')
+        self.setNameFilters({'Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)', 'Any files (*)'})
         self.setDirectory(directory)
 
         self.animate_function = animate_function
@@ -34,7 +34,6 @@ class SaveAnimationDialog(QFileDialog):
     def accept(self):
         save_path = Path(self.selectedFiles()[0])
         if save_path.suffix == '':
-            save_path = save_path.parent / (save_path.stem + '.png')
             if save_path.exists():
                 res = QMessageBox().warning(
                     self,
