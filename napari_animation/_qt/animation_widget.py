@@ -1,4 +1,5 @@
-from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
+from pathlib import Path
+from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog
 
 from ..animation import Animation
 from .frame_widget import FrameWidget
@@ -150,7 +151,16 @@ class AnimationWidget(QWidget):
         self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _save_callback(self, event=None):
-        SaveAnimationDialog(self.animation.animate, parent=self).exec_()
+
+        filters = (
+            "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
+            ";;Folder of PNGs (*)"  # sep filters with ";;"
+        )
+        filename, _filter = QFileDialog.getSaveFileName(
+            self, "Save animation", str(Path.home()), filters
+        )
+        if filename:
+            self.animation.animate(filename)
 
     def _update_theme(self, event=None):
         """Update from the napari GUI theme"""
