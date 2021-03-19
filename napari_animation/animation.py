@@ -190,16 +190,16 @@ class Animation:
         Parameters
         -------
         path : str
-            path to use for saving the movie (can also be a path)
-            should be either .mp4 or .gif. If no extension is provided,
-            images are saved as a folder of PNGs
+            path to use for saving the movie (can also be a path). Extension
+            should be one of .gif, .mp4, .mov, .avi, .mpg, .mpeg, .mkv, .wmv
+            If no extension is provided, images are saved as a folder of PNGs
         interpolation_steps : int
             Number of steps for interpolation.
         fps : int
             frames per second
         quality: float
             number from 1 (lowest quality) to 9
-            only applies to mp4
+            only applies to non-gif extensions
         format: str
             The format to use to write the file. By default imageio selects the appropriate for you based on the filename.
         canvas_only : bool
@@ -224,7 +224,8 @@ class Animation:
         # try to create an ffmpeg writer. If not installed default to folder creation
         if not save_as_folder:
             try:
-                # create imageio writer and add all frames
+                # create imageio writer. Handle separately imageio-ffmpeg extensions and
+                # gif extension which doesn't accept the quality parameter.
                 if path_obj.suffix in ['mov', 'avi', 'mpg', 'mpeg', 'mp4', 'mkv', 'wmv']:
                     writer = imageio.get_writer(
                         path, fps=fps, quality=quality, format=format,
@@ -233,7 +234,7 @@ class Animation:
                     writer = imageio.get_writer(path, fps=fps, format=format)
             except ValueError as err:
                 print(err)
-                print('Your file will be saved as an .mp4 file.')
+                print('Your file will be saved as a series of PNG files')
                 save_as_folder = True
 
         if save_as_folder:
