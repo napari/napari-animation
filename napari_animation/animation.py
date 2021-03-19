@@ -119,7 +119,7 @@ class Animation:
 
     def _state_generator(self):
         if len(self.key_frames) < 2:
-            raise ValueError(f'Must have at least 2 key frames, recieved {len(self.key_frames)}')
+            raise ValueError(f'Must have at least 2 key frames, received {len(self.key_frames)}')
         for frame in range(len(self.key_frames) - 1):
             initial_state = self.key_frames[frame]["viewer"]
             final_state = self.key_frames[frame + 1]["viewer"]
@@ -209,6 +209,9 @@ class Animation:
             Rescaling factor for the image size. Only used without
             viewer (with_viewer = False).
         """
+
+        if len(self.key_frames) < 2:
+            raise ValueError(f'You need at least two key frames to generate an animation. Your only have {len(self.key_frames)}')
 
         # create a frame generator
         frame_gen = self._frame_generator(canvas_only=canvas_only)
