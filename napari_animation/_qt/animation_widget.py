@@ -1,11 +1,10 @@
 from pathlib import Path
-from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog
+from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog, QErrorMessage
 
 from ..animation import Animation
 from .frame_widget import FrameWidget
 from .keyframeslist_widget import KeyFramesListWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
-from .dialogs import SaveAnimationDialog
 
 
 class AnimationWidget(QWidget):
@@ -152,15 +151,22 @@ class AnimationWidget(QWidget):
 
     def _save_callback(self, event=None):
 
-        filters = (
-            "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
-            ";;Folder of PNGs (*)"  # sep filters with ";;"
-        )
-        filename, _filter = QFileDialog.getSaveFileName(
-            self, "Save animation", str(Path.home()), filters
-        )
-        if filename:
-            self.animation.animate(filename)
+        if len(self.animation.key_frames) < 2:
+            error_dialog = QErrorMessage()
+            error_dialog.showMessage(f'You need at least two key frames to generate \
+                an animation. Your only have {len(self.animation.key_frames)}')
+            error_dialog.exec_()
+
+        else:
+            filters = (
+                "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
+                ";;Folder of PNGs (*)"  # sep filters with ";;"
+            )
+            filename, _filter = QFileDialog.getSaveFileName(
+                self, "Save animation", str(Path.home()), filters
+            )
+            if filename:
+                self.animation.animate(filename)
 
     def _update_theme(self, event=None):
         """Update from the napari GUI theme"""
