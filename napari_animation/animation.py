@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
+import os
 
 import imageio
 import numpy as np
@@ -239,7 +240,11 @@ class Animation:
 
         if save_as_folder:
             # if movie is saved as series of PNG, create a folder
-            folder_path.mkdir(exist_ok=True)
+            if folder_path.is_dir():
+                for f in folder_path.glob('*.png'):
+                    os.remove(f)
+            else:
+                folder_path.mkdir(exist_ok=True)
 
         # save frames
         for ind, frame in enumerate(frame_gen):
