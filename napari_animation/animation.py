@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
+import os
 
 import imageio
 import numpy as np
@@ -118,7 +119,7 @@ class Animation:
 
     def _state_generator(self):
         if len(self.key_frames) < 2:
-            raise ValueError(f'Must have at least 2 key frames, recieved {len(self.key_frames)}')
+            raise ValueError(f'Must have at least 2 key frames, received {len(self.key_frames)}')
         for frame in range(len(self.key_frames) - 1):
             initial_state = self.key_frames[frame]["viewer"]
             final_state = self.key_frames[frame + 1]["viewer"]
@@ -190,16 +191,16 @@ class Animation:
         Parameters
         -------
         path : str
-            path to use for saving the movie (can also be a path)
-            should be either .mp4 or .gif. If no extension is provided,
-            images are saved as a folder of PNGs
+            path to use for saving the movie (can also be a path). Extension
+            should be one of .gif, .mp4, .mov, .avi, .mpg, .mpeg, .mkv, .wmv
+            If no extension is provided, images are saved as a folder of PNGs
         interpolation_steps : int
             Number of steps for interpolation.
         fps : int
             frames per second
         quality: float
             number from 1 (lowest quality) to 9
-            only applies to mp4
+            only applies to non-gif extensions
         format: str
             The format to use to write the file. By default imageio selects the appropriate for you based on the filename.
         canvas_only : bool
@@ -208,6 +209,9 @@ class Animation:
             Rescaling factor for the image size. Only used without
             viewer (with_viewer = False).
         """
+
+        if len(self.key_frames) < 2:
+            raise ValueError(f'You need at least two key frames to generate an animation. Your only have {len(self.key_frames)}')
 
         # create a frame generator
         frame_gen = self._frame_generator(canvas_only=canvas_only)
@@ -224,21 +228,26 @@ class Animation:
         # try to create an ffmpeg writer. If not installed default to folder creation
         if not save_as_folder:
             try:
-                # create imageio writer and add all frames
-                if quality is not None:
+                # create imageio writer. Handle separately imageio-ffmpeg extensions and
+                # gif extension which doesn't accept the quality parameter.
+                if path_obj.suffix in ['mov', 'avi', 'mpg', 'mpeg', 'mp4', 'mkv', 'wmv']:
                     writer = imageio.get_writer(
                         path, fps=fps, quality=quality, format=format,
                     )
                 else:
                     writer = imageio.get_writer(path, fps=fps, format=format)
-            except ImportError as err:
+            except ValueError as err:
                 print(err)
-                print('Your movie will be saved as a series of PNG files.')
+                print('Your file will be saved as a series of PNG files')
                 save_as_folder = True
 
         if save_as_folder:
             # if movie is saved as series of PNG, create a folder
-            folder_path.mkdir(exist_ok=True)
+            if folder_path.is_dir():
+                for f in folder_path.glob('*.png'):
+                    os.remove(f)
+            else:
+                folder_path.mkdir(exist_ok=True)
 
         # save frames
         for ind, frame in enumerate(frame_gen):
