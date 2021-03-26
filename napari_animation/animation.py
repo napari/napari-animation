@@ -126,16 +126,6 @@ class Animation:
     def _layer_names(self):
         return [layer.name for layer in self.layers]
 
-    def _get_layer_attribute(self, attribute_name):
-        """Store layer attributes for all layers in a dict
-        key is layer name, value is named attribute from that layer
-        """
-        layer_attribute = {
-            layer_name: self.layers[layer_name].__getattribute__(attribute_name)
-            for layer_name in self._layer_names()
-        }
-        return layer_attribute
-
     @property
     def layer_attributes(self):
         attributes = (
@@ -146,19 +136,15 @@ class Animation:
         return attributes
 
     def _get_layer_state(self):
-        """Store layer state in a dict of dicts
-        dict keys are attribute names of the layers
-        dict values are a dict of form {layer_name: value} for each layer
+        """Store layer state in a dict of dicts {layer.name: state}
         """
-        layer_state = {
-            a: self._get_layer_attribute(a) for a in self.layer_attributes
-        }
-        return layer_state
+        return {layer.name: layer._get_state() for layer in self.layers}
 
     def _set_layer_state(self, layer_state):
-        for attribute_name, value in layer_state.items():
-            for layer_name, attribute_value in value.items():
-                self.viewer.layers[layer_name].__setattr__(attribute_name, attribute_value)
+        for layer_name, layer_state in layer_state.items():
+            layer = self.viewer.layers[layer_name]
+            for key, value in layer_state:
+                setattr(layer, key, value)
 
     def _state_generator(self):
         if len(self.key_frames) < 2:
