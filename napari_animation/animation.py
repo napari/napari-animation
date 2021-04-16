@@ -137,7 +137,13 @@ class Animation:
     def _get_layer_state(self):
         """Store layer state in a dict of dicts {layer.name: state}
         """
-        return {layer.name: layer._get_base_state() for layer in self.layers}
+        layer_state = {
+            layer.name: layer._get_base_state() for layer in self.layers
+        }
+        # remove metadata from layer_state dicts
+        for state in layer_state.values():
+            state.pop('metadata')
+        return layer_state
 
     def _set_layer_state(self, layer_state):
         for layer_name, layer_state in layer_state.items():
