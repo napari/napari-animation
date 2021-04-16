@@ -138,12 +138,13 @@ class Animation:
     def _get_layer_state(self):
         """Store layer state in a dict of dicts {layer.name: state}
         """
-        return {layer.name: layer._get_state() for layer in self.layers}
+        return {layer.name: layer._get_base_state() for layer in self.layers}
 
     def _set_layer_state(self, layer_state):
         for layer_name, layer_state in layer_state.items():
             layer = self.viewer.layers[layer_name]
-            for key, value in layer_state:
+            print(layer_state)
+            for key, value in layer_state.items():
                 setattr(layer, key, value)
 
     def _state_generator(self):
