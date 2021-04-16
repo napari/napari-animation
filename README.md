@@ -72,8 +72,7 @@ animation.animate('demo.mov', canvas_only=False)
 
 ## Is everything animate-able?
 
-Unfortunately, not yet! Currently we capture and animate differences in the following 
-objects
+Unfortunately, not yet! Currently differences in the following objects are tracked by the `Animation` class
 
 - `Viewer.camera`
 - `Viewer.dims`
@@ -85,6 +84,7 @@ objects
 - `Layer.blending`
 - `Layer.visible`
 
+Support for more layer attributes will be added in future releases.
 
 ## Contributing
 
