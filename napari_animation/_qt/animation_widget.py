@@ -114,7 +114,6 @@ class AnimationWidget(QWidget):
 
     def _init_scroller_interpol(self):
         self.scroller_interpol = QSlider(Qt.Horizontal, parent=self)
-        self.scroller.setMaximum(0)
         self._layout.addWidget(self.scroller_interpol)
 
     def _get_interpolation_steps(self):
