@@ -1,11 +1,11 @@
-from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QSlider
+from pathlib import Path
+from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QSlider
 from qtpy.QtCore import Qt
 
 from ..animation import Animation
 from .frame_widget import FrameWidget
 from .keyframeslist_widget import KeyFramesListWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
-from .dialogs import SaveAnimationDialog
 
 
 class AnimationWidget(QWidget):
@@ -173,7 +173,23 @@ class AnimationWidget(QWidget):
         self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _save_callback(self, event=None):
-        SaveAnimationDialog(self.animation.animate, parent=self).exec_()
+
+        if len(self.animation.key_frames) < 2:
+            error_dialog = QErrorMessage()
+            error_dialog.showMessage(f'You need at least two key frames to generate \
+                an animation. Your only have {len(self.animation.key_frames)}')
+            error_dialog.exec_()
+
+        else:
+            filters = (
+                "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
+                ";;Folder of PNGs (*)"  # sep filters with ";;"
+            )
+            filename, _filter = QFileDialog.getSaveFileName(
+                self, "Save animation", str(Path.home()), filters
+            )
+            if filename:
+                self.animation.animate(filename)
 
     def _scroll_callback(self, event=None):
         new_frame = self.scroller.value()
