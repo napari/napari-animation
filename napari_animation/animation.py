@@ -1,14 +1,13 @@
 from copy import deepcopy
 from pathlib import Path
-import os
 
 import imageio
 import numpy as np
+from scipy import ndimage as ndi
+
 from napari.layers.utils.layer_utils import convert_to_uint8
 from napari.utils.events import EventedList
 from napari.utils.io import imsave
-from scipy import ndimage as ndi
-
 from .utils import interpolate_state
 
 
@@ -76,13 +75,13 @@ class Animation:
             Key-frame to visualize
         """
         self.frame = frame
-        self.set_to_current_keyframe()
+        if len(self.key_frames) > 0 and self.frame > -1:
+            self._set_viewer_state(self.key_frames[frame]['viewer'])
 
     def set_to_current_keyframe(self):
         """Set the viewer to the current key-frame
         """
-        if len(self.key_frames) > 0 and self.frame > -1:
-            self._set_viewer_state(self.key_frames[self.frame]['viewer'])
+        self._set_viewer_state(self.key_frames[self.frame]['viewer'])
 
     def _get_viewer_state(self):
         """Capture current viewer state
@@ -143,7 +142,6 @@ class Animation:
     def _set_layer_state(self, layer_state):
         for layer_name, layer_state in layer_state.items():
             layer = self.viewer.layers[layer_name]
-            print(layer_state)
             for key, value in layer_state.items():
                 setattr(layer, key, value)
 
