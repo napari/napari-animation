@@ -52,8 +52,7 @@ class AnimationWidget(QWidget):
         self._init_keyframes_list_widget()
         self._init_frame_widget()
         self._init_save_button()
-        self._init_comute_states_button()
-        self._init_scroller()
+        self._init_compute_states_button()
         self._init_scroller_interpol()
 
     def _add_keybind_callbacks(self):
@@ -76,7 +75,6 @@ class AnimationWidget(QWidget):
         )
         self.saveButton.clicked.connect(self._save_callback)
         self.interpolButton.clicked.connect(self._compute_states_callback)
-        self.scroller.valueChanged.connect(self._scroll_callback)
         self.scroller_interpol.valueChanged.connect(self._scroll_interpol_callback)
         self.viewer.events.theme.connect(self._update_theme)
 
@@ -110,14 +108,9 @@ class AnimationWidget(QWidget):
         self.saveButton = QPushButton('Save Animation', parent=self)
         self._layout.addWidget(self.saveButton)
 
-    def _init_comute_states_button(self):
+    def _init_compute_states_button(self):
         self.interpolButton = QPushButton('Compute interpol', parent=self)
         self._layout.addWidget(self.interpolButton)
-
-    def _init_scroller(self):
-        self.scroller = QSlider(Qt.Horizontal, parent=self)
-        self.scroller.setMaximum(0)
-        self._layout.addWidget(self.scroller)
 
     def _init_scroller_interpol(self):
         self.scroller_interpol = QSlider(Qt.Horizontal, parent=self)
@@ -134,7 +127,6 @@ class AnimationWidget(QWidget):
         """Record current key-frame"""
         self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
                                         ease=self._get_easing_function())
-        self.scroller.setMaximum(len(self.animation.key_frames)-1)
         if len(self.animation.key_frames) == 1:
             self.keyframesListControlWidget.deleteButton.setEnabled(True)
             self.keyframesListWidget.setEnabled(True)
@@ -156,7 +148,6 @@ class AnimationWidget(QWidget):
             self.keyframesListControlWidget.deleteButton.setEnabled(False)
             self.keyframesListWidget.setEnabled(False)
             self.frameWidget.setEnabled(False)
-        self.scroller.setMaximum(len(self.animation.key_frames)-1)
 
     def _key_adv_frame(self, event=None):
         """Go forwards in key-frame list"""
@@ -190,11 +181,6 @@ class AnimationWidget(QWidget):
             )
             if filename:
                 self.animation.animate(filename)
-
-    def _scroll_callback(self, event=None):
-        new_frame = self.scroller.value()
-        self.animation.set_to_keyframe(new_frame)
-        self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _scroll_interpol_callback(self, event=None):
         new_frame = self.scroller_interpol.value()
