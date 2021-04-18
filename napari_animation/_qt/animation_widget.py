@@ -45,8 +45,6 @@ class AnimationWidget(QWidget):
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        self._layout.addWidget(QLabel('Animation Wizard', parent=self))
-
         self._init_keyframes_list_control_widget()
         self._init_keyframes_list_widget()
         self._init_frame_widget()
