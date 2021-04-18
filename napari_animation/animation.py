@@ -118,27 +118,11 @@ class Animation:
         self.viewer.dims.update(state['dims'])
         self._set_layer_state(state['layers'])
 
-    @property
-    def layers(self):
-        return self.viewer.layers
-
-    def _layer_names(self):
-        return [layer.name for layer in self.layers]
-
-    @property
-    def layer_attributes(self):
-        attributes = (
-            'visible',
-            'opacity',
-            'blending',
-        )
-        return attributes
-
     def _get_layer_state(self):
         """Store layer state in a dict of dicts {layer.name: state}
         """
         layer_state = {
-            layer.name: layer._get_base_state() for layer in self.layers
+            layer.name: layer._get_base_state() for layer in self.viewer.layers
         }
         # remove metadata from layer_state dicts
         for state in layer_state.values():
