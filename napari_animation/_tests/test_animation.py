@@ -5,6 +5,17 @@ import pytest
 
 from napari_animation import Animation
 
+CAPTURED_LAYER_ATTRIBUTES = [
+    'name',
+    'scale',
+    'translate',
+    'rotate',
+    'shear',
+    'opacity',
+    'blending',
+    'visible'
+]
+
 
 def test_animation(make_napari_viewer):
     """Test creation of an animation class."""
@@ -78,7 +89,7 @@ def test_thumbnail_generation(empty_animation):
 )  # noqa: E501
 @pytest.mark.parametrize("ext", [".mp4", ".mov", ""])
 def test_animate_filenames(
-    frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
+        frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
 ):
     """Test that Animation.animate() produces files with correct filenames"""
     output_filename = tmp_path / f"test{ext}"
@@ -91,3 +102,10 @@ def test_animate_filenames(
         expected = [output_filename / f"test_{i}.png" for i in range(30)]
         saved_files = [call[0][0] for call in imsave.call_args_list]
         assert saved_files == expected
+
+
+@pytest.mark.parametrize('attribute', CAPTURED_LAYER_ATTRIBUTES)
+def test_layer_attribute_capture(layer_state, attribute):
+    """Test that 'attribute' is captured in the layer state dictionary"""
+    for layer_state_dict in layer_state.values():
+        assert attribute in layer_state_dict.keys()

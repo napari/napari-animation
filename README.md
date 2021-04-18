@@ -70,6 +70,22 @@ animation.capture_keyframe()
 animation.animate('demo.mov', canvas_only=False)
 ```
 
+## Is everything animate-able?
+
+Unfortunately, not yet! Currently differences in the following objects are tracked by the `Animation` class
+
+- `Viewer.camera`
+- `Viewer.dims`
+- `Layer.scale`
+- `Layer.translate`
+- `Layer.rotate`
+- `Layer.shear`
+- `layer.opacity`
+- `Layer.blending`
+- `Layer.visible`
+
+Support for more layer attributes will be added in future releases.
+
 ## Contributing
 
 Contributions are very welcome. Tests and additional infrastructure are being setup.

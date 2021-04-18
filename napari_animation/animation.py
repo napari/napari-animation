@@ -1,14 +1,13 @@
 from copy import deepcopy
 from pathlib import Path
-import os
 
 import imageio
 import numpy as np
+from scipy import ndimage as ndi
+
 from napari.layers.utils.layer_utils import convert_to_uint8
 from napari.utils.events import EventedList
 from napari.utils.io import imsave
-from scipy import ndimage as ndi
-
 from .utils import interpolate_state
 
 
@@ -76,13 +75,13 @@ class Animation:
             Key-frame to visualize
         """
         self.frame = frame
-        self.set_to_current_keyframe()
+        if len(self.key_frames) > 0 and self.frame > -1:
+            self._set_viewer_state(self.key_frames[frame]['viewer'])
 
     def set_to_current_keyframe(self):
         """Set the viewer to the current key-frame
         """
-        if len(self.key_frames) > 0 and self.frame > -1:
-            self._set_viewer_state(self.key_frames[self.frame]['viewer'])
+        self._set_viewer_state(self.key_frames[self.frame]['viewer'])
 
     def _get_viewer_state(self):
         """Capture current viewer state
@@ -96,6 +95,7 @@ class Animation:
         new_state = {
             'camera': self.viewer.camera.dict(),
             'dims': self.viewer.dims.dict(),
+            'layers': self._get_layer_state(),
         }
 
         # Log transform zoom for linear interpolation
@@ -116,6 +116,24 @@ class Animation:
 
         self.viewer.camera.update(camera_state)
         self.viewer.dims.update(state['dims'])
+        self._set_layer_state(state['layers'])
+
+    def _get_layer_state(self):
+        """Store layer state in a dict of dicts {layer.name: state}
+        """
+        layer_state = {
+            layer.name: layer._get_base_state() for layer in self.viewer.layers
+        }
+        # remove metadata from layer_state dicts
+        for state in layer_state.values():
+            state.pop('metadata')
+        return layer_state
+
+    def _set_layer_state(self, layer_state):
+        for layer_name, layer_state in layer_state.items():
+            layer = self.viewer.layers[layer_name]
+            for key, value in layer_state.items():
+                setattr(layer, key, value)
 
     def _state_generator(self):
         if len(self.key_frames) < 2:
