@@ -136,19 +136,29 @@ class Animation:
                 setattr(layer, key, value)
 
     def _state_generator(self):
-        if len(self.key_frames) < 2:
-            raise ValueError(f'Must have at least 2 key frames, received {len(self.key_frames)}')
-        for frame in range(len(self.key_frames) - 1):
-            initial_state = self.key_frames[frame]["viewer"]
-            final_state = self.key_frames[frame + 1]["viewer"]
-            interpolation_steps = self.key_frames[frame + 1]["steps"]
-            ease = self.key_frames[frame + 1]["ease"]
+        self._validate_animation()
+        # iterate over and interpolate between pairs of key-frames
+        for current_frame, next_frame in zip(self.key_frames, self.key_frames[1:]):
+            # capture necessary info for interpolation
+            initial_state = current_frame["viewer"]
+            final_state = next_frame["viewer"]
+            interpolation_steps = next_frame["steps"]
+            ease = next_frame["ease"]
+
+            # generate intermediate states between key-frames
             for interp in range(interpolation_steps):
                 fraction = interp / interpolation_steps
                 if ease is not None:
                     fraction = ease(fraction)
                 state = interpolate_state(initial_state, final_state, fraction)
                 yield state
+
+        # be sure to include the final state
+        yield final_state
+
+    def _validate_animation(self):
+        if len(self.key_frames) < 2:
+            raise ValueError(f'Must have at least 2 key frames, received {len(self.key_frames)}')
 
     def _frame_generator(self, canvas_only=True):
         total = np.sum([f["steps"] for f in self.key_frames[1:]])
