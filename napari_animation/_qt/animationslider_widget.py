@@ -21,6 +21,7 @@ class AnimationSliderWidget(QSlider):
 
         self.animation = animation
         self.requires_update = True
+        self.setToolTip("Scroll through animation")
 
     def _compute_states(self):
         """Computer interpolation states"""
