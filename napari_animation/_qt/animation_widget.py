@@ -6,6 +6,7 @@ from ..animation import Animation
 from .frame_widget import FrameWidget
 from .keyframeslist_widget import KeyFramesListWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
+from .animationslider_widget import AnimationSliderWidget
 
 
 class AnimationWidget(QWidget):
@@ -41,9 +42,6 @@ class AnimationWidget(QWidget):
         # Update theme
         self._update_theme()
 
-        # state interpolation updated needed because key-frame changed
-        self.up_to_date_interpolation = False
-
     def _init_ui(self):
         """Initialise user interface"""
         self._layout = QVBoxLayout()
@@ -55,7 +53,7 @@ class AnimationWidget(QWidget):
         self._init_keyframes_list_widget()
         self._init_frame_widget()
         self._init_save_button()
-        self._init_scroller_interpol()
+        self._init_animation_slider_widget()
 
     def _add_keybind_callbacks(self):
         """Bind keys"""
@@ -76,7 +74,7 @@ class AnimationWidget(QWidget):
             self._capture_keyframe_callback
         )
         self.saveButton.clicked.connect(self._save_callback)
-        self.scroller_interpol.valueChanged.connect(self._scroll_interpol_callback)
+        self.animationsliderWidget.valueChanged.connect(self._move_animationslider_callback)
         self.viewer.events.theme.connect(self._update_theme)
 
     def _release_callbacks(self):
@@ -109,9 +107,10 @@ class AnimationWidget(QWidget):
         self.saveButton = QPushButton('Save Animation', parent=self)
         self._layout.addWidget(self.saveButton)
 
-    def _init_scroller_interpol(self):
-        self.scroller_interpol = QSlider(Qt.Horizontal, parent=self)
-        self._layout.addWidget(self.scroller_interpol)
+    def _init_animation_slider_widget(self):
+        self.animationsliderWidget = AnimationSliderWidget(
+            self.animation, orientation=Qt.Horizontal, parent=self)
+        self._layout.addWidget(self.animationsliderWidget)
 
     def _get_interpolation_steps(self):
         return int(self.frameWidget.stepsSpinBox.value())
@@ -127,7 +126,7 @@ class AnimationWidget(QWidget):
             self.keyframesListControlWidget.deleteButton.setEnabled(True)
             self.keyframesListWidget.setEnabled(True)
             self.frameWidget.setEnabled(True)
-        self.up_to_date_interpolation = False
+        self.animationsliderWidget.requires_update = True
 
     def _update_frame_widget_from_animation(self):
         self.frameWidget.update_from_animation()
@@ -136,7 +135,7 @@ class AnimationWidget(QWidget):
         """Replace current key-frame with new view"""
         self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
                                         ease=self._get_easing_function(), insert=False)
-        self.up_to_date_interpolation = False
+        self.animationsliderWidget.requires_update = True
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
@@ -146,7 +145,7 @@ class AnimationWidget(QWidget):
             self.keyframesListControlWidget.deleteButton.setEnabled(False)
             self.keyframesListWidget.setEnabled(False)
             self.frameWidget.setEnabled(False)
-        self.up_to_date_interpolation = False
+        self.animationsliderWidget.requires_update = True
 
     def _key_adv_frame(self, event=None):
         """Go forwards in key-frame list"""
@@ -181,22 +180,14 @@ class AnimationWidget(QWidget):
             if filename:
                 self.animation.animate(filename)
 
-    def _scroll_interpol_callback(self, event=None):
+    def _move_animationslider_callback(self, event=None):
         """Scroll through interpolated states. Computes states if key-frames changed"""
-        if not self.up_to_date_interpolation:
-            self._compute_states()
-        new_frame = self.scroller_interpol.value()
-        self.animation._set_viewer_state(self.interpol_states[new_frame])
+        if self.animationsliderWidget.requires_update:
+            self.animationsliderWidget._compute_states()
+        new_frame = self.animationsliderWidget.value()
+        self.animation._set_viewer_state(self.animationsliderWidget.interpol_states[new_frame])
         new_key_frame = new_frame // int(self.frameWidget.stepsSpinBox.value())
         self.keyframesListWidget.setCurrentRow(new_key_frame)
-
-    def _compute_states(self):
-        """Computer interpolation states"""
-        self.interpol_states = []
-        for i, state in enumerate(self.animation._state_generator()):
-            self.interpol_states.append(state)
-        self.scroller_interpol.setMaximum(len(self.interpol_states)-1)
-        self.up_to_date_interpolation = True
 
     def _update_theme(self, event=None):
         """Update from the napari GUI theme"""
