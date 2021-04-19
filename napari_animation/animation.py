@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 from pathlib import Path
 
@@ -65,6 +66,15 @@ class Animation:
             self.frame += 1
         else:
             self.key_frames[self.frame] = new_state
+
+    @property
+    def n_frames(self):
+        """The total frame count of the animation
+        """
+        if len(self.key_frames) >= 2:
+            return np.sum([f["steps"] for f in self.key_frames[1:]]) + 1
+        else:
+            return 0
 
     def set_to_keyframe(self, frame):
         """Set the viewer to a given key-frame
@@ -161,9 +171,8 @@ class Animation:
             raise ValueError(f'Must have at least 2 key frames, received {len(self.key_frames)}')
 
     def _frame_generator(self, canvas_only=True):
-        total = np.sum([f["steps"] for f in self.key_frames[1:]])
         for i, state in enumerate(self._state_generator()):
-            print('Rendering frame ', i + 1, 'of', total)
+            print('Rendering frame ', i + 1, 'of', self.n_frames)
             self._set_viewer_state(state)
             frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
@@ -237,9 +246,7 @@ class Animation:
             Rescaling factor for the image size. Only used without
             viewer (with_viewer = False).
         """
-
-        if len(self.key_frames) < 2:
-            raise ValueError(f'You need at least two key frames to generate an animation. Your only have {len(self.key_frames)}')
+        self._validate_animation()
 
         # create a frame generator
         frame_gen = self._frame_generator(canvas_only=canvas_only)
