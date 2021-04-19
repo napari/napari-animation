@@ -109,3 +109,15 @@ def test_layer_attribute_capture(layer_state, attribute):
     """Test that 'attribute' is captured in the layer state dictionary"""
     for layer_state_dict in layer_state.values():
         assert attribute in layer_state_dict.keys()
+
+
+def test_end_state_reached(image_animation):
+    """Check that animation ends in the same state as the final key-frame
+    """
+    image_animation.capture_keyframe()
+    image_animation.viewer.dims.current_step = (28, 0)
+    image_animation.capture_keyframe(steps=2)
+    for state in image_animation._state_generator():
+        pass
+    assert state == image_animation.key_frames[-1]['viewer']
+
