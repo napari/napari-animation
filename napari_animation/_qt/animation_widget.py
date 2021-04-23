@@ -19,10 +19,10 @@ class AnimationWidget(QWidget):
 
     Attributes
     ----------
-    key_frames : list of dict
-        List of viewer state dictionaries.
-    frame : int
-        Currently shown key frame.
+    viewer : napari.Viewer
+        napari viewer.
+    animation : napari_animation.Animation
+        napari-animation animation in sync with the GUI.
     """
 
     def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
@@ -184,7 +184,8 @@ class AnimationWidget(QWidget):
             self.animationsliderWidget._compute_states()
         new_frame = self.animationsliderWidget.value()
         self.animation._set_viewer_state(self.animationsliderWidget.interpol_states[new_frame])
-        new_key_frame = new_frame // int(self.frameWidget.stepsSpinBox.value())
+
+        new_key_frame = (self.animationsliderWidget.keyframe_to_frame > new_frame).argmax()
         self.keyframesListWidget.setCurrentRow(new_key_frame)
 
     def _update_theme(self, event=None):

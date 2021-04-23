@@ -17,7 +17,7 @@ class FrameWidget(QWidget):
 
     def _init_steps(self):
         self.stepsSpinBox = QSpinBox()
-        self.stepsSpinBox.setValue(15)
+        self.stepsSpinBox.setValue(30)
         self._layout.addRow('Steps', self.stepsSpinBox)
 
     def _init_ease(self):
@@ -70,3 +70,4 @@ class FrameWidget(QWidget):
         """
         self.stepsSpinBox.valueChanged.connect(self._update_animation_steps)
         self.easeComboBox.currentIndexChanged.connect(self._update_animation_ease)
+        
