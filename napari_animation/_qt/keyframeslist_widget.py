@@ -42,6 +42,7 @@ class KeyFramesListWidget(QListWidget):
         """
         super().dropEvent(event)
         self._reorder_backend()
+        self._update_frame_number()
 
     def _selection_callback(self):
         self._update_frame_number()
