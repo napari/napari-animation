@@ -143,7 +143,10 @@ class Animation:
         for layer_name, layer_state in layer_state.items():
             layer = self.viewer.layers[layer_name]
             for key, value in layer_state.items():
-                setattr(layer, key, value)
+                original_value = getattr(layer, key)
+                # Only set if value differs to avoid expensive redraws
+                if not np.array_equal(original_value, value):
+                    setattr(layer, key, value)
 
     def _state_generator(self):
         self._validate_animation()
