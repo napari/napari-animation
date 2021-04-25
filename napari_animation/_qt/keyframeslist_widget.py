@@ -28,7 +28,7 @@ class KeyFramesListWidget(QListWidget):
         self._connect_key_frame_callbacks()
         self.setDragDropMode(super().InternalMove)
 
-        self.itemClicked.connect(self._selection_callback)
+        self.itemSelectionChanged.connect(self._selection_callback)
 
     def _connect_key_frame_callbacks(self):
         """Connect events on the key frame list to their callbacks
@@ -43,7 +43,7 @@ class KeyFramesListWidget(QListWidget):
         super().dropEvent(event)
         self._reorder_backend()
 
-    def _selection_callback(self, event):
+    def _selection_callback(self):
         self._update_frame_number()
         self.animation.set_to_current_keyframe()
         self.parentWidget()._update_frame_widget_from_animation()
