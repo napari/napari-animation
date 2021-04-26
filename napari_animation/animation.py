@@ -4,11 +4,11 @@ from pathlib import Path
 
 import imageio
 import numpy as np
-from scipy import ndimage as ndi
-
 from napari.layers.utils.layer_utils import convert_to_uint8
 from napari.utils.events import EventedList
 from napari.utils.io import imsave
+from scipy import ndimage as ndi
+
 from .utils import interpolate_state
 
 
@@ -55,10 +55,10 @@ class Animation:
             self.frame = frame
 
         new_state = {
-            'viewer': self._get_viewer_state(),
-            'thumbnail': self._generate_thumbnail(),
-            'steps': steps,
-            'ease': ease,
+            "viewer": self._get_viewer_state(),
+            "thumbnail": self._generate_thumbnail(),
+            "steps": steps,
+            "ease": ease,
         }
 
         if insert or self.frame == -1:
@@ -69,8 +69,7 @@ class Animation:
 
     @property
     def n_frames(self):
-        """The total frame count of the animation
-        """
+        """The total frame count of the animation"""
         if len(self.key_frames) >= 2:
             return np.sum([f["steps"] for f in self.key_frames[1:]]) + 1
         else:
@@ -86,12 +85,11 @@ class Animation:
         """
         self.frame = frame
         if len(self.key_frames) > 0 and self.frame > -1:
-            self._set_viewer_state(self.key_frames[frame]['viewer'])
+            self._set_viewer_state(self.key_frames[frame]["viewer"])
 
     def set_to_current_keyframe(self):
-        """Set the viewer to the current key-frame
-        """
-        self._set_viewer_state(self.key_frames[self.frame]['viewer'])
+        """Set the viewer to the current key-frame"""
+        self._set_viewer_state(self.key_frames[self.frame]["viewer"])
 
     def _get_viewer_state(self):
         """Capture current viewer state
@@ -103,13 +101,13 @@ class Animation:
         """
 
         new_state = {
-            'camera': self.viewer.camera.dict(),
-            'dims': self.viewer.dims.dict(),
-            'layers': self._get_layer_state(),
+            "camera": self.viewer.camera.dict(),
+            "dims": self.viewer.dims.dict(),
+            "layers": self._get_layer_state(),
         }
 
         # Log transform zoom for linear interpolation
-        new_state['camera']['zoom'] = np.log10(new_state['camera']['zoom'])
+        new_state["camera"]["zoom"] = np.log10(new_state["camera"]["zoom"])
         return new_state
 
     def _set_viewer_state(self, state):
@@ -121,22 +119,21 @@ class Animation:
             Description of viewer state.
         """
         # Undo log transform zoom for linear interpolation
-        camera_state = deepcopy(state['camera'])
-        camera_state['zoom'] = np.power(10, camera_state['zoom'])
+        camera_state = deepcopy(state["camera"])
+        camera_state["zoom"] = np.power(10, camera_state["zoom"])
 
         self.viewer.camera.update(camera_state)
-        self.viewer.dims.update(state['dims'])
-        self._set_layer_state(state['layers'])
+        self.viewer.dims.update(state["dims"])
+        self._set_layer_state(state["layers"])
 
     def _get_layer_state(self):
-        """Store layer state in a dict of dicts {layer.name: state}
-        """
+        """Store layer state in a dict of dicts {layer.name: state}"""
         layer_state = {
             layer.name: layer._get_base_state() for layer in self.viewer.layers
         }
         # remove metadata from layer_state dicts
         for state in layer_state.values():
-            state.pop('metadata')
+            state.pop("metadata")
         return layer_state
 
     def _set_layer_state(self, layer_state):
@@ -168,33 +165,31 @@ class Animation:
 
     def _validate_animation(self):
         if len(self.key_frames) < 2:
-            raise ValueError(f'Must have at least 2 key frames, received {len(self.key_frames)}')
+            raise ValueError(
+                f"Must have at least 2 key frames, received {len(self.key_frames)}"
+            )
 
     def _frame_generator(self, canvas_only=True):
         for i, state in enumerate(self._state_generator()):
-            print('Rendering frame ', i + 1, 'of', self.n_frames)
+            print("Rendering frame ", i + 1, "of", self.n_frames)
             self._set_viewer_state(state)
             frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
 
     def _generate_thumbnail(self):
-        """generate a thumbnail from viewer
-        """
+        """generate a thumbnail from viewer"""
         screenshot = self.viewer.screenshot(canvas_only=True)
         thumbnail = self._coerce_image_into_thumbnail_shape(screenshot)
         return thumbnail
 
     def _coerce_image_into_thumbnail_shape(self, image):
-        """Resizes an image to self._thumbnail_shape with padding
-        """
-        scale_factor = np.min(
-            np.divide(self._thumbnail_shape, image.shape)
-        )
+        """Resizes an image to self._thumbnail_shape with padding"""
+        scale_factor = np.min(np.divide(self._thumbnail_shape, image.shape))
         intermediate_image = ndi.zoom(image, (scale_factor, scale_factor, 1))
 
         padding_needed = np.subtract(self._thumbnail_shape, intermediate_image.shape)
         pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
-        thumbnail = np.pad(intermediate_image, pad_amounts, mode='constant')
+        thumbnail = np.pad(intermediate_image, pad_amounts, mode="constant")
         thumbnail = convert_to_uint8(thumbnail)
 
         # blend thumbnail with opaque black background
@@ -215,13 +210,13 @@ class Animation:
         return self.key_frames[self.frame]
 
     def animate(
-            self,
-            path,
-            fps=20,
-            quality=5,
-            format=None,
-            canvas_only=True,
-            scale_factor=None,
+        self,
+        path,
+        fps=20,
+        quality=5,
+        format=None,
+        canvas_only=True,
+        scale_factor=None,
     ):
         """Create a movie based on key-frames
 
@@ -265,21 +260,32 @@ class Animation:
             try:
                 # create imageio writer. Handle separately imageio-ffmpeg extensions and
                 # gif extension which doesn't accept the quality parameter.
-                if path_obj.suffix in ['mov', 'avi', 'mpg', 'mpeg', 'mp4', 'mkv', 'wmv']:
+                if path_obj.suffix in [
+                    "mov",
+                    "avi",
+                    "mpg",
+                    "mpeg",
+                    "mp4",
+                    "mkv",
+                    "wmv",
+                ]:
                     writer = imageio.get_writer(
-                        path, fps=fps, quality=quality, format=format,
+                        path,
+                        fps=fps,
+                        quality=quality,
+                        format=format,
                     )
                 else:
                     writer = imageio.get_writer(path, fps=fps, format=format)
             except ValueError as err:
                 print(err)
-                print('Your file will be saved as a series of PNG files')
+                print("Your file will be saved as a series of PNG files")
                 save_as_folder = True
 
         if save_as_folder:
             # if movie is saved as series of PNG, create a folder
             if folder_path.is_dir():
-                for f in folder_path.glob('*.png'):
+                for f in folder_path.glob("*.png"):
                     os.remove(f)
             else:
                 folder_path.mkdir(exist_ok=True)
@@ -292,7 +298,7 @@ class Animation:
             if not save_as_folder:
                 writer.append_data(frame)
             else:
-                fname = folder_path / (path_obj.stem + '_' + str(ind) + '.png')
+                fname = folder_path / (path_obj.stem + "_" + str(ind) + ".png")
                 imsave(fname, frame)
 
         if not save_as_folder:

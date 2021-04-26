@@ -6,14 +6,14 @@ import pytest
 from napari_animation import Animation
 
 CAPTURED_LAYER_ATTRIBUTES = [
-    'name',
-    'scale',
-    'translate',
-    'rotate',
-    'shear',
-    'opacity',
-    'blending',
-    'visible'
+    "name",
+    "scale",
+    "translate",
+    "rotate",
+    "shear",
+    "opacity",
+    "blending",
+    "visible",
 ]
 
 
@@ -89,7 +89,7 @@ def test_thumbnail_generation(empty_animation):
 )  # noqa: E501
 @pytest.mark.parametrize("ext", [".mp4", ".mov", ""])
 def test_animate_filenames(
-        frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
+    frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
 ):
     """Test that Animation.animate() produces files with correct filenames"""
     output_filename = tmp_path / f"test{ext}"
@@ -104,7 +104,7 @@ def test_animate_filenames(
         assert saved_files == expected
 
 
-@pytest.mark.parametrize('attribute', CAPTURED_LAYER_ATTRIBUTES)
+@pytest.mark.parametrize("attribute", CAPTURED_LAYER_ATTRIBUTES)
 def test_layer_attribute_capture(layer_state, attribute):
     """Test that 'attribute' is captured in the layer state dictionary"""
     for layer_state_dict in layer_state.values():
@@ -112,12 +112,10 @@ def test_layer_attribute_capture(layer_state, attribute):
 
 
 def test_end_state_reached(image_animation):
-    """Check that animation ends in the same state as the final key-frame
-    """
+    """Check that animation ends in the same state as the final key-frame"""
     image_animation.capture_keyframe()
     image_animation.viewer.dims.current_step = (28, 0)
     image_animation.capture_keyframe(steps=2)
     for state in image_animation._state_generator():
         pass
-    assert state == image_animation.key_frames[-1]['viewer']
-
+    assert state == image_animation.key_frames[-1]["viewer"]

@@ -6,28 +6,25 @@ https://raw.githubusercontent.com/warrenm/AHEasing/master/AHEasing/easing.c
 Copyright (c) 2011, Auerhaus Development, LLC
 http://sam.zoy.org/wtfpl/COPYING for more details.
 """
-from functools import partial
-from math import sqrt, pow, sin, cos, pi
 from enum import Enum
+from functools import partial
+from math import cos, pi, pow, sin, sqrt
 
 tau = pi * 2
 
 
 def linear_interpolation(p):
-    """Modeled after the line y = x
-    """
+    """Modeled after the line y = x"""
     return p
 
 
 def quadratic_ease_in(p):
-    """Modeled after the parabola y = x^2
-    """
+    """Modeled after the parabola y = x^2"""
     return p * p
 
 
 def quadratic_ease_out(p):
-    """Modeled after the parabola y = -x^2 + 2x
-    """
+    """Modeled after the parabola y = -x^2 + 2x"""
     return -(p * (p - 2))
 
 
@@ -43,14 +40,12 @@ def quadratic_ease_in_out(p):
 
 
 def cubic_ease_in(p):
-    """Modeled after the cubic y = x^3
-    """
+    """Modeled after the cubic y = x^3"""
     return p * p * p
 
 
 def cubic_ease_out(p):
-    """Modeled after the cubic y = (x - 1)^3 + 1
-    """
+    """Modeled after the cubic y = (x - 1)^3 + 1"""
     f = p - 1
     return (f * f * f) + 1
 
@@ -63,20 +58,18 @@ def cubic_ease_in_out(p):
     if p < 0.5:
         return 4 * p * p * p
     else:
-        f = ((2 * p) - 2)
+        f = (2 * p) - 2
         return (0.5 * f * f * f) + 1
 
 
 def quintic_ease_in(p):
-    """Modeled after the quintic y = x^5
-    """
+    """Modeled after the quintic y = x^5"""
     return p * p * p * p * p
 
 
 def quintic_ease_out(p):
-    """Modeled after the quintic y = (x - 1)^5 + 1
-    """
-    f = (p - 1)
+    """Modeled after the quintic y = (x - 1)^5 + 1"""
+    f = p - 1
     return (f * f * f * f * f) + 1
 
 
@@ -88,37 +81,32 @@ def quintic_ease_in_out(p):
     if p < 0.5:
         return 16 * p * p * p * p * p
     else:
-        f = ((2 * p) - 2)
+        f = (2 * p) - 2
         return (0.5 * f * f * f * f * f) + 1
 
 
 def sine_ease_in(p):
-    """Modeled after quarter-cycle of sine wave
-    """
+    """Modeled after quarter-cycle of sine wave"""
     return sin((p - 1) * tau) + 1
 
 
 def sine_ease_out(p):
-    """Modeled after quarter-cycle of sine wave (different phase)
-    """
+    """Modeled after quarter-cycle of sine wave (different phase)"""
     return sin(p * tau)
 
 
 def sine_ease_in_out(p):
-    """Modeled after half sine wave
-    """
+    """Modeled after half sine wave"""
     return 0.5 * (1 - cos(p * pi))
 
 
 def circular_ease_in(p):
-    """Modeled after shifted quadrant IV of unit circle
-    """
+    """Modeled after shifted quadrant IV of unit circle"""
     return 1 - sqrt(1 - (p * p))
 
 
 def circular_ease_out(p):
-    """Modeled after shifted quadrant II of unit circle
-    """
+    """Modeled after shifted quadrant II of unit circle"""
     return sqrt((2 - p) * p)
 
 
@@ -134,8 +122,7 @@ def circular_ease_in_out(p):
 
 
 def exponential_ease_in(p):
-    """Modeled after the exponential function y = 2^(10(x - 1))
-    """
+    """Modeled after the exponential function y = 2^(10(x - 1))"""
     if p == 0.0:
         return p
     else:
@@ -143,8 +130,7 @@ def exponential_ease_in(p):
 
 
 def exponential_ease_out(p):
-    """Modeled after the exponential function y = -2^(-10x) + 1
-    """
+    """Modeled after the exponential function y = -2^(-10x) + 1"""
     if p == 1.0:
         return p
     else:
@@ -166,14 +152,12 @@ def exponential_ease_in_out(p):
 
 
 def elastic_ease_in(p):
-    """Modeled after the damped sine wave y = sin(13pi/2*x)*2^(10 * (x - 1))
-    """
+    """Modeled after the damped sine wave y = sin(13pi/2*x)*2^(10 * (x - 1))"""
     return sin(13 * tau * p) * pow(2, 10 * (p - 1))
 
 
 def elastic_ease_out(p):
-    """Modeled after the damped sine wave y = sin(-13pi/2*(x + 1))*pow(2, -10x) + 1
-    """
+    """Modeled after the damped sine wave y = sin(-13pi/2*(x + 1))*pow(2, -10x) + 1"""
     return sin(-13 * tau * (p + 1)) * pow(2, -10 * p) + 1
 
 
@@ -185,19 +169,19 @@ def elastic_ease_in_out(p):
     if p < 0.5:
         return 0.5 * sin(13 * tau * (2 * p)) * pow(2, 10 * ((2 * p) - 1))
     else:
-        return 0.5 * (sin(-13 * tau * ((2 * p - 1) + 1)) * pow(2, -10 * (2 * p - 1)) + 2)
+        return 0.5 * (
+            sin(-13 * tau * ((2 * p - 1) + 1)) * pow(2, -10 * (2 * p - 1)) + 2
+        )
 
 
 def back_ease_in(p):
-    """Modeled after the overshooting cubic y = x^3-x*sin(x*pi)
-    """
+    """Modeled after the overshooting cubic y = x^3-x*sin(x*pi)"""
     return p * p * p - p * sin(p * pi)
 
 
 def back_ease_out(p):
-    """Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin((1-x)*pi))
-    """
-    f = (1 - p)
+    """Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin((1-x)*pi))"""
+    f = 1 - p
     return 1 - (f * f * f - f * sin(f * pi))
 
 
@@ -210,7 +194,7 @@ def back_ease_in_out(p):
         f = 2 * p
         return 0.5 * (f * f * f - f * sin(f * pi))
     else:
-        f = (1 - (2 * p - 1))
+        f = 1 - (2 * p - 1)
         return (0.5 * (1 - (f * f * f - f * sin(f * pi)))) + 0.5
 
 
@@ -277,6 +261,7 @@ class Easing(Enum):
                 y = (1/2)*(1-((1-x)^3-(1-x)*sin((1-x)*pi))+1) ; [0.5, 1]
             * bounce: bounce easing in and out.
     """
+
     LINEAR = partial(linear_interpolation)
     QUADRATIC = partial(quadratic_ease_in_out)
     CUBIC = partial(cubic_ease_in_out)
