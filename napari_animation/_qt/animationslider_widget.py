@@ -1,6 +1,6 @@
+import numpy as np
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QSlider
-import numpy as np
 
 
 class AnimationSliderWidget(QSlider):
@@ -28,21 +28,21 @@ class AnimationSliderWidget(QSlider):
 
         self.animation = animation
         self.interpol_states = []
-        self.keyframe_to_frame = np.array([])
+        self.cumulative_frame_count = np.array([])
         self.requires_update = True
 
         self.setToolTip("Scroll through animation")
 
     def _compute_states(self):
-        """Computer interpolation states"""
+        """Compute interpolation states"""
         self.interpol_states = []
         for state in self.animation._state_generator():
             self.interpol_states.append(state)
 
-        self.keyframe_to_frame = [0]
-        steps = [keyframe['steps'] for keyframe in self.animation.key_frames]
-        self.keyframe_to_frame += np.cumsum(steps)
-
-        self.setMaximum(len(self.interpol_states)-1)
-
+        self.setMaximum(len(self.interpol_states) - 1)
         self.requires_update = False
+
+    def _compute_cumulative_frame_count(self):
+        """Compute cumulative frame count"""
+        steps = [keyframe["steps"] for keyframe in self.animation.key_frames]
+        self.cumulative_frame_count = np.insert(np.cumsum(steps), 0, 0)

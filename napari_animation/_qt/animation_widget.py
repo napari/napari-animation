@@ -1,12 +1,20 @@
 from pathlib import Path
-from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QSlider
+
+from napari import Viewer
 from qtpy.QtCore import Qt
+from qtpy.QtWidgets import (  # NOQA
+    QErrorMessage,
+    QFileDialog,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..animation import Animation
-from .frame_widget import FrameWidget
-from .keyframeslist_widget import KeyFramesListWidget
-from .keyframelistcontrol_widget import KeyFrameListControlWidget
 from .animationslider_widget import AnimationSliderWidget
+from .frame_widget import FrameWidget
+from .keyframelistcontrol_widget import KeyFrameListControlWidget
+from .keyframeslist_widget import KeyFramesListWidget
 
 
 class AnimationWidget(QWidget):
@@ -25,7 +33,7 @@ class AnimationWidget(QWidget):
         napari-animation animation in sync with the GUI.
     """
 
-    def __init__(self, viewer: 'napari.viewer.Viewer', parent=None):
+    def __init__(self, viewer: Viewer, parent=None):
         super().__init__(parent=parent)
 
         # Store reference to viewer and create animation
@@ -72,7 +80,9 @@ class AnimationWidget(QWidget):
             self._capture_keyframe_callback
         )
         self.saveButton.clicked.connect(self._save_callback)
-        self.animationsliderWidget.valueChanged.connect(self._move_animationslider_callback)
+        self.animationsliderWidget.valueChanged.connect(
+            self._move_animationslider_callback
+        )
         self.viewer.events.theme.connect(self._update_theme)
 
     def _release_callbacks(self):
@@ -92,7 +102,8 @@ class AnimationWidget(QWidget):
 
     def _init_keyframes_list_control_widget(self):
         self.keyframesListControlWidget = KeyFrameListControlWidget(
-            animation=self.animation, parent=self)
+            animation=self.animation, parent=self
+        )
         self._layout.addWidget(self.keyframesListControlWidget)
         self.keyframesListControlWidget.deleteButton.setEnabled(False)
 
@@ -102,12 +113,13 @@ class AnimationWidget(QWidget):
         self.keyframesListWidget.setEnabled(False)
 
     def _init_save_button(self):
-        self.saveButton = QPushButton('Save Animation', parent=self)
+        self.saveButton = QPushButton("Save Animation", parent=self)
         self._layout.addWidget(self.saveButton)
 
     def _init_animation_slider_widget(self):
         self.animationsliderWidget = AnimationSliderWidget(
-            self.animation, orientation=Qt.Horizontal, parent=self)
+            self.animation, orientation=Qt.Horizontal, parent=self
+        )
         self._layout.addWidget(self.animationsliderWidget)
 
     def _get_interpolation_steps(self):
@@ -118,8 +130,9 @@ class AnimationWidget(QWidget):
 
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
-        self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
-                                        ease=self._get_easing_function())
+        self.animation.capture_keyframe(
+            steps=self._get_interpolation_steps(), ease=self._get_easing_function()
+        )
         if len(self.animation.key_frames) == 1:
             self.keyframesListControlWidget.deleteButton.setEnabled(True)
             self.keyframesListWidget.setEnabled(True)
@@ -131,8 +144,11 @@ class AnimationWidget(QWidget):
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
-        self.animation.capture_keyframe(steps=self._get_interpolation_steps(),
-                                        ease=self._get_easing_function(), insert=False)
+        self.animation.capture_keyframe(
+            steps=self._get_interpolation_steps(),
+            ease=self._get_easing_function(),
+            insert=False,
+        )
         self.animationsliderWidget.requires_update = True
 
     def _delete_keyframe_callback(self, event=None):
@@ -163,8 +179,10 @@ class AnimationWidget(QWidget):
 
         if len(self.animation.key_frames) < 2:
             error_dialog = QErrorMessage()
-            error_dialog.showMessage(f'You need at least two key frames to generate \
-                an animation. Your only have {len(self.animation.key_frames)}')
+            error_dialog.showMessage(
+                f"You need at least two key frames to generate \
+                an animation. Your only have {len(self.animation.key_frames)}"
+            )
             error_dialog.exec_()
 
         else:
@@ -182,10 +200,17 @@ class AnimationWidget(QWidget):
         """Scroll through interpolated states. Computes states if key-frames changed"""
         if self.animationsliderWidget.requires_update:
             self.animationsliderWidget._compute_states()
+            self.animationsliderWidget._compute_cumulative_frame_count()
         new_frame = self.animationsliderWidget.value()
-        self.animation._set_viewer_state(self.animationsliderWidget.interpol_states[new_frame])
+        self.animation._set_viewer_state(
+            self.animationsliderWidget.interpol_states[new_frame]
+        )
 
-        new_key_frame = (self.animationsliderWidget.keyframe_to_frame > new_frame).argmax()
+        # This gets the index of the first key frame whose frame count is above new_frame
+        new_key_frame = (
+            self.animationsliderWidget.cumulative_frame_count > new_frame
+        ).argmax()
+        new_key_frame -= 1  # to get the previous key frame
         self.keyframesListWidget.setCurrentRow(new_key_frame)
 
     def _update_theme(self, event=None):

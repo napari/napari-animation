@@ -3,7 +3,7 @@ repos:
     rev: 5.7.0
     hooks:
     - id: isort
-      exclude: _vendor|vendored|examples
+      exclude: _vendor|vendored|examples 
 -   repo: https://github.com/python/black
     rev: 20.8b1
     hooks:
