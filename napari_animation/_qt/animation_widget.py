@@ -2,7 +2,7 @@ from pathlib import Path
 
 from napari import Viewer
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import (  # NOQA
+from qtpy.QtWidgets import (
     QErrorMessage,
     QFileDialog,
     QPushButton,
