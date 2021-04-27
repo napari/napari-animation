@@ -60,13 +60,14 @@ def interpolate_state(initial_state, final_state, fraction, method={}):
             elif isinstance(initial_state, (list, tuple)) and isinstance(
                 final_state, (list, tuple)
             ):
-                return tuple(
-                    interpolate_state(v0, v1, fraction)
-                    for v0, v1 in zip(initial_state, final_state)
-                )
+                return _interpolate_seq(initial_state, final_state, fraction)
 
             else:
                 return _interpolate_bool(initial_state, final_state, fraction)
+
+
+def _interpolate_seq(a, b, fraction):
+    return type(a)(interpolate_state(v0, v1, fraction) for v0, v1 in zip(a, b))
 
 
 def _interpolate_float(a, b, fraction):
