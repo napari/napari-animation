@@ -2,8 +2,8 @@
 discovery at test time.
 https://docs.pytest.org/en/stable/fixture.html
 """
-import pytest
 import numpy as np
+import pytest
 
 from napari_animation import Animation
 
@@ -45,9 +45,4 @@ def image_animation(make_napari_viewer):
 @pytest.fixture
 def layer_state(image_animation):
     image_animation.capture_keyframe()
-    return image_animation.key_frames[0]['viewer']['layers']
-
-
-
-
-
+    return image_animation.key_frames[0]["viewer"]["layers"]
