@@ -17,8 +17,8 @@ class AnimationSliderWidget(QSlider):
         napari-animation animation in sync with the GUI.
     interpol_states : dict
         Dictionary of interpolated states
-    keyframe_to_frame : array
-        Frame numbers corresponding to each key frames.
+    cumulative_frame_count : array
+        The cumulative frame count of self.animation.key_frames
     requires_update : bool
         Define if interpolated states should be updated.
     """
