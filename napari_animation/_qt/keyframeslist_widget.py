@@ -34,7 +34,9 @@ class KeyFramesListWidget(QListWidget):
         """Connect events on the key frame list to their callbacks"""
         self.animation.key_frames.events.inserted.connect(self._add)
         self.animation.key_frames.events.removed.connect(self._remove)
-        self.animation.key_frames.events.reordered.connect(self._reorder_frontend)
+        self.animation.key_frames.events.reordered.connect(
+            self._reorder_frontend
+        )
 
     def dropEvent(self, event):
         """update backend state on 'drop' of frame in key frames list"""
@@ -94,7 +96,10 @@ class KeyFramesListWidget(QListWidget):
         """Generate QIcon from a key frame"""
         thumbnail = key_frame["thumbnail"]
         thumbnail = QImage(
-            thumbnail, thumbnail.shape[1], thumbnail.shape[0], QImage.Format_RGBA8888
+            thumbnail,
+            thumbnail.shape[1],
+            thumbnail.shape[0],
+            QImage.Format_RGBA8888,
         )
         icon = QIcon(QPixmap.fromImage(thumbnail))
         return icon
@@ -128,7 +133,8 @@ class KeyFramesListWidget(QListWidget):
 
         selected_bg_color = theme["current"]
         selected_bg_color_qss = (
-            f"QListView::item:selected" f"{{background-color: {selected_bg_color};}}"
+            f"QListView::item:selected"
+            f"{{background-color: {selected_bg_color};}}"
         )
 
         transparent_background_qss = "QListView{background: transparent;}"

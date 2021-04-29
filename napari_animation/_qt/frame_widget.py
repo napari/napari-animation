@@ -60,4 +60,6 @@ class FrameWidget(QWidget):
     def _add_callbacks(self):
         """add callbacks to steps and ease widgets"""
         self.stepsSpinBox.valueChanged.connect(self._update_animation_steps)
-        self.easeComboBox.currentIndexChanged.connect(self._update_animation_ease)
+        self.easeComboBox.currentIndexChanged.connect(
+            self._update_animation_ease
+        )

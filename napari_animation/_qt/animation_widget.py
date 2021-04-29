@@ -2,7 +2,13 @@ from pathlib import Path
 
 from napari import Viewer
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QErrorMessage, QFileDialog, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (
+    QErrorMessage,
+    QFileDialog,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..animation import Animation
 from .animationslider_widget import AnimationSliderWidget
@@ -58,8 +64,12 @@ class AnimationWidget(QWidget):
     def _add_keybind_callbacks(self):
         """Bind keys"""
 
-        self.animation.viewer.bind_key("Alt-f", self._capture_keyframe_callback)
-        self.animation.viewer.bind_key("Alt-r", self._replace_keyframe_callback)
+        self.animation.viewer.bind_key(
+            "Alt-f", self._capture_keyframe_callback
+        )
+        self.animation.viewer.bind_key(
+            "Alt-r", self._replace_keyframe_callback
+        )
         self.animation.viewer.bind_key("Alt-d", self._delete_keyframe_callback)
 
         self.animation.viewer.bind_key("Alt-a", self._key_adv_frame)
@@ -102,7 +112,9 @@ class AnimationWidget(QWidget):
         self.keyframesListControlWidget.deleteButton.setEnabled(False)
 
     def _init_keyframes_list_widget(self):
-        self.keyframesListWidget = KeyFramesListWidget(self.animation, parent=self)
+        self.keyframesListWidget = KeyFramesListWidget(
+            self.animation, parent=self
+        )
         self._layout.addWidget(self.keyframesListWidget)
         self.keyframesListWidget.setEnabled(False)
 
@@ -125,7 +137,8 @@ class AnimationWidget(QWidget):
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
         self.animation.capture_keyframe(
-            steps=self._get_interpolation_steps(), ease=self._get_easing_function()
+            steps=self._get_interpolation_steps(),
+            ease=self._get_easing_function(),
         )
         if len(self.animation.key_frames) == 1:
             self.keyframesListControlWidget.deleteButton.setEnabled(True)
