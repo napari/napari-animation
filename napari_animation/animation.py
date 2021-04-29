@@ -142,7 +142,9 @@ class Animation:
     def _state_generator(self):
         self._validate_animation()
         # iterate over and interpolate between pairs of key-frames
-        for current_frame, next_frame in zip(self.key_frames, self.key_frames[1:]):
+        for current_frame, next_frame in zip(
+            self.key_frames, self.key_frames[1:]
+        ):
             # capture necessary info for interpolation
             initial_state = current_frame["viewer"]
             final_state = next_frame["viewer"]
@@ -184,7 +186,9 @@ class Animation:
         scale_factor = np.min(np.divide(self._thumbnail_shape, image.shape))
         intermediate_image = ndi.zoom(image, (scale_factor, scale_factor, 1))
 
-        padding_needed = np.subtract(self._thumbnail_shape, intermediate_image.shape)
+        padding_needed = np.subtract(
+            self._thumbnail_shape, intermediate_image.shape
+        )
         pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
         thumbnail = np.pad(intermediate_image, pad_amounts, mode="constant")
         thumbnail = convert_to_uint8(thumbnail)

@@ -2,8 +2,8 @@ from qtpy.QtWidgets import QFrame, QHBoxLayout, QPushButton
 
 
 class KeyFrameListControlWidget(QFrame):
-    """Controls for a KeyFrameListWidget
-    """
+    """Controls for a KeyFrameListWidget"""
+
     def __init__(self, animation, parent=None):
         super().__init__(parent=parent)
         self.animation = animation
@@ -22,8 +22,8 @@ class KeyFrameDeleteButton(QPushButton):
         super().__init__()
 
         self.animation = animation
-        self.setToolTip('Delete selected key-frame')
-        self.setText('Delete')
+        self.setToolTip("Delete selected key-frame")
+        self.setText("Delete")
 
 
 class KeyFrameCaptureButton(QPushButton):
@@ -31,5 +31,5 @@ class KeyFrameCaptureButton(QPushButton):
         super().__init__()
 
         self.animation = animation
-        self.setToolTip('Capture key-frame')
-        self.setText('Capture')
+        self.setToolTip("Capture key-frame")
+        self.setText("Capture")
