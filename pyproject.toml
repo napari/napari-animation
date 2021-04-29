@@ -9,7 +9,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 target-version = ['py36', 'py37', 'py38']
-skip-string-normalization = true
 line-length = 79
 exclude = '''
 (
@@ -28,7 +27,6 @@ exclude = '''
     | vendored
     | _vendor
   )/
-  | napari/resources/qt.py
-  | tools/minreq.py
+  | 
 )
 '''
