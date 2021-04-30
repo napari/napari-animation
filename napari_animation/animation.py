@@ -9,17 +9,15 @@ from napari.utils.events import EventedList
 from napari.utils.io import imsave
 from scipy import ndimage as ndi
 
-from .utils import _interpolate_angles, _interpolate_zoom, interpolate_state
+from .utils import interpolate_state
 
 
 class Animation:
     """Make animations using the napari viewer.
-
     Parameters
     ----------
     viewer : napari.Viewer
         napari viewer.
-
     Attributes
     ----------
     key_frames : list of dict
@@ -34,11 +32,8 @@ class Animation:
         self.key_frames = EventedList()
         self.frame = -1
 
-    def capture_keyframe(
-        self, steps=30, ease=None, methods={}, insert=True, frame=None
-    ):
+    def capture_keyframe(self, steps=15, ease=None, insert=True, frame=None):
         """Record current key-frame
-
         Parameters
         ----------
         steps : int
@@ -47,37 +42,20 @@ class Animation:
             If provided this method should make from `[0, 1]` to `[0, 1]` and will
             be used as an easing function for the transition between the last state
             and captured one.
-        methods : dict, optional
-            If provided should contain interpolation functions
-            corresponding to viewer state keys.
         insert : bool
             If captured key-frame should insert into current list or replace the current
             keyframe.
         frame : int, optional
             If provided use this value for frame rather than current frame number.
         """
-
         if frame is not None:
             self.frame = frame
-
-        # Default methods
-        if "camera" in methods:
-            if "zoom" not in methods["camera"]:
-                methods["camera"]["zoom"] = _interpolate_zoom
-            if "angles" not in methods["camera"]:
-                methods["camera"]["angles"] = _interpolate_angles
-        else:
-            methods["camera"] = {
-                "zoom": _interpolate_zoom,
-                "angles": _interpolate_angles,
-            }
 
         new_state = {
             "viewer": self._get_viewer_state(),
             "thumbnail": self._generate_thumbnail(),
             "steps": steps,
             "ease": ease,
-            "methods": methods,
         }
 
         if insert or self.frame == -1:
@@ -96,7 +74,6 @@ class Animation:
 
     def set_to_keyframe(self, frame):
         """Set the viewer to a given key-frame
-
         Parameters
         -------
         frame : int
@@ -112,7 +89,6 @@ class Animation:
 
     def _get_viewer_state(self):
         """Capture current viewer state
-
         Returns
         -------
         new_state : dict
@@ -125,17 +101,22 @@ class Animation:
             "layers": self._get_layer_state(),
         }
 
+        # Log transform zoom for linear interpolation
+        new_state["camera"]["zoom"] = np.log10(new_state["camera"]["zoom"])
         return new_state
 
     def _set_viewer_state(self, state):
         """Sets the current viewer state
-
         Parameters
         ----------
         state : dict
             Description of viewer state.
         """
-        self.viewer.camera.update(state["camera"])
+        # Undo log transform zoom for linear interpolation
+        camera_state = deepcopy(state["camera"])
+        camera_state["zoom"] = np.power(10, camera_state["zoom"])
+
+        self.viewer.camera.update(camera_state)
         self.viewer.dims.update(state["dims"])
         self._set_layer_state(state["layers"])
 
@@ -153,25 +134,29 @@ class Animation:
         for layer_name, layer_state in layer_state.items():
             layer = self.viewer.layers[layer_name]
             for key, value in layer_state.items():
-                setattr(layer, key, value)
+                original_value = getattr(layer, key)
+                # Only set if value differs to avoid expensive redraws
+                if not np.array_equal(original_value, value):
+                    setattr(layer, key, value)
 
     def _state_generator(self):
         self._validate_animation()
         # iterate over and interpolate between pairs of key-frames
-        for current_frame, next_frame in zip(self.key_frames, self.key_frames[1:]):
+        for current_frame, next_frame in zip(
+            self.key_frames, self.key_frames[1:]
+        ):
             # capture necessary info for interpolation
             initial_state = current_frame["viewer"]
             final_state = next_frame["viewer"]
             interpolation_steps = next_frame["steps"]
             ease = next_frame["ease"]
-            methods = next_frame["methods"]
 
             # generate intermediate states between key-frames
             for interp in range(interpolation_steps):
                 fraction = interp / interpolation_steps
                 if ease is not None:
                     fraction = ease(fraction)
-                state = interpolate_state(initial_state, final_state, fraction, methods)
+                state = interpolate_state(initial_state, final_state, fraction)
                 yield state
 
         # be sure to include the final state
@@ -201,7 +186,9 @@ class Animation:
         scale_factor = np.min(np.divide(self._thumbnail_shape, image.shape))
         intermediate_image = ndi.zoom(image, (scale_factor, scale_factor, 1))
 
-        padding_needed = np.subtract(self._thumbnail_shape, intermediate_image.shape)
+        padding_needed = np.subtract(
+            self._thumbnail_shape, intermediate_image.shape
+        )
         pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
         thumbnail = np.pad(intermediate_image, pad_amounts, mode="constant")
         thumbnail = convert_to_uint8(thumbnail)
@@ -233,7 +220,6 @@ class Animation:
         scale_factor=None,
     ):
         """Create a movie based on key-frames
-
         Parameters
         -------
         path : str

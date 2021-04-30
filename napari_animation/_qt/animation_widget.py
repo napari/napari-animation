@@ -1,12 +1,11 @@
 from pathlib import Path
 
+from napari import Viewer
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QErrorMessage,
     QFileDialog,
-    QLabel,
     QPushButton,
-    QSlider,
     QVBoxLayout,
     QWidget,
 )
@@ -28,13 +27,13 @@ class AnimationWidget(QWidget):
 
     Attributes
     ----------
-    key_frames : list of dict
-        List of viewer state dictionaries.
-    frame : int
-        Currently shown key frame.
+    viewer : napari.Viewer
+        napari viewer.
+    animation : napari_animation.Animation
+        napari-animation animation in sync with the GUI.
     """
 
-    def __init__(self, viewer: "napari.viewer.Viewer", parent=None):
+    def __init__(self, viewer: Viewer, parent=None):
         super().__init__(parent=parent)
 
         # Store reference to viewer and create animation
@@ -65,8 +64,12 @@ class AnimationWidget(QWidget):
     def _add_keybind_callbacks(self):
         """Bind keys"""
 
-        self.animation.viewer.bind_key("Alt-f", self._capture_keyframe_callback)
-        self.animation.viewer.bind_key("Alt-r", self._replace_keyframe_callback)
+        self.animation.viewer.bind_key(
+            "Alt-f", self._capture_keyframe_callback
+        )
+        self.animation.viewer.bind_key(
+            "Alt-r", self._replace_keyframe_callback
+        )
         self.animation.viewer.bind_key("Alt-d", self._delete_keyframe_callback)
 
         self.animation.viewer.bind_key("Alt-a", self._key_adv_frame)
@@ -109,7 +112,9 @@ class AnimationWidget(QWidget):
         self.keyframesListControlWidget.deleteButton.setEnabled(False)
 
     def _init_keyframes_list_widget(self):
-        self.keyframesListWidget = KeyFramesListWidget(self.animation, parent=self)
+        self.keyframesListWidget = KeyFramesListWidget(
+            self.animation, parent=self
+        )
         self._layout.addWidget(self.keyframesListWidget)
         self.keyframesListWidget.setEnabled(False)
 
@@ -132,7 +137,8 @@ class AnimationWidget(QWidget):
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
         self.animation.capture_keyframe(
-            steps=self._get_interpolation_steps(), ease=self._get_easing_function()
+            steps=self._get_interpolation_steps(),
+            ease=self._get_easing_function(),
         )
         if len(self.animation.key_frames) == 1:
             self.keyframesListControlWidget.deleteButton.setEnabled(True)
@@ -201,11 +207,17 @@ class AnimationWidget(QWidget):
         """Scroll through interpolated states. Computes states if key-frames changed"""
         if self.animationsliderWidget.requires_update:
             self.animationsliderWidget._compute_states()
+            self.animationsliderWidget._compute_cumulative_frame_count()
         new_frame = self.animationsliderWidget.value()
         self.animation._set_viewer_state(
             self.animationsliderWidget.interpol_states[new_frame]
         )
-        new_key_frame = new_frame // int(self.frameWidget.stepsSpinBox.value())
+
+        # This gets the index of the first key frame whose frame count is above new_frame
+        new_key_frame = (
+            self.animationsliderWidget.cumulative_frame_count > new_frame
+        ).argmax()
+        new_key_frame -= 1  # to get the previous key frame
         self.keyframesListWidget.setCurrentRow(new_key_frame)
 
     def _update_theme(self, event=None):
