@@ -38,7 +38,6 @@ class AnimationSliderWidget(QSlider):
         self.interpol_states = []
         for state in self.animation._state_generator():
             self.interpol_states.append(state)
-
         self.setMaximum(len(self.interpol_states) - 1)
         self.requires_update = False
 
