@@ -276,3 +276,6 @@ class Easing(Enum):
     ELASTIC = partial(elastic_ease_in_out)
     BACK = partial(back_ease_in_out)
     BOUNCE = partial(bounce_ease_in_out)
+
+    def __call__(self, *args):
+        return self.value(*args)

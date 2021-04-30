@@ -63,5 +63,5 @@ def _interpolate_bool(a, b, fraction):
 
 
 def _easing_func_to_name(easing_function):
-    [name] = [e.name for e in Easing if e.value is easing_function]
+    [name] = [e.name for e in Easing if e is easing_function]
     return name
