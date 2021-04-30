@@ -166,3 +166,8 @@ class KeyFramesListWidget(QListWidget):
     def frontend_key_frames(self):
         for item in self.frontend_items:
             yield self._item_id_to_key_frame[id(item)]
+
+    def setCurrentRowBlockingSignals(self, *args):
+        self.blockSignals(True)
+        self.setCurrentRow(*args)
+        self.blockSignals(False)
