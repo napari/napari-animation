@@ -3,7 +3,6 @@ from .easing import Easing
 
 def interpolate_state(initial_state, final_state, fraction):
     """Interpolate a state between two states
-
     Parameters
     ----------
     initial_state : dict
@@ -14,7 +13,6 @@ def interpolate_state(initial_state, final_state, fraction):
         Interpolation fraction, must be between `0` and `1`.
         A value of `0` will return the initial state. A
         value of `1` will return the final state.
-
     Returns
     -------
     state : dict

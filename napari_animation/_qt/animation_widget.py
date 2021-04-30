@@ -27,10 +27,10 @@ class AnimationWidget(QWidget):
 
     Attributes
     ----------
-    key_frames : list of dict
-        List of viewer state dictionaries.
-    frame : int
-        Currently shown key frame.
+    viewer : napari.Viewer
+        napari viewer.
+    animation : napari_animation.Animation
+        napari-animation animation in sync with the GUI.
     """
 
     def __init__(self, viewer: Viewer, parent=None):
@@ -207,11 +207,17 @@ class AnimationWidget(QWidget):
         """Scroll through interpolated states. Computes states if key-frames changed"""
         if self.animationsliderWidget.requires_update:
             self.animationsliderWidget._compute_states()
+            self.animationsliderWidget._compute_cumulative_frame_count()
         new_frame = self.animationsliderWidget.value()
         self.animation._set_viewer_state(
             self.animationsliderWidget.interpol_states[new_frame]
         )
-        new_key_frame = new_frame // int(self.frameWidget.stepsSpinBox.value())
+
+        # This gets the index of the first key frame whose frame count is above new_frame
+        new_key_frame = (
+            self.animationsliderWidget.cumulative_frame_count > new_frame
+        ).argmax()
+        new_key_frame -= 1  # to get the previous key frame
         self.keyframesListWidget.setCurrentRow(new_key_frame)
 
     def _update_theme(self, event=None):

@@ -14,12 +14,10 @@ from .utils import interpolate_state
 
 class Animation:
     """Make animations using the napari viewer.
-
     Parameters
     ----------
     viewer : napari.Viewer
         napari viewer.
-
     Attributes
     ----------
     key_frames : list of dict
@@ -34,9 +32,8 @@ class Animation:
         self.key_frames = EventedList()
         self.frame = -1
 
-    def capture_keyframe(self, steps=30, ease=None, insert=True, frame=None):
+    def capture_keyframe(self, steps=15, ease=None, insert=True, frame=None):
         """Record current key-frame
-
         Parameters
         ----------
         steps : int
@@ -77,7 +74,6 @@ class Animation:
 
     def set_to_keyframe(self, frame):
         """Set the viewer to a given key-frame
-
         Parameters
         -------
         frame : int
@@ -93,7 +89,6 @@ class Animation:
 
     def _get_viewer_state(self):
         """Capture current viewer state
-
         Returns
         -------
         new_state : dict
@@ -112,7 +107,6 @@ class Animation:
 
     def _set_viewer_state(self, state):
         """Sets the current viewer state
-
         Parameters
         ----------
         state : dict
@@ -226,7 +220,6 @@ class Animation:
         scale_factor=None,
     ):
         """Create a movie based on key-frames
-
         Parameters
         -------
         path : str
