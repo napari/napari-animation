@@ -1,8 +1,10 @@
 from .easing import Easing
+from .interpolation import Interpolation, interpolation_dict
 
 
 def interpolate_state(initial_state, final_state, fraction):
     """Interpolate a state between two states
+
     Parameters
     ----------
     initial_state : dict
@@ -13,55 +15,62 @@ def interpolate_state(initial_state, final_state, fraction):
         Interpolation fraction, must be between `0` and `1`.
         A value of `0` will return the initial state. A
         value of `1` will return the final state.
+
+
     Returns
     -------
     state : dict
         Description of viewer state.
     """
-    # Once dataclasses in napari are typed we shouldn't need to test both the
-    # initial and final states. Right now we need to test both for cases
-    # where one can be None.
-    if isinstance(initial_state, dict) and isinstance(final_state, dict):
-        state = dict()
-        for k in initial_state.keys():
-            v0 = initial_state[k]
-            v1 = final_state[k]
-            state[k] = interpolate_state(v0, v1, fraction)
-        return state
 
-    elif isinstance(initial_state, float) and isinstance(final_state, float):
-        return _interpolate_float(initial_state, final_state, fraction)
+    state = dict()
+    separator = "."
 
-    elif isinstance(initial_state, int) and isinstance(final_state, int):
-        return _interpolate_int(initial_state, final_state, fraction)
+    for keys in keys_to_list(initial_state):
+        v0 = nested_get(initial_state, keys)
+        v1 = nested_get(final_state, keys)
 
-    elif isinstance(initial_state, (list, tuple)) and isinstance(
-        final_state, (list, tuple)
-    ):
-        return tuple(
-            interpolate_state(v0, v1, fraction)
-            for v0, v1 in zip(initial_state, final_state)
-        )
+        property_string = separator.join(keys)
 
-    else:
-        return _interpolate_bool(initial_state, final_state, fraction)
+        if property_string in interpolation_dict.keys():
+            interpolation_func = interpolation_dict[property_string]
+        else:
+            interpolation_func = Interpolation.DEFAULT
 
+        nested_set(state, keys, interpolation_func(v0, v1, fraction))
 
-def _interpolate_float(a, b, fraction):
-    return float(a + (b - a) * fraction)
-
-
-def _interpolate_int(a, b, fraction):
-    return int(_interpolate_float(a, b, fraction))
-
-
-def _interpolate_bool(a, b, fraction):
-    if fraction < 0.5:
-        return a
-    else:
-        return b
+    return state
 
 
 def _easing_func_to_name(easing_function):
     [name] = [e.name for e in Easing if e.value is easing_function]
     return name
+
+
+def nested_get(input_dict, keys):
+    """Get method for nested dictionaries.
+    from https://codereview.stackexchange.com/a/156189
+    """
+    internal_dict_value = input_dict
+    for k in keys:
+        internal_dict_value = internal_dict_value.get(k, None)
+        if internal_dict_value is None:
+            return None
+    return internal_dict_value
+
+
+def nested_set(input_dict, keys, value):
+    """ Set method for nested dictionaries."""
+    dic = input_dict
+    for key in keys[:-1]:
+        dic = dic.setdefault(key, {})
+    dic[keys[-1]] = value
+
+
+def keys_to_list(input_dict):
+    for key, value in input_dict.items():
+        if isinstance(value, dict):
+            for sub_key in keys_to_list(value):
+                yield [key] + sub_key
+        else:
+            yield [key]

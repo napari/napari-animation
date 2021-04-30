@@ -1,11 +1,12 @@
+import numbers
 from enum import Enum
 from functools import partial
+
 import numpy as np
 from napari._vispy.quaternion import quaternion2euler
 from scipy.spatial.transform import Rotation as R
 from scipy.spatial.transform import Slerp
 from vispy.util.quaternion import Quaternion
-import numbers
 
 
 def default(a, b, fraction):
@@ -13,9 +14,7 @@ def default(a, b, fraction):
     if isinstance(a, numbers.Number) and isinstance(b, numbers.Number):
         return interpolate_num(a, b, fraction)
 
-    elif isinstance(a, (list, tuple)) and isinstance(
-        b, (list, tuple)
-    ):
+    elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
         return interpolate_seq(a, b, fraction)
 
     else:
@@ -67,18 +66,26 @@ def Quat2quat(Quat):
     return [Quat.x, Quat.y, Quat.z, Quat.w]
 
 
-class Interpolation(Enum): 
-    """Interpolation: interpolation function to use for a transition. 
+class Interpolation(Enum):
+    """Interpolation: interpolation function to use for a transition.
 
-    Selects a preset interpolation function 
-        * DEFAULT: linear interpolation between start and endpoint. 
-        * SLERP: spherical linear interpolation on Euler angles. 
+    Selects a preset interpolation function
+        * DEFAULT: linear interpolation between start and endpoint.
+        * SLERP: spherical linear interpolation on Euler angles.
         * LOG: log interpolation between start and endpoint.
 
-    """ 
+    """
+
     DEFAULT = partial(default)
-    LOG = partial(interpolate_log) 
-    SLERP = partial(slerp)     
+    LOG = partial(interpolate_log)
+    SLERP = partial(slerp)
 
     def __call__(self, *args):
         return self.value(*args)
+
+
+# Dictionary relating state attribtues to interpolation functions
+interpolation_dict = {
+    "camera.angles": Interpolation.SLERP,
+    "camera.zoom": Interpolation.LOG,
+}
