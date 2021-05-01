@@ -1,5 +1,4 @@
 import os
-from copy import deepcopy
 from pathlib import Path
 
 import imageio
@@ -101,8 +100,6 @@ class Animation:
             "layers": self._get_layer_state(),
         }
 
-        # Log transform zoom for linear interpolation
-        new_state["camera"]["zoom"] = np.log10(new_state["camera"]["zoom"])
         return new_state
 
     def _set_viewer_state(self, state):
@@ -112,11 +109,7 @@ class Animation:
         state : dict
             Description of viewer state.
         """
-        # Undo log transform zoom for linear interpolation
-        camera_state = deepcopy(state["camera"])
-        camera_state["zoom"] = np.power(10, camera_state["zoom"])
-
-        self.viewer.camera.update(camera_state)
+        self.viewer.camera.update(state["camera"])
         self.viewer.dims.update(state["dims"])
         self._set_layer_state(state["layers"])
 

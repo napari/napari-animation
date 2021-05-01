@@ -69,7 +69,7 @@ def nested_set(input_dict, keys, value):
 
 def keys_to_list(input_dict):
     for key, value in input_dict.items():
-        if isinstance(value, dict):
+        if isinstance(value, dict) and value:
             for sub_key in keys_to_list(value):
                 yield [key] + sub_key
         else:
