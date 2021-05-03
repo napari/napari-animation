@@ -1,3 +1,5 @@
+from dataclasses import make_dataclass
+
 from qtpy.QtCore import QSize
 from qtpy.QtGui import QIcon, QImage, QPixmap
 from qtpy.QtWidgets import QListWidget, QListWidgetItem
@@ -24,11 +26,19 @@ class KeyFramesListWidget(QListWidget):
         self._frame_count = 0
         self._item_id_to_key_frame = {}
         self._key_frame_id_to_item = {}
+        self._init_synchronise()
 
         self._connect_key_frame_callbacks()
         self.setDragDropMode(super().InternalMove)
 
         self.itemSelectionChanged.connect(self._selection_callback)
+
+    def _init_synchronise(self):
+        """Synchronise the KeyFramesListwidget with its animation on init"""
+        # Simulate events for adding existing items
+        Event = make_dataclass("Event", [("index", int), ("value", dict)])
+        for idx, key_frame in self.animation.key_frames:
+            self._add(Event(index=idx, value=key_frame))
 
     def _connect_key_frame_callbacks(self):
         """Connect events on the key frame list to their callbacks"""
