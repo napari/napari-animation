@@ -64,7 +64,7 @@ class KeyFramesListWidget(QListWidget):
 
     def _remove(self, event):
         """Remove QListWidgetItem at event.index"""
-        self.takeItem(event.index)
+        self.takeItemBlockingSignals(event.index)
         self._update_frame_number()
 
     def _reorder_frontend(self, event=None):
@@ -168,7 +168,15 @@ class KeyFramesListWidget(QListWidget):
         for item in self.frontend_items:
             yield self._item_id_to_key_frame[id(item)]
 
-    def setCurrentRowBlockingSignals(self, *args):
+    def setCurrentRowBlockingSignals(self, row: int) -> None:
+        return self.callMethodBlockingSignals(self.setCurrentRow, row)
+
+    def takeItemBlockingSignals(self, row: int) -> QListWidgetItem:
+        return self.callMethodBlockingSignals(self.takeItem, row)
+
+    def callMethodBlockingSignals(self, method, *args, **kwargs):
+        """Call 'method' without emitting events to avoid side effects"""
         self.blockSignals(True)
-        self.setCurrentRow(*args)
+        output = method(*args, **kwargs)
         self.blockSignals(False)
+        return output
