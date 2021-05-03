@@ -30,7 +30,7 @@ class FrameWidget(QWidget):
 
     def get_easing_func(self):
         easing_name = str(self.easeComboBox.currentText())
-        easing_func = Easing[easing_name.upper()].value
+        easing_func = Easing[easing_name.upper()]
         return easing_func
 
     def update_from_animation(self):
