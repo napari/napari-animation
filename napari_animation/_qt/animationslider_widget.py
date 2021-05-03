@@ -33,7 +33,8 @@ class AnimationSliderWidget(QSlider):
 
         self.setToolTip("Scroll through animation")
 
-    def update(self):
+    def synchronise(self):
+        """Synchronise the AnimationSliderWidget with the Animation object"""
         if self.requires_update:
             self._compute_states()
             self._compute_cumulative_frame_count()

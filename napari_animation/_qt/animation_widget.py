@@ -205,7 +205,7 @@ class AnimationWidget(QWidget):
 
     def _move_animationslider_callback(self, event=None):
         """Scroll through interpolated states. Computes states if key-frames changed"""
-        self.animationsliderWidget.update()
+        self.animationsliderWidget.synchronise()
         new_frame = self.animationsliderWidget.value()
         self.animation._set_viewer_state(
             self.animationsliderWidget.interpol_states[new_frame]
