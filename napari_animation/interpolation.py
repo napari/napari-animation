@@ -161,7 +161,9 @@ class Interpolation(Enum):
         return self.value(*args)
 
 
-def interpolate_state(initial_state, final_state, fraction):
+def interpolate_state(
+    initial_state, final_state, fraction, state_interpolation_map={}
+):
     """Interpolate a state between two states
 
     Parameters
@@ -174,7 +176,8 @@ def interpolate_state(initial_state, final_state, fraction):
         Interpolation fraction, must be between `0` and `1`.
         A value of `0` will return the initial state. A
         value of `1` will return the final state.
-
+    state_interpolation_map : dict
+        Dictionary relating state attributes to interpolation functions.
 
     Returns
     -------
@@ -191,18 +194,11 @@ def interpolate_state(initial_state, final_state, fraction):
 
         property_string = separator.join(keys)
 
-        if property_string in interpolation_dict.keys():
-            interpolation_func = interpolation_dict[property_string]
+        if property_string in state_interpolation_map.keys():
+            interpolation_func = state_interpolation_map[property_string]
         else:
             interpolation_func = Interpolation.DEFAULT
 
         nested_set(state, keys, interpolation_func(v0, v1, fraction))
 
     return state
-
-
-# Dictionary relating state attributes to interpolation functions
-interpolation_dict = {
-    "camera.angles": Interpolation.SLERP,
-    "camera.zoom": Interpolation.LOG,
-}

@@ -9,7 +9,7 @@ from napari.utils.io import imsave
 from scipy import ndimage as ndi
 
 from .easing import Easing
-from .interpolation import interpolate_state
+from .interpolation import Interpolation, interpolate_state
 
 
 class Animation:
@@ -24,6 +24,8 @@ class Animation:
         List of viewer state dictionaries.
     frame : int
         Currently shown key frame.
+    state_interpolation_map : dict
+        Dictionary relating state attributes to interpolation functions.
     """
 
     def __init__(self, viewer):
@@ -31,6 +33,10 @@ class Animation:
 
         self.key_frames = EventedList()
         self.frame = -1
+        self.state_interpolation_map = {
+            "camera.angles": Interpolation.SLERP,
+            "camera.zoom": Interpolation.LOG,
+        }
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, frame=None
@@ -153,7 +159,12 @@ class Animation:
             for interp in range(interpolation_steps):
                 fraction = interp / interpolation_steps
                 fraction = ease(fraction)
-                state = interpolate_state(initial_state, final_state, fraction)
+                state = interpolate_state(
+                    initial_state,
+                    final_state,
+                    fraction,
+                    self.state_interpolation_map,
+                )
                 yield state
 
         # be sure to include the final state
