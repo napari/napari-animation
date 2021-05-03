@@ -1,6 +1,8 @@
 import pytest
 
+from ..easing import Easing
 from ..utils import (
+    _easing_func_to_name,
     _interpolate_bool,
     _interpolate_float,
     _interpolate_int,
@@ -62,3 +64,12 @@ def test_interpolate_bool(a, b, fraction):
         assert result == a
     else:
         assert result == b
+
+
+@pytest.mark.parametrize(
+    "easing_function,expected",
+    [(Easing.LINEAR, "LINEAR"), (Easing.CIRCULAR, "CIRCULAR")],
+)
+def test_easing_func_to_name(easing_function, expected):
+    result = _easing_func_to_name(easing_function)
+    assert result == expected
