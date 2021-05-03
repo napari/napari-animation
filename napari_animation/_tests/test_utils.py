@@ -1,69 +1,57 @@
+import numpy as np
 import pytest
+from scipy.spatial.transform import Rotation as R
 
 from ..easing import Easing
 from ..utils import (
     _easing_func_to_name,
-    _interpolate_bool,
-    _interpolate_float,
-    _interpolate_int,
-    interpolate_state,
+    keys_to_list,
+    nested_get,
+    quaternion2euler,
 )
 
-
-@pytest.mark.parametrize("fraction", [0, 0.2, 0.4, 0.6, 0.8, 1])
-def test_interpolate_state(key_frames, fraction):
-    """Check that state interpolation works"""
-    initial_state = key_frames[0]["viewer"]
-    final_state = key_frames[1]["viewer"]
-    result = interpolate_state(initial_state, final_state, fraction)
-    assert len(result) == len(initial_state)
-    if fraction == 0:
-        assert result == initial_state
-    elif fraction == 1:
-        assert result == final_state
-    else:
-        # zoom is the only property modified in the key_frame fixture, check it
-        # has been interpolated properly
-        def get_zoom(state):
-            return state["camera"]["zoom"]
-
-        initial_zoom, final_zoom, result_zoom = (
-            get_zoom(state) for state in (initial_state, final_state, result)
-        )
-        assert result_zoom == _interpolate_float(
-            initial_zoom, final_zoom, fraction
-        )  # noqa: E501
+input_dict = [{"a": 1, "b": {"c": "d"}}]
+keys = [["b", "c"]]
+expected = ["d"]
+test_set = [param for param in zip(input_dict, keys, expected)]
 
 
-@pytest.mark.parametrize("a", [0.0, 0])
-@pytest.mark.parametrize("b", [1.0, 1])
-@pytest.mark.parametrize("fraction", [0, 0.0, 0.5, 1.0, 1])
-def test_interpolate_float(a, b, fraction):
-    """Check that interpolation of floats produces valid output"""
-    result = _interpolate_float(a, b, fraction)
-    assert isinstance(result, float)
-    assert result == fraction
+@pytest.mark.parametrize("input_dict,keys,expected", test_set)
+def test_nested_get(input_dict, keys, expected):
+    result = nested_get(input_dict, keys)
+    assert result == expected
 
 
-@pytest.mark.parametrize("a", [0.0, 0])
-@pytest.mark.parametrize("b", [100.0, 100])
-@pytest.mark.parametrize("fraction", [0, 0.0, 0.5, 1.0, 1])
-def test_interpolate_int(a, b, fraction):
-    """Check that integer interpolation produces integers"""
-    result = _interpolate_int(a, b, fraction)
-    assert isinstance(result, int)
-    assert result == fraction * b
+input_dict = [{"a": 1, "b": {"c": "d"}, "e": {}}]
+expected = [[["a"], ["b", "c"], ["e"]]]
+test_set = [param for param in zip(input_dict, expected)]
 
 
-@pytest.mark.parametrize("a", [True, False])
-@pytest.mark.parametrize("b", [True, False])
-@pytest.mark.parametrize("fraction", [0, 0.25, 0.75, 1])
-def test_interpolate_bool(a, b, fraction):
-    result = _interpolate_bool(a, b, fraction)
-    if fraction < 0.5:
-        assert result == a
-    else:
-        assert result == b
+@pytest.mark.parametrize("input_dict,expected", test_set)
+def test_keys_to_list(input_dict, expected):
+    result = [keys for keys in keys_to_list(input_dict)]
+    for keys in result:
+        assert isinstance(keys, list)
+    assert result == expected
+
+
+# Euler angles to be tested, in degrees
+angles = [[12, 53, 92], [180, -90, 0], [16, 90, 0]]
+
+# Prepare for input and add corresponding values in radians
+angles_param = [(x, True) for x in angles]
+angles_param.extend([(x, False) for x in np.radians(angles)])
+
+
+@pytest.mark.parametrize("angles,degrees", angles_param)
+def test_quaternion2euler(angles, degrees):
+    """Test quaternion to euler angle conversion."""
+
+    # Test for degrees
+    q = R.from_euler("ZYX", angles, degrees).as_quat()
+    ea = quaternion2euler(q, degrees=degrees)
+
+    np.testing.assert_allclose(ea, angles)
 
 
 @pytest.mark.parametrize(

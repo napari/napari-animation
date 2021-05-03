@@ -1,5 +1,4 @@
 import os
-from copy import deepcopy
 from pathlib import Path
 
 import imageio
@@ -10,7 +9,7 @@ from napari.utils.io import imsave
 from scipy import ndimage as ndi
 
 from .easing import Easing
-from .utils import interpolate_state
+from .interpolation import Interpolation, interpolate_state
 
 
 class Animation:
@@ -25,6 +24,8 @@ class Animation:
         List of viewer state dictionaries.
     frame : int
         Currently shown key frame.
+    state_interpolation_map : dict
+        Dictionary relating state attributes to interpolation functions.
     """
 
     def __init__(self, viewer):
@@ -32,6 +33,10 @@ class Animation:
 
         self.key_frames = EventedList()
         self.frame = -1
+        self.state_interpolation_map = {
+            "camera.angles": Interpolation.SLERP,
+            "camera.zoom": Interpolation.LOG,
+        }
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, frame=None
@@ -106,8 +111,6 @@ class Animation:
             "layers": self._get_layer_state(),
         }
 
-        # Log transform zoom for linear interpolation
-        new_state["camera"]["zoom"] = np.log10(new_state["camera"]["zoom"])
         return new_state
 
     def _set_viewer_state(self, state):
@@ -117,11 +120,7 @@ class Animation:
         state : dict
             Description of viewer state.
         """
-        # Undo log transform zoom for linear interpolation
-        camera_state = deepcopy(state["camera"])
-        camera_state["zoom"] = np.power(10, camera_state["zoom"])
-
-        self.viewer.camera.update(camera_state)
+        self.viewer.camera.update(state["camera"])
         self.viewer.dims.update(state["dims"])
         self._set_layer_state(state["layers"])
 
@@ -160,7 +159,12 @@ class Animation:
             for interp in range(interpolation_steps):
                 fraction = interp / interpolation_steps
                 fraction = ease(fraction)
-                state = interpolate_state(initial_state, final_state, fraction)
+                state = interpolate_state(
+                    initial_state,
+                    final_state,
+                    fraction,
+                    self.state_interpolation_map,
+                )
                 yield state
 
         # be sure to include the final state

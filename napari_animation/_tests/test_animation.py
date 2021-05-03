@@ -49,9 +49,6 @@ def test_get_viewer_state(empty_animation):
     assert isinstance(state, dict)
     assert all([item in state.keys() for item in ("camera", "dims")])
 
-    # check that log transform has been applied to zoom
-    assert state["camera"]["zoom"] == np.log10(animation.viewer.camera.zoom)
-
 
 def test_set_viewer_state(animation_with_key_frames, viewer_state):
     """Test Animation._set_viewer_state()"""
@@ -65,11 +62,6 @@ def test_set_viewer_state(animation_with_key_frames, viewer_state):
     assert animation_dims_state == current_state["dims"]
     for key in ("center", "angles", "interactive"):
         assert animation_camera_state[key] == current_state["camera"][key]
-
-    # check that log transform is undone on zoom
-    assert animation_camera_state["zoom"] == np.power(
-        10, current_state["camera"]["zoom"]
-    )
 
 
 def test_thumbnail_generation(empty_animation):
