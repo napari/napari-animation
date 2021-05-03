@@ -8,7 +8,7 @@ from napari.utils.events import EventedList
 from napari.utils.io import imsave
 from scipy import ndimage as ndi
 
-from .utils import interpolate_state
+from .interpolation import interpolate_state
 
 
 class Animation:

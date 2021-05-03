@@ -3,14 +3,29 @@ from enum import Enum
 from functools import partial
 
 import numpy as np
-from napari._vispy.quaternion import quaternion2euler
 from scipy.spatial.transform import Rotation as R
 from scipy.spatial.transform import Slerp
-from vispy.util.quaternion import Quaternion
+
+from .utils import keys_to_list, nested_get, nested_set, quaternion2euler
 
 
 def default(a, b, fraction):
-    """ Default to linear interpolation for the corresponding type."""
+    """Default interpolation for the corresponding type;
+    linear interpolation for numeric, step interpolation otherwise.
+
+    Parameters
+    ----------
+    a :
+        initial value
+    b :
+        final value
+    fraction : float
+        fraction to interpolate to between a and b.
+
+    Returns
+    ----------
+        Interpolated value between a and b at fraction.
+    """
     if isinstance(a, numbers.Number) and isinstance(b, numbers.Number):
         return interpolate_num(a, b, fraction)
 
@@ -22,17 +37,61 @@ def default(a, b, fraction):
 
 
 def interpolate_seq(a, b, fraction):
-    """ Linear interpolation of list or tuple."""
+    """Interpolation of list or tuple.
+    Parameters
+    ----------
+    a : list or tuple
+        initial sequence
+    b : list or tuple
+        final sequence
+    fraction : float
+        fraction to interpolate to between a and b.
+
+    Returns
+    ----------
+        : sequence of type a
+    Interpolated sequence between a and b at fraction.
+    """
     return type(a)(default(v0, v1, fraction) for v0, v1 in zip(a, b))
 
 
 def interpolate_num(a, b, fraction):
-    """ Linear interpolation for numeric types."""
+    """Linear interpolation for numeric types.
+
+    Parameters
+    ----------
+    a : numeric type
+        initial value
+    b : numeric type
+        final value
+    fraction : float
+        fraction to interpolate to between a and b.
+
+    Returns
+    ----------
+        : numeric type
+    Interpolated value between a and b at fraction.
+    """
     return type(a)(a + (b - a) * fraction)
 
 
 def interpolate_bool(a, b, fraction):
-    """ Step interpolation."""
+    """Step interpolation.
+
+    Parameters
+    ----------
+    a :
+        initial value
+    b :
+        final value
+    fraction : float
+        fraction to interpolate to between a and b.
+
+    Returns
+    ----------
+    a or b :
+        Step interpolated value between a and b.
+    """
     if fraction < 0.5:
         return a
     else:
@@ -40,30 +99,48 @@ def interpolate_bool(a, b, fraction):
 
 
 def interpolate_log(a, b, fraction):
-    """ Log interpolation, for camera zoom mostly."""
+    """Log interpolation, for camera zoom mostly.
+
+    Parameters
+    ----------
+    a : float
+        initial value
+    b : float
+        final value
+    fraction : float
+        fraction to interpolate to between a and b.
+
+    Returns
+    ----------
+        : float
+    Log interpolated value between a and b at fraction.
+    """
     c = interpolate_num(np.log10(a), np.log10(b), fraction)
     return np.power(10, c)
 
 
 def slerp(a, b, fraction):
-    """ Compute slerp from Euler angles, compatible with the napari view."""
-    q1 = Quat2quat(Quaternion.create_from_euler_angles(*a, degrees=True))
-    q2 = Quat2quat(Quaternion.create_from_euler_angles(*b, degrees=True))
-    key_rots = R.from_quat([q1, q2])
+    """Compute Spherical linear interpolation from Euler angles,
+    compatible with the napari view.
 
-    slerp = Slerp([0, 1], key_rots)
-    q = quat2Quat(slerp(fraction).as_quat())
+    Parameters
+    ----------
+    a : tuple
+        initial tuple of Euler angles in degrees.
+    b : tuple
+        final tuple of Euler angles in degrees.
+    fraction : float
+        fraction to interpolate to between a and b.
+
+    Returns
+    ----------
+        : tuple
+    Interpolated Euler angles between a and b at fraction.
+    """
+    key_rots = R.from_euler("ZYX", [a, b], degrees=True)
+    slerped = Slerp([0, 1], key_rots)
+    q = slerped(fraction).as_quat()
     return quaternion2euler(q, degrees=True)
-
-
-def quat2Quat(quat):
-    """ Convert scipy compatible quaternion to vispy Quaternion."""
-    return Quaternion(quat[3], quat[0], quat[1], quat[2])
-
-
-def Quat2quat(Quat):
-    """ Convert vispy Quaternion to a scipy compatible quaternion."""
-    return [Quat.x, Quat.y, Quat.z, Quat.w]
 
 
 class Interpolation(Enum):
@@ -84,7 +161,47 @@ class Interpolation(Enum):
         return self.value(*args)
 
 
-# Dictionary relating state attribtues to interpolation functions
+def interpolate_state(initial_state, final_state, fraction):
+    """Interpolate a state between two states
+
+    Parameters
+    ----------
+    initial_state : dict
+        Description of initial viewer state.
+    final_state : dict
+        Description of final viewer state.
+    fraction : float
+        Interpolation fraction, must be between `0` and `1`.
+        A value of `0` will return the initial state. A
+        value of `1` will return the final state.
+
+
+    Returns
+    -------
+    state : dict
+        Description of viewer state.
+    """
+
+    state = dict()
+    separator = "."
+
+    for keys in keys_to_list(initial_state):
+        v0 = nested_get(initial_state, keys)
+        v1 = nested_get(final_state, keys)
+
+        property_string = separator.join(keys)
+
+        if property_string in interpolation_dict.keys():
+            interpolation_func = interpolation_dict[property_string]
+        else:
+            interpolation_func = Interpolation.DEFAULT
+
+        nested_set(state, keys, interpolation_func(v0, v1, fraction))
+
+    return state
+
+
+# Dictionary relating state attributes to interpolation functions
 interpolation_dict = {
     "camera.angles": Interpolation.SLERP,
     "camera.zoom": Interpolation.LOG,
