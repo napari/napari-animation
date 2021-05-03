@@ -205,9 +205,7 @@ class AnimationWidget(QWidget):
 
     def _move_animationslider_callback(self, event=None):
         """Scroll through interpolated states. Computes states if key-frames changed"""
-        if self.animationsliderWidget.requires_update:
-            self.animationsliderWidget._compute_states()
-            self.animationsliderWidget._compute_cumulative_frame_count()
+        self.animationsliderWidget.update()
         new_frame = self.animationsliderWidget.value()
         self.animation._set_viewer_state(
             self.animationsliderWidget.interpol_states[new_frame]
@@ -219,6 +217,7 @@ class AnimationWidget(QWidget):
         ).argmax()
         new_key_frame -= 1  # to get the previous key frame
         self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
+        self.animation.frame = new_key_frame
 
     def _update_theme(self, event=None):
         """Update from the napari GUI theme"""

@@ -33,6 +33,11 @@ class AnimationSliderWidget(QSlider):
 
         self.setToolTip("Scroll through animation")
 
+    def update(self):
+        if self.requires_update:
+            self._compute_states()
+            self._compute_cumulative_frame_count()
+
     def _compute_states(self):
         """Compute interpolation states"""
         self.interpol_states = []
