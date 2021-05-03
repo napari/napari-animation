@@ -46,8 +46,9 @@ class KeyFramesListWidget(QListWidget):
 
     def _selection_callback(self):
         self._update_frame_number()
-        self.animation.set_to_current_keyframe()
-        self.parentWidget()._update_frame_widget_from_animation()
+        if self.animation.frame != -1:
+            self.animation.set_to_current_keyframe()
+            self.parentWidget()._update_frame_widget_from_animation()
 
     def _add(self, event):
         """Generate QListWidgetItem for current keyframe, store its unique id and add it to self"""

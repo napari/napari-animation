@@ -59,8 +59,10 @@ class Animation:
         }
 
         if insert or self.frame == -1:
-            self.key_frames.insert(self.frame + 1, new_state)
-            self.frame += 1
+            current_frame = self.frame
+            self.key_frames.insert(current_frame + 1, new_state)
+            self.frame = current_frame + 1
+
         else:
             self.key_frames[self.frame] = new_state
 
