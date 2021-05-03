@@ -116,7 +116,6 @@ class AnimationWidget(QWidget):
             self.animation, parent=self
         )
         self._layout.addWidget(self.keyframesListWidget)
-        self.keyframesListWidget.setEnabled(False)
 
     def _init_save_button(self):
         self.saveButton = QPushButton("Save Animation", parent=self)
