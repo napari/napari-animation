@@ -102,14 +102,12 @@ class AnimationWidget(QWidget):
     def _init_frame_widget(self):
         self.frameWidget = FrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
-        self.frameWidget.setEnabled(False)
 
     def _init_keyframes_list_control_widget(self):
         self.keyframesListControlWidget = KeyFrameListControlWidget(
             animation=self.animation, parent=self
         )
         self._layout.addWidget(self.keyframesListControlWidget)
-        self.keyframesListControlWidget.deleteButton.setEnabled(False)
 
     def _init_keyframes_list_widget(self):
         self.keyframesListWidget = KeyFramesListWidget(
