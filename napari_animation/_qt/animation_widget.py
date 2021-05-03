@@ -218,7 +218,7 @@ class AnimationWidget(QWidget):
             self.animationsliderWidget.cumulative_frame_count > new_frame
         ).argmax()
         new_key_frame -= 1  # to get the previous key frame
-        self.keyframesListWidget.setCurrentRow(new_key_frame)
+        self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
 
     def _update_theme(self, event=None):
         """Update from the napari GUI theme"""

@@ -2,7 +2,13 @@ import numpy as np
 import pytest
 from scipy.spatial.transform import Rotation as R
 
-from ..utils import keys_to_list, nested_get, quaternion2euler
+from ..easing import Easing
+from ..utils import (
+    _easing_func_to_name,
+    keys_to_list,
+    nested_get,
+    quaternion2euler,
+)
 
 input_dict = [{"a": 1, "b": {"c": "d"}}]
 keys = [["b", "c"]]
@@ -46,3 +52,12 @@ def test_quaternion2euler(angles, degrees):
     ea = quaternion2euler(q, degrees=degrees)
 
     np.testing.assert_allclose(ea, angles)
+
+
+@pytest.mark.parametrize(
+    "easing_function,expected",
+    [(Easing.LINEAR, "LINEAR"), (Easing.CIRCULAR, "CIRCULAR")],
+)
+def test_easing_func_to_name(easing_function, expected):
+    result = _easing_func_to_name(easing_function)
+    assert result == expected

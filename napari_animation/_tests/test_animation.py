@@ -31,6 +31,7 @@ def test_capture_key_frame(empty_animation):
     animation.capture_keyframe()
     assert len(animation.key_frames) == 1
     assert "viewer" in animation.key_frames[0].keys()
+    assert animation.key_frames[0]["ease"]
 
 
 def test_set_to_key_frame(animation_with_key_frames):

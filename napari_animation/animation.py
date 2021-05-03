@@ -8,6 +8,7 @@ from napari.utils.events import EventedList
 from napari.utils.io import imsave
 from scipy import ndimage as ndi
 
+from .easing import Easing
 from .interpolation import interpolate_state
 
 
@@ -31,7 +32,9 @@ class Animation:
         self.key_frames = EventedList()
         self.frame = -1
 
-    def capture_keyframe(self, steps=15, ease=None, insert=True, frame=None):
+    def capture_keyframe(
+        self, steps=15, ease=Easing.LINEAR, insert=True, frame=None
+    ):
         """Record current key-frame
         Parameters
         ----------
@@ -58,8 +61,10 @@ class Animation:
         }
 
         if insert or self.frame == -1:
-            self.key_frames.insert(self.frame + 1, new_state)
-            self.frame += 1
+            current_frame = self.frame
+            self.key_frames.insert(current_frame + 1, new_state)
+            self.frame = current_frame + 1
+
         else:
             self.key_frames[self.frame] = new_state
 
@@ -147,8 +152,7 @@ class Animation:
             # generate intermediate states between key-frames
             for interp in range(interpolation_steps):
                 fraction = interp / interpolation_steps
-                if ease is not None:
-                    fraction = ease(fraction)
+                fraction = ease(fraction)
                 state = interpolate_state(initial_state, final_state, fraction)
                 yield state
 

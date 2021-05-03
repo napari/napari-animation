@@ -5,7 +5,7 @@ from .easing import Easing
 
 def _easing_func_to_name(easing_function):
     """Get the name of an easing function."""
-    [name] = [e.name for e in Easing if e.value is easing_function]
+    [name] = [e.name for e in Easing if e is easing_function]
     return name
 
 
