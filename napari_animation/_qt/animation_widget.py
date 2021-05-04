@@ -213,6 +213,7 @@ class AnimationWidget(QWidget):
             self.animationsliderWidget.cumulative_frame_count > new_frame
         ).argmax()
         new_key_frame -= 1  # to get the previous key frame
+        new_key_frame = int(new_key_frame) # to enable slicing a list with it
         self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
         self.animation.frame = new_key_frame
 
