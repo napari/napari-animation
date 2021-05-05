@@ -269,13 +269,13 @@ class Animation:
                 # create imageio writer. Handle separately imageio-ffmpeg extensions and
                 # gif extension which doesn't accept the quality parameter.
                 if path_obj.suffix in [
-                    "mov",
-                    "avi",
-                    "mpg",
-                    "mpeg",
-                    "mp4",
-                    "mkv",
-                    "wmv",
+                    ".mov",
+                    ".avi",
+                    ".mpg",
+                    ".mpeg",
+                    ".mp4",
+                    ".mkv",
+                    ".wmv",
                 ]:
                     writer = imageio.get_writer(
                         path,
