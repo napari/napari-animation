@@ -47,9 +47,6 @@ class AnimationWidget(QWidget):
         self._add_keybind_callbacks()
         self._add_callbacks()
 
-        # Update theme
-        self._update_theme()
-
     def _init_ui(self):
         """Initialise user interface"""
         self._layout = QVBoxLayout()
@@ -87,7 +84,9 @@ class AnimationWidget(QWidget):
         self.animationsliderWidget.valueChanged.connect(
             self._move_animationslider_callback
         )
-        self.viewer.events.theme.connect(self._update_theme)
+        self.viewer.events.theme.connect(
+            lambda e: self.keyframesListWidget._update_theme(e.value)
+        )
 
     def _release_callbacks(self):
         """Release keys"""
@@ -113,6 +112,7 @@ class AnimationWidget(QWidget):
         self.keyframesListWidget = KeyFramesListWidget(
             self.animation, parent=self
         )
+        self.keyframesListWidget._update_theme(self.viewer.theme)
         self._layout.addWidget(self.keyframesListWidget)
 
     def _init_save_button(self):
@@ -217,23 +217,6 @@ class AnimationWidget(QWidget):
         self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
         self.animation.frame = new_key_frame
 
-    def _update_theme(self, event=None):
-        """Update from the napari GUI theme"""
-        from napari.qt import get_stylesheet
-        from napari.utils.theme import get_theme, template
-
-        # get theme and raw stylesheet from napari viewer
-        theme = get_theme(self.viewer.theme)
-        raw_stylesheet = get_stylesheet()
-
-        # template and apply the primary stylesheet
-        templated_stylesheet = template(raw_stylesheet, **theme)
-        self.setStyleSheet(templated_stylesheet)
-
-        # update styling of KeyFramesListWidget
-        self.keyframesListWidget._update_theme(theme)
-
     def close(self):
         self._release_callbacks()
-        self.viewer.events.theme.disconnect(self._update_theme)
         super().close()
