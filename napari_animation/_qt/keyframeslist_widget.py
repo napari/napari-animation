@@ -118,15 +118,19 @@ class KeyFramesListWidget(QListWidget):
         else:
             return idxs[-1].row()
 
-    def _update_theme(self, theme):
+    def _update_theme(self, theme_name):
         """
         Update styling based on the napari theme dictionary and any other attributes
 
         Parameters
         ----------
-        theme : dict
-                theme dict from napari
+        theme : str
+            name of napari theme
         """
+        from napari.utils.theme import get_theme
+
+        theme = get_theme(theme_name)
+
         deselected_bg_color = theme["foreground"]
         deselected_bg_color_qss = (
             f"QListView::item:deselected"
