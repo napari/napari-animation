@@ -127,37 +127,33 @@ class KeyFramesListWidget(QListWidget):
         theme : str
             name of napari theme
         """
-        from napari.utils.theme import get_theme
+        from napari.utils.theme import get_theme, template
 
-        theme = get_theme(theme_name)
+        qss_template = """
+        QListView::item:deselected {
+            background-color: {{ foreground }};
+        }
+        QListView::item:selected {
+            background-color: {{ current }};
+        }
+        QListView {
+            background: transparent;
+        }
+        QListView::item {
+            margin: 0px;
+            padding: 0px;
+            min-height:
+            32px;
+            max-height: 32px;
+        }
+        QImage {
+            margin: 0px;
+            padding: 0px;
+            qproperty-alignment: AlignLeft;
+        }
+        """
 
-        deselected_bg_color = theme["foreground"]
-        deselected_bg_color_qss = (
-            f"QListView::item:deselected"
-            f"{{background-color: {deselected_bg_color};}}"
-        )
-
-        selected_bg_color = theme["current"]
-        selected_bg_color_qss = (
-            f"QListView::item:selected"
-            f"{{background-color: {selected_bg_color};}}"
-        )
-
-        transparent_background_qss = "QListView{background: transparent;}"
-
-        item_qss = (
-            "QListView::item{margin: 0px; padding: 0px; min-height: 32px; max-height: 32px;}"
-            "QImage{margin: 0px; padding: 0px; qproperty-alignment: AlignLeft;}"
-        )
-        style_sheet_components = [
-            deselected_bg_color_qss,
-            selected_bg_color_qss,
-            transparent_background_qss,
-            item_qss,
-        ]
-        style_sheet = "\n".join(style_sheet_components)
-
-        self.setStyleSheet(style_sheet)
+        self.setStyleSheet(template(qss_template, **get_theme(theme_name)))
         self.setIconSize(QSize(64, 64))
         self.setSpacing(2)
 
