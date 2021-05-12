@@ -213,17 +213,18 @@ class AnimationWidget(QWidget):
             self.animationsliderWidget.cumulative_frame_count > new_frame
         ).argmax()
         new_key_frame -= 1  # to get the previous key frame
-        new_key_frame = int(new_key_frame) # to enable slicing a list with it
+        new_key_frame = int(new_key_frame)  # to enable slicing a list with it
         self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
         self.animation.frame = new_key_frame
 
     def _update_theme(self, event=None):
         """Update from the napari GUI theme"""
+        from napari.qt import get_stylesheet
         from napari.utils.theme import get_theme, template
 
         # get theme and raw stylesheet from napari viewer
         theme = get_theme(self.viewer.theme)
-        raw_stylesheet = self.viewer.window.qt_viewer.raw_stylesheet
+        raw_stylesheet = get_stylesheet()
 
         # template and apply the primary stylesheet
         templated_stylesheet = template(raw_stylesheet, **theme)
