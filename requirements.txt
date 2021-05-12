@@ -1,7 +1,4 @@
-imageio
-imageio-ffmpeg
-napari>=0.4.5
-napari-plugin-engine>=0.1.9
-numpy
-qtpy
-scipy
+# requirements are in setup.cfg
+# https://caremad.io/posts/2013/07/setup-vs-requirement/
+
+-e ".[dev]"
