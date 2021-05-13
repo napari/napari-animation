@@ -4,15 +4,16 @@ from pathlib import Path
 import imageio
 import numpy as np
 from napari.layers.utils.layer_utils import convert_to_uint8
-from napari.utils.events import EventedList
+from napari.utils.events import EventedList, EventedModel
 from napari.utils.io import imsave
+from pydantic import Extra, Field
 from scipy import ndimage as ndi
 
 from .easing import Easing
 from .interpolation import Interpolation, interpolate_state
 
 
-class Animation:
+class Animation(EventedModel):
     """Make animations using the napari viewer.
     Parameters
     ----------
@@ -28,15 +29,21 @@ class Animation:
         Dictionary relating state attributes to interpolation functions.
     """
 
-    def __init__(self, viewer):
-        self.viewer = viewer
+    key_frames: EventedList = Field(
+        default_factory=EventedList, allow_mutation=False
+    )
+    frame: int = -1
 
-        self.key_frames = EventedList()
-        self.frame = -1
+    def __init__(self, viewer):
+        # allow extra attributes during model initialization, useful for mixins
+        self.__config__.extra = Extra.allow
+        super().__init__()
+        self.viewer = viewer
         self.state_interpolation_map = {
             "camera.angles": Interpolation.SLERP,
             "camera.zoom": Interpolation.LOG,
         }
+        self.__config__.extra = Extra.ignore
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, frame=None
