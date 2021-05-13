@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 from .easing import Easing
 
@@ -125,3 +126,99 @@ def quaternion2euler(quaternion, degrees=False):
         return tuple(np.degrees(angles))
     else:
         return angles
+
+
+class ExtraSlerp:
+    """Spherical Linear Interpolation and Extrapolation of Rotations.
+
+    Taken from scipy.spatial.transform.slerp and modified for extrapolation.
+
+    The interpolation between consecutive rotations is performed as a rotation
+    around a fixed axis with a constant angular velocity [1]_. This ensures
+    that the interpolated rotations follow the shortest path between initial
+    and final orientations.
+    Parameters
+    ----------
+    times : array_like, shape (N,)
+        Times of the known rotations. At least 2 times must be specified.
+    rotations : `Rotation` instance
+        Rotations to perform the interpolation between. Must contain N
+        rotations.
+    Methods
+    -------
+    __call__
+
+    """
+
+    def __init__(self, times, rotations):
+        if rotations.single:
+            raise ValueError("`rotations` must be a sequence of rotations.")
+
+        if len(rotations) == 1:
+            raise ValueError(
+                "`rotations` must contain at least 2 " "rotations."
+            )
+
+        times = np.asarray(times)
+        if times.ndim != 1:
+            raise ValueError(
+                "Expected times to be specified in a 1 "
+                "dimensional array, got {} "
+                "dimensions.".format(times.ndim)
+            )
+
+        if times.shape[0] != len(rotations):
+            raise ValueError(
+                "Expected number of rotations to be equal to "
+                "number of timestamps given, got {} rotations "
+                "and {} timestamps.".format(len(rotations), times.shape[0])
+            )
+        self.times = times
+        self.timedelta = np.diff(times)
+
+        if np.any(self.timedelta <= 0):
+            raise ValueError("Times must be in strictly increasing order.")
+
+        self.rotations = rotations[:-1]
+        self.rotvecs = (self.rotations.inv() * rotations[1:]).as_rotvec()
+
+    def __call__(self, times):
+        """Interpolate rotations.
+        Compute the interpolated rotations at the given `times`.
+        Parameters
+        ----------
+        times : array_like
+            Times to compute the interpolations at. Can be a scalar or
+            1-dimensional.
+        Returns
+        -------
+        interpolated_rotation : `Rotation` instance
+            Object containing the rotations computed at given `times`.
+        """
+        # Clearly differentiate from self.times property
+        compute_times = np.asarray(times)
+        if compute_times.ndim > 1:
+            raise ValueError("`times` must be at most 1-dimensional.")
+
+        single_time = compute_times.ndim == 0
+        compute_times = np.atleast_1d(compute_times)
+
+        # side = 'left' (default) excludes t_min.
+        ind = np.searchsorted(self.times, compute_times) - 1
+        # Include t_min. Without this step, index for t_min equals -1
+        ind[compute_times == self.times[0]] = 0
+        # if np.any(np.logical_or(ind < 0, ind > len(self.rotations) - 1)):
+        #     raise ValueError("Interpolation times must be within the range "
+        #                      "[{}, {}], both inclusive.".format(
+        #                         self.times[0], self.times[-1]))
+
+        alpha = (compute_times - self.times[ind]) / self.timedelta[ind]
+
+        result = self.rotations[ind] * Rotation.from_rotvec(
+            self.rotvecs[ind] * alpha[:, None]
+        )
+
+        if single_time:
+            result = result[0]
+
+        return result
