@@ -18,6 +18,7 @@ class FrameWidget(QWidget):
 
     def _init_steps(self):
         self.stepsSpinBox = QSpinBox()
+        self.stepsSpinBox.setRange(1, 100000);
         self.stepsSpinBox.setValue(15)
         self._layout.addRow("Steps", self.stepsSpinBox)
 
