@@ -136,9 +136,9 @@ def slerp(a, b, fraction):
         : tuple
     Interpolated Euler angles between a and b at fraction.
     """
-    initial_rotation, final_rotation = [
-        R.from_euler("ZYX", eulers, degrees=True) for eulers in (a, b)
-    ]
+    initial_rotation, final_rotation = R.from_euler(
+        "ZYX", [a, b], degrees=True
+    )
     rotation_vector = (initial_rotation.inv() * final_rotation).as_rotvec()
     rotation_vector *= fraction
     c_rotation = initial_rotation * R.from_rotvec(rotation_vector)
