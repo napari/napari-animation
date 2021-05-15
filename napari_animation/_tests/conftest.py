@@ -20,7 +20,7 @@ def empty_animation(make_napari_viewer):
 def animation_with_key_frames(empty_animation):
     for i in range(2):
         empty_animation.capture_keyframe()
-        empty_animation.viewer.camera.zoom *= 2
+        empty_animation._viewer.camera.zoom *= 2
     return empty_animation
 
 

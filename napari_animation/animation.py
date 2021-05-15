@@ -3,10 +3,11 @@ from pathlib import Path
 
 import imageio
 import numpy as np
+from napari import Viewer
 from napari.layers.utils.layer_utils import convert_to_uint8
 from napari.utils.events import EventedList, EventedModel
 from napari.utils.io import imsave
-from pydantic import Extra, Field
+from pydantic import Field
 from scipy import ndimage as ndi
 
 from .easing import Easing
@@ -17,7 +18,7 @@ class Animation(EventedModel):
     """Make animations using the napari viewer.
     Parameters
     ----------
-    viewer : napari.Viewer
+    _viewer : napari.Viewer
         napari viewer.
     Attributes
     ----------
@@ -29,21 +30,23 @@ class Animation(EventedModel):
         Dictionary relating state attributes to interpolation functions.
     """
 
+    _viewer: Viewer
     key_frames: EventedList = Field(
         default_factory=EventedList, allow_mutation=False
     )
     frame: int = -1
+    state_interpolation_map: dict = Field(
+        default_factory=dict, allow_mutation=False
+    )
 
-    def __init__(self, viewer):
-        # allow extra attributes during model initialization, useful for mixins
-        self.__config__.extra = Extra.allow
-        super().__init__()
-        self.viewer = viewer
-        self.state_interpolation_map = {
-            "camera.angles": Interpolation.SLERP,
-            "camera.zoom": Interpolation.LOG,
-        }
-        self.__config__.extra = Extra.ignore
+    def __init__(self, viewer: Viewer) -> None:
+        super().__init__(
+            state_interpolation_map={
+                "camera.angles": Interpolation.SLERP,
+                "camera.zoom": Interpolation.LOG,
+            }
+        )
+        self._viewer = viewer
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, frame=None
@@ -113,8 +116,8 @@ class Animation(EventedModel):
         """
 
         new_state = {
-            "camera": self.viewer.camera.dict(),
-            "dims": self.viewer.dims.dict(),
+            "camera": self._viewer.camera.dict(),
+            "dims": self._viewer.dims.dict(),
             "layers": self._get_layer_state(),
         }
 
@@ -127,14 +130,15 @@ class Animation(EventedModel):
         state : dict
             Description of viewer state.
         """
-        self.viewer.camera.update(state["camera"])
-        self.viewer.dims.update(state["dims"])
+        self._viewer.camera.update(state["camera"])
+        self._viewer.dims.update(state["dims"])
         self._set_layer_state(state["layers"])
 
     def _get_layer_state(self):
         """Store layer state in a dict of dicts {layer.name: state}"""
         layer_state = {
-            layer.name: layer._get_base_state() for layer in self.viewer.layers
+            layer.name: layer._get_base_state()
+            for layer in self._viewer.layers
         }
         # remove metadata from layer_state dicts
         for state in layer_state.values():
@@ -143,7 +147,7 @@ class Animation(EventedModel):
 
     def _set_layer_state(self, layer_state):
         for layer_name, layer_state in layer_state.items():
-            layer = self.viewer.layers[layer_name]
+            layer = self._viewer.layers[layer_name]
             for key, value in layer_state.items():
                 original_value = getattr(layer, key)
                 # Only set if value differs to avoid expensive redraws
@@ -187,12 +191,12 @@ class Animation(EventedModel):
         for i, state in enumerate(self._state_generator()):
             print("Rendering frame ", i + 1, "of", self.n_frames)
             self._set_viewer_state(state)
-            frame = self.viewer.screenshot(canvas_only=canvas_only)
+            frame = self._viewer.screenshot(canvas_only=canvas_only)
             yield frame
 
     def _generate_thumbnail(self):
         """generate a thumbnail from viewer"""
-        screenshot = self.viewer.screenshot(canvas_only=True)
+        screenshot = self._viewer.screenshot(canvas_only=True)
         thumbnail = self._coerce_image_into_thumbnail_shape(screenshot)
         return thumbnail
 

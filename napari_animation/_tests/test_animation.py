@@ -56,8 +56,8 @@ def test_set_viewer_state(animation_with_key_frames, viewer_state):
     current_state = animation._get_viewer_state()
     animation._set_viewer_state(viewer_state)
 
-    animation_dims_state = animation.viewer.dims.dict()
-    animation_camera_state = animation.viewer.camera.dict()
+    animation_dims_state = animation._viewer.dims.dict()
+    animation_camera_state = animation._viewer.camera.dict()
 
     assert animation_dims_state == current_state["dims"]
     for key in ("center", "angles", "interactive"):
@@ -107,7 +107,7 @@ def test_layer_attribute_capture(layer_state, attribute):
 def test_end_state_reached(image_animation):
     """Check that animation ends in the same state as the final key-frame"""
     image_animation.capture_keyframe()
-    image_animation.viewer.dims.current_step = (28, 0)
+    image_animation._viewer.dims.current_step = (28, 0)
     image_animation.capture_keyframe(steps=2)
     for state in image_animation._state_generator():
         pass

@@ -22,7 +22,7 @@ class AnimationWidget(QWidget):
 
     Parameters
     ----------
-    viewer : napari.Viewer
+    _viewer : napari.Viewer
         napari viewer.
 
     Attributes
@@ -37,8 +37,8 @@ class AnimationWidget(QWidget):
         super().__init__(parent=parent)
 
         # Store reference to viewer and create animation
-        self.viewer = viewer
-        self.animation = Animation(self.viewer)
+        self._viewer = viewer
+        self.animation = Animation(self._viewer)
 
         # Initialise UI
         self._init_ui()
@@ -61,16 +61,12 @@ class AnimationWidget(QWidget):
     def _add_keybind_callbacks(self):
         """Bind keys"""
 
-        self.animation.viewer.bind_key(
-            "Alt-f", self._capture_keyframe_callback
-        )
-        self.animation.viewer.bind_key(
-            "Alt-r", self._replace_keyframe_callback
-        )
-        self.animation.viewer.bind_key("Alt-d", self._delete_keyframe_callback)
+        self._viewer.bind_key("Alt-f", self._capture_keyframe_callback)
+        self._viewer.bind_key("Alt-r", self._replace_keyframe_callback)
+        self._viewer.bind_key("Alt-d", self._delete_keyframe_callback)
 
-        self.animation.viewer.bind_key("Alt-a", self._key_adv_frame)
-        self.animation.viewer.bind_key("Alt-b", self._key_back_frame)
+        self._viewer.bind_key("Alt-a", self._key_adv_frame)
+        self._viewer.bind_key("Alt-b", self._key_back_frame)
 
     def _add_callbacks(self):
         """Establish callbacks"""
@@ -84,19 +80,19 @@ class AnimationWidget(QWidget):
         self.animationsliderWidget.valueChanged.connect(
             self._move_animationslider_callback
         )
-        self.viewer.events.theme.connect(
+        self._viewer.events.theme.connect(
             lambda e: self.keyframesListWidget._update_theme(e.value)
         )
 
     def _release_callbacks(self):
         """Release keys"""
 
-        self.animation.viewer.bind_key("Alt-f", None)
-        self.animation.viewer.bind_key("Alt-r", None)
-        self.animation.viewer.bind_key("Alt-d", None)
+        self._viewer.bind_key("Alt-f", None)
+        self._viewer.bind_key("Alt-r", None)
+        self._viewer.bind_key("Alt-d", None)
 
-        self.animation.viewer.bind_key("Alt-a", None)
-        self.animation.viewer.bind_key("Alt-b", None)
+        self._viewer.bind_key("Alt-a", None)
+        self._viewer.bind_key("Alt-b", None)
 
     def _init_frame_widget(self):
         self.frameWidget = FrameWidget(parent=self)
@@ -112,7 +108,7 @@ class AnimationWidget(QWidget):
         self.keyframesListWidget = KeyFramesListWidget(
             self.animation, parent=self
         )
-        self.keyframesListWidget._update_theme(self.viewer.theme)
+        self.keyframesListWidget._update_theme(self._viewer.theme)
         self._layout.addWidget(self.keyframesListWidget)
 
     def _init_save_button(self):
