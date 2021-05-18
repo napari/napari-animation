@@ -96,15 +96,13 @@ class KeyFramesListWidget(QListWidget):
 
     def _icon_from_key_frame(self, key_frame):
         """Generate QIcon from a key frame"""
-        thumbnail = key_frame["thumbnail"]
         thumbnail = QImage(
-            thumbnail,
-            thumbnail.shape[1],
-            thumbnail.shape[0],
+            key_frame.thumbnail,
+            key_frame.thumbnail.shape[1],
+            key_frame.thumbnail.shape[0],
             QImage.Format_RGBA8888,
         )
-        icon = QIcon(QPixmap.fromImage(thumbnail))
-        return icon
+        return QIcon(QPixmap.fromImage(thumbnail))
 
     def _get_key_frame(self, key_frame_idx):
         """Get key frame dict from key frames list at key_frame_idx"""

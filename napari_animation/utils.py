@@ -1,3 +1,5 @@
+import numpy as np
+
 from .easing import Easing
 
 
@@ -67,3 +69,26 @@ def keys_to_list(input_dict):
                 yield [key] + sub_key
         else:
             yield [key]
+
+
+def make_thumbnail(image: np.ndarray, shape=(32, 32, 4)) -> np.ndarray:
+    """Resizes an image to `shape` with padding"""
+    from napari.layers.utils.layer_utils import convert_to_uint8
+    from scipy import ndimage as ndi
+
+    scale_factor = np.min(np.divide(shape, image.shape))
+    intermediate_image = ndi.zoom(image, (scale_factor, scale_factor, 1))
+
+    padding_needed = np.subtract(shape, intermediate_image.shape)
+    pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
+    thumbnail = np.pad(intermediate_image, pad_amounts, mode="constant")
+    thumbnail = convert_to_uint8(thumbnail)
+
+    # blend thumbnail with opaque black background
+    background = np.zeros(shape, dtype=np.uint8)
+    background[..., 3] = 255
+
+    f_dest = thumbnail[..., 3][..., None] / 255
+    f_source = 1 - f_dest
+    thumbnail = thumbnail * f_dest + background * f_source
+    return thumbnail.astype(np.uint8)

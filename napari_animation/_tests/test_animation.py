@@ -3,7 +3,8 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from napari_animation import Animation
+from napari_animation import Animation, ViewerState
+from napari_animation.utils import make_thumbnail
 
 CAPTURED_LAYER_ATTRIBUTES = [
     "name",
@@ -30,8 +31,7 @@ def test_capture_key_frame(empty_animation):
     assert len(animation.key_frames) == 0
     animation.capture_keyframe()
     assert len(animation.key_frames) == 1
-    assert "viewer" in animation.key_frames[0].keys()
-    assert animation.key_frames[0]["ease"]
+    assert animation.key_frames[0].ease
 
 
 def test_set_to_key_frame(animation_with_key_frames):
@@ -43,33 +43,35 @@ def test_set_to_key_frame(animation_with_key_frames):
 
 
 def test_get_viewer_state(empty_animation):
-    """Test Animation._get_viewer_state()"""
+    """Test ViewerState.from_viewer()"""
     animation = empty_animation
-    state = animation._get_viewer_state()
-    assert isinstance(state, dict)
-    assert all([item in state.keys() for item in ("camera", "dims")])
+    state = ViewerState.from_viewer(animation.viewer)
+    assert isinstance(state, ViewerState)
 
 
 def test_set_viewer_state(animation_with_key_frames, viewer_state):
     """Test Animation._set_viewer_state()"""
-    animation = animation_with_key_frames
-    current_state = animation._get_viewer_state()
+    animation: Animation = animation_with_key_frames
+    current_state = ViewerState.from_viewer(animation.viewer)
     animation._set_viewer_state(viewer_state)
 
     animation_dims_state = animation.viewer.dims.dict()
     animation_camera_state = animation.viewer.camera.dict()
 
-    assert animation_dims_state == current_state["dims"]
+    assert animation_dims_state == current_state.dims
     for key in ("center", "angles", "interactive"):
-        assert animation_camera_state[key] == current_state["camera"][key]
+        assert animation_camera_state[key] == current_state.camera[key]
 
 
 def test_thumbnail_generation(empty_animation):
     """Test thumbnail generation"""
     animation = empty_animation
-    thumbnail = animation._generate_thumbnail()
+    shape = (32, 32, 4)
+    thumbnail = make_thumbnail(
+        animation.viewer.screenshot(canvas_only=True), shape
+    )
 
-    assert thumbnail.shape == animation._thumbnail_shape
+    assert thumbnail.shape == shape
     assert thumbnail.dtype == np.uint8
     assert thumbnail.max() <= 255
     assert thumbnail.min() >= 0
@@ -111,4 +113,4 @@ def test_end_state_reached(image_animation):
     image_animation.capture_keyframe(steps=2)
     for state in image_animation._state_generator():
         pass
-    assert state == image_animation.key_frames[-1]["viewer"]
+    assert state == image_animation.key_frames[-1].viewer_state
