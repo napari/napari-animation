@@ -39,7 +39,7 @@ class Animation:
             KeyFrame
         ] = SelectableEventedList(basetype=KeyFrame)
         self.key_frames.selection.events.active.connect(
-            lambda e: self._set_viewer_state(e.value)
+            lambda e: self._set_viewer_state(e.value.viewer_state)
         )
 
         self.state_interpolation_map = {
@@ -68,14 +68,18 @@ class Animation:
             active frame.
         """
         if position is None:
-            position = self.key_frames.index(self.key_frames.selection.active)
+            if self.key_frames:
+                position = self.current_key_frame
+            else:
+                position = -1
+                insert = True
 
         new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
 
         if insert:
-            self.key_frames.insert(position + 1, new_frame)
+            self.key_frames.insert(position + 1, new_frame)        
         else:
-            self.key_frames[self.frame] = new_frame
+            self.key_frames[position] = new_frame
 
     @property
     def n_frames(self):
@@ -161,7 +165,7 @@ class Animation:
 
     @property
     def current_key_frame(self):
-        return self.key_frames[self.frame]
+        return self.key_frames.index(self.key_frames.selection._current)
 
     def animate(
         self,
