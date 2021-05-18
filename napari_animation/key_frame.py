@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from napari import Viewer
 
 
-@dataclass
+@dataclass(frozen=True)
 class ViewerState:
     """The state of the viewer camera, dims, and layers.
 
@@ -44,7 +44,7 @@ class ViewerState:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class KeyFrame:
     """A single keyframe in the animation.
 
@@ -76,3 +76,6 @@ class KeyFrame:
             steps=steps,
             ease=ease,
         )
+
+    def __hash__(self) -> int:
+        return id(self)
