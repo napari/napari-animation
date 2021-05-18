@@ -38,9 +38,7 @@ class Animation:
         self.key_frames: SelectableEventedList[
             KeyFrame
         ] = SelectableEventedList(basetype=KeyFrame)
-        self.key_frames.selection.events.active.connect(
-            lambda e: self._set_viewer_state(e.value.viewer_state)
-        )
+        self.key_frames.selection.events.active.connect(self._active_callback)
 
         self.state_interpolation_map = {
             "camera.angles": Interpolation.SLERP,
@@ -101,7 +99,7 @@ class Animation:
 
     def set_to_current_keyframe(self):
         """Set the viewer to the current key-frame"""
-        self._set_viewer_state(self.key_frames.selection._current.viewer_state)
+        self._set_viewer_state(self.animation.current_key_frame)
 
     def _set_viewer_state(self, state: ViewerState):
         """Sets the current viewer state
@@ -165,7 +163,11 @@ class Animation:
 
     @property
     def current_key_frame(self):
-        return self.key_frames.index(self.key_frames.selection._current)
+        try:
+            return self.key_frames.index(self.key_frames.selection._current)
+        except ValueError:
+            return None
+            # raise ValueError("No current frame selected !")
 
     def animate(
         self,
@@ -260,3 +262,10 @@ class Animation:
 
         if not save_as_folder:
             writer.close()
+
+    def _active_callback(self, event):
+        if event.value:
+            self._set_viewer_state(event.value.viewer_state)
+        else:
+            if len(self.key_frames)>=1 and not self.current_key_frame:
+                self.key_frames.selection._current = self.key_frames[-1]

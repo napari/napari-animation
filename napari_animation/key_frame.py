@@ -44,6 +44,17 @@ class ViewerState:
         )
 
 
+    def __eq__(self, other):
+        if isinstance(other, ViewerState):
+            return (
+                self.camera == other.camera and
+                self.dims == other.dims and
+                self.layers == other.layers
+            )
+        else:
+            return False
+
+
 @dataclass(frozen=True)
 class KeyFrame:
     """A single keyframe in the animation.
@@ -79,3 +90,17 @@ class KeyFrame:
 
     def __hash__(self) -> int:
         return id(self)
+
+    def __eq__(self, other):
+        if isinstance(other, KeyFrame):
+            return (
+                self.__hash__() == other.__hash__() and
+                self.viewer_state == other.viewer_state and
+                (self.thumbnail == other.thumbnail).all() and
+                self.steps == other.steps and
+                self.ease == other.ease
+            )
+        else:
+            return False
+
+            
