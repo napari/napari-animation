@@ -4,9 +4,8 @@ from functools import partial
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-from scipy.spatial.transform import Slerp
 
-from .utils import keys_to_list, nested_get, nested_set, quaternion2euler
+from .utils import keys_to_list, nested_get, nested_set
 
 
 def default(a, b, fraction):
@@ -137,10 +136,13 @@ def slerp(a, b, fraction):
         : tuple
     Interpolated Euler angles between a and b at fraction.
     """
-    key_rots = R.from_euler("ZYX", [a, b], degrees=True)
-    slerped = Slerp([0, 1], key_rots)
-    q = slerped(fraction).as_quat()
-    return quaternion2euler(q, degrees=True)
+    initial_rotation, final_rotation = R.from_euler(
+        "ZYX", [a, b], degrees=True
+    )
+    rotation_vector = (initial_rotation.inv() * final_rotation).as_rotvec()
+    rotation_vector *= fraction
+    c_rotation = initial_rotation * R.from_rotvec(rotation_vector)
+    return c_rotation.as_euler("ZYX", degrees=True)
 
 
 class Interpolation(Enum):
