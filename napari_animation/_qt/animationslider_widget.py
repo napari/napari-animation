@@ -49,5 +49,5 @@ class AnimationSliderWidget(QSlider):
 
     def _compute_cumulative_frame_count(self):
         """Compute cumulative frame count"""
-        steps = [keyframe["steps"] for keyframe in self.animation.key_frames]
+        steps = [keyframe.steps for keyframe in self.animation.key_frames]
         self.cumulative_frame_count = np.insert(np.cumsum(steps), 0, 0)

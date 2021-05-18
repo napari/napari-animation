@@ -2,6 +2,7 @@
 discovery at test time.
 https://docs.pytest.org/en/stable/fixture.html
 """
+from napari_animation.key_frame import ViewerState
 import numpy as np
 import pytest
 
@@ -26,7 +27,7 @@ def animation_with_key_frames(empty_animation):
 
 @pytest.fixture
 def viewer_state(empty_animation):
-    return empty_animation._get_viewer_state()
+    return ViewerState.from_viewer(empty_animation.viewer)
 
 
 @pytest.fixture
@@ -38,11 +39,10 @@ def key_frames(animation_with_key_frames):
 def image_animation(make_napari_viewer):
     viewer = make_napari_viewer()
     viewer.add_image(np.random.random((28, 28)))
-    animation = Animation(viewer)
-    return animation
+    return Animation(viewer)
 
 
 @pytest.fixture
-def layer_state(image_animation):
+def layer_state(image_animation: Animation):
     image_animation.capture_keyframe()
-    return image_animation.key_frames[0]["viewer"]["layers"]
+    return image_animation.key_frames[0].viewer_state.layers
