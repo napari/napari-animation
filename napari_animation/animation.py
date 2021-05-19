@@ -38,7 +38,9 @@ class Animation:
         self.key_frames: SelectableEventedList[
             KeyFrame
         ] = SelectableEventedList(basetype=KeyFrame)
-        self.key_frames.selection.events.active.connect(self._active_callback)
+        self.key_frames.selection.events._current.connect(
+            self._current_callback
+        )
 
         self.state_interpolation_map = {
             "camera.angles": Interpolation.SLERP,
@@ -283,6 +285,6 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
-    def _active_callback(self, event):
+    def _current_callback(self, event):
         if event.value:
             self._set_viewer_state(event.value.viewer_state)

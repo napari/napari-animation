@@ -158,8 +158,10 @@ class AnimationWidget(QWidget):
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
         if len(self.animation.key_frames) > 0:
-            self.animation.key_frames.pop(self.animation.frame)
+            self.animation.key_frames.pop(self.animation.current_key_frame)
+            print(1)
         if len(self.animation.key_frames) == 0:
+            print(2)
             self.keyframesListControlWidget.deleteButton.setEnabled(False)
             self.keyframesListWidget.setEnabled(False)
             self.frameWidget.setEnabled(False)
@@ -168,16 +170,22 @@ class AnimationWidget(QWidget):
     def _key_adv_frame(self, event=None):
         """Go forwards in key-frame list"""
 
-        new_frame = (self.animation.frame + 1) % len(self.animation.key_frames)
-        self.animation.set_to_keyframe(new_frame)
-        self.keyframesListWidget.setCurrentRow(new_frame)
+        new_frame = (self.animation.current_key_frame + 1) % len(
+            self.animation.key_frames
+        )
+        self.animation.current_key_frame = new_frame
+        # self.animation.set_to_keyframe(new_frame)
+        # self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _key_back_frame(self, event=None):
         """Go backwards in key-frame list"""
 
-        new_frame = (self.animation.frame - 1) % len(self.animation.key_frames)
-        self.animation.set_to_keyframe(new_frame)
-        self.keyframesListWidget.setCurrentRow(new_frame)
+        new_frame = (self.animation.current_key_frame - 1) % len(
+            self.animation.key_frames
+        )
+        self.animation.current_key_frame = new_frame
+        # self.animation.set_to_keyframe(new_frame)
+        # self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _save_callback(self, event=None):
 
@@ -214,8 +222,8 @@ class AnimationWidget(QWidget):
         ).argmax()
         new_key_frame -= 1  # to get the previous key frame
         new_key_frame = int(new_key_frame)  # to enable slicing a list with it
-        self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
-        self.animation.frame = new_key_frame
+        # self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
+        self.animation.current_key_frame = new_key_frame
 
     def close(self):
         self._release_callbacks()

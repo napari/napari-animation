@@ -54,7 +54,8 @@ class ViewerState:
             return False
 
 
-@dataclass(frozen=True)
+# @dataclass(frozen=True)
+@dataclass  # we want to modify steps and ease from the widget for instance
 class KeyFrame:
     """A single keyframe in the animation.
 

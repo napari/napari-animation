@@ -40,22 +40,30 @@ class FrameWidget(QWidget):
 
     def _update_steps_spin_box(self):
         """update state of steps spin box to reflect animation state at current key frame"""
-        self.stepsSpinBox.setValue(self.animation.current_key_frame.steps)
+        key_frame_idx = self.animation.current_key_frame
+        self.stepsSpinBox.setValue(
+            self.animation.key_frames[key_frame_idx].steps
+        )
 
     def _update_animation_steps(self, event):
         """update state of 'steps' at current key-frame to reflect GUI state"""
-        self.animation.current_key_frame.steps = self.stepsSpinBox.value()
+        key_frame_idx = self.animation.current_key_frame
+        self.animation.key_frames[
+            key_frame_idx
+        ].steps = self.stepsSpinBox.value()
 
     def _update_ease_combo_box(self):
         """update state of ease combo box to reflect animation state at current key frame"""
-        ease = self.animation.current_key_frame.ease
+        key_frame_idx = self.animation.current_key_frame
+        ease = self.animation.key_frames[key_frame_idx].ease
         name = _easing_func_to_name(ease)
         index = self.easeComboBox.findText(name, Qt.MatchFixedString)
         self.easeComboBox.setCurrentIndex(index)
 
     def _update_animation_ease(self, event):
         """update state of 'ease' at current key-frame to reflect GUI state"""
-        self.animation.current_key_frame.ease = self.get_easing_func()
+        key_frame_idx = self.animation.current_key_frame
+        self.animation.key_frames[key_frame_idx].ease = self.get_easing_func()
 
     def _add_callbacks(self):
         """add callbacks to steps and ease widgets"""

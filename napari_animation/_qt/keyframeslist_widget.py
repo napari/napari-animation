@@ -37,6 +37,9 @@ class KeyFramesListWidget(QListWidget):
         self.animation.key_frames.events.reordered.connect(
             self._reorder_frontend
         )
+        self.animation.key_frames.selection.events._current.connect(
+            self._update_selected_frame
+        )
 
     def dropEvent(self, event):
         """update backend state on 'drop' of frame in key frames list"""
@@ -46,14 +49,15 @@ class KeyFramesListWidget(QListWidget):
 
     def _selection_callback(self):
         self._update_frame_number()
-        if self.animation.frame != -1:
-            self.animation.set_to_current_keyframe()
+        if self.animation.current_key_frame:
+            # self.animation.set_to_current_keyframe()
             self.parentWidget()._update_frame_widget_from_animation()
 
     def _add(self, event):
         """Generate QListWidgetItem for current keyframe, store its unique id and add it to self"""
         key_frame, idx = event.value, event.index
         item = self._generate_list_item(key_frame)
+        # self.insertItemBlockingSignals(idx, item)
         self.insertItem(idx, item)
         self._add_mappings(key_frame, item)
         self._frame_count += 1
@@ -86,7 +90,11 @@ class KeyFramesListWidget(QListWidget):
 
     def _update_frame_number(self):
         """update the frame number of self.animation based on selected item in frontend"""
-        self.animation.frame = self._get_selected_index()
+        self.animation.current_key_frame = self._get_selected_index()
+
+    def _update_selected_frame(self, event):
+        key_frame_idx = self.animation.current_key_frame
+        self.setCurrentRowBlockingSignals(key_frame_idx)
 
     def _generate_list_item(self, key_frame):
         """Generate a QListWidgetItem from a key-frame"""
@@ -104,9 +112,9 @@ class KeyFramesListWidget(QListWidget):
         )
         return QIcon(QPixmap.fromImage(thumbnail))
 
-    def _get_key_frame(self, key_frame_idx):
-        """Get key frame dict from key frames list at key_frame_idx"""
-        return self.animation.key_frames[key_frame_idx]
+    # def _get_key_frame(self, key_frame_idx):
+    #     """Get key frame dict from key frames list at key_frame_idx"""
+    #     return self.animation.key_frames[key_frame_idx]
 
     def _get_selected_index(self):
         """Get index of currently selected row"""
