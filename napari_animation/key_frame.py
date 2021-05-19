@@ -43,13 +43,12 @@ class ViewerState:
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
 
-
     def __eq__(self, other):
         if isinstance(other, ViewerState):
             return (
-                self.camera == other.camera and
-                self.dims == other.dims and
-                self.layers == other.layers
+                self.camera == other.camera
+                and self.dims == other.dims
+                and self.layers == other.layers
             )
         else:
             return False
@@ -94,13 +93,11 @@ class KeyFrame:
     def __eq__(self, other):
         if isinstance(other, KeyFrame):
             return (
-                self.__hash__() == other.__hash__() and
-                self.viewer_state == other.viewer_state and
-                (self.thumbnail == other.thumbnail).all() and
-                self.steps == other.steps and
-                self.ease == other.ease
+                self.__hash__() == other.__hash__()
+                and self.viewer_state == other.viewer_state
+                and (self.thumbnail == other.thumbnail).all()
+                and self.steps == other.steps
+                and self.ease == other.ease
             )
         else:
             return False
-
-            

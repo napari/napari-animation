@@ -1,8 +1,8 @@
 import numbers
+from dataclasses import asdict
 
 import numpy as np
 import pytest
-from dataclasses import asdict
 
 from napari_animation.interpolation import (
     interpolate_bool,

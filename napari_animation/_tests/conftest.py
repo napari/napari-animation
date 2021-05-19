@@ -2,11 +2,11 @@
 discovery at test time.
 https://docs.pytest.org/en/stable/fixture.html
 """
-from napari_animation.key_frame import ViewerState
 import numpy as np
 import pytest
 
 from napari_animation import Animation
+from napari_animation.key_frame import ViewerState
 
 
 @pytest.fixture
