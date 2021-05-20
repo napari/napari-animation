@@ -4,7 +4,13 @@ from qtpy.QtGui import QImage
 
 
 class KeyFrameModel(QtListModel):
+    """Model for QtListView of KeyFrames"""
+
     def data(self, index: QModelIndex, role: Qt.ItemDataRole):
+        """Return data at `index` for the requested `role`.
+
+        see https://doc.qt.io/qt-5/model-view-programming.html#item-roles
+        """
         if role == Qt.DecorationRole:  # thumbnail
             key_frame = index.data(Qt.UserRole)
             return QImage(
@@ -18,6 +24,7 @@ class KeyFrameModel(QtListModel):
         return super().data(index, role)
 
     def setData(self, index, value, role) -> bool:
+        """Set data at `index` for `role` to `value`."""
         if role == Qt.EditRole:
             # user has double-clicked on the keyframe name
             key_frame = index.data(Qt.UserRole)
@@ -26,6 +33,8 @@ class KeyFrameModel(QtListModel):
 
 
 class KeyFramesListWidget(QtListView):
+    """QtListView comes from napari and works with SelectableEventedList."""
+
     def __init__(self, root, parent=None):
         super().__init__(root, parent=parent)
         self.setModel(KeyFrameModel(root))
