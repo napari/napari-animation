@@ -34,12 +34,12 @@ def test_capture_key_frame(empty_animation):
     assert animation.key_frames[0].ease
 
 
-def test_set_to_key_frame(animation_with_key_frames):
-    """Test Animation.set_to_key_frame()"""
-    animation = animation_with_key_frames
-    for i in range(2):
-        animation.set_to_keyframe(i)
-        assert animation.current_key_frame == i
+# def test_set_to_key_frame(animation_with_key_frames):
+#     """Test Animation.set_to_key_frame()"""
+#     animation = animation_with_key_frames
+#     for i in range(2):
+#         animation.set_to_keyframe(i)
+#         assert animation.current_key_frame == i
 
 
 def test_get_viewer_state(empty_animation):

@@ -17,6 +17,13 @@ class KeyFrameModel(QtListModel):
             return QSize(160, 34)
         return super().data(index, role)
 
+    def setData(self, index, value, role) -> bool:
+        if role == Qt.EditRole:
+            # user has double-clicked on the keyframe name
+            key_frame = index.data(Qt.UserRole)
+            key_frame.name = value
+        return super().setData(index, value, role=role)
+
 
 class KeyFramesListWidget(QtListView):
     def __init__(self, root, parent=None):

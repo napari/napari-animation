@@ -71,12 +71,18 @@ class KeyFrame:
         If provided this method should make from `[0, 1]` to `[0, 1]` and will
         be used as an easing function for the transition between the last state
         and captured one.
+    name : str
+        A name for the keyframe.
     """
 
     viewer_state: ViewerState
     thumbnail: np.ndarray
     steps: int = 15
     ease: Easing = Easing.LINEAR
+    name: str = "KeyFrame"
+
+    def __str__(self):
+        return self.name
 
     @classmethod
     def from_viewer(cls, viewer: Viewer, steps=15, ease=Easing.LINEAR):

@@ -2,6 +2,7 @@ import os
 import warnings
 from dataclasses import asdict
 from pathlib import Path
+from itertools import count
 
 import imageio
 import numpy as np
@@ -46,6 +47,7 @@ class Animation:
             "camera.angles": Interpolation.SLERP,
             "camera.zoom": Interpolation.LOG,
         }
+        self._keyframe_counter = count()  # track number of frames created
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -68,17 +70,14 @@ class Animation:
             active frame.
         """
         if position is None:
-            if self.key_frames:
-                position = (
-                    self.current_key_frame
-                    if self.current_key_frame
-                    else len(self.key_frames) - 1
-                )
-            else:
-                position = -1
-                insert = True
+            position = (
+                self.key_frames.index(self.key_frames.selection.active)
+                if self.key_frames.selection.active
+                else -1
+            )
 
         new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
+        new_frame.name = f"KeyFrame {next(self._keyframe_counter)}"
 
         if insert:
             self.key_frames.insert(position + 1, new_frame)
@@ -169,15 +168,7 @@ class Animation:
 
     @property
     def current_key_frame(self):
-        try:
-            return self.key_frames.index(self.key_frames.selection._current)
-        except ValueError:
-            warnings.warn("No current frame selected !")
-            return None
-
-    @current_key_frame.setter
-    def current_key_frame(self, frame_index):
-        self.key_frames.selection._current = self.key_frames[frame_index]
+        return self.key_frames.selection._current
 
     @property
     def active_key_frame(self):

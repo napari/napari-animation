@@ -1,13 +1,5 @@
 import numpy as np
 
-from .easing import Easing
-
-
-def _easing_func_to_name(easing_function):
-    """Get the name of an easing function."""
-    [name] = [e.name for e in Easing if e is easing_function]
-    return name
-
 
 def nested_get(input_dict, keys_list):
     """Get method for nested dictionaries.
@@ -71,7 +63,7 @@ def keys_to_list(input_dict):
             yield [key]
 
 
-def make_thumbnail(image: np.ndarray, shape=(32, 32, 4)) -> np.ndarray:
+def make_thumbnail(image: np.ndarray, shape=(30, 30, 4)) -> np.ndarray:
     """Resizes an image to `shape` with padding"""
     from napari.layers.utils.layer_utils import convert_to_uint8
     from scipy import ndimage as ndi
