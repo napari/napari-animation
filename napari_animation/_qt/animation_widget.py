@@ -159,9 +159,8 @@ class AnimationWidget(QWidget):
         """Delete current key-frame"""
         if len(self.animation.key_frames) > 0:
             self.animation.key_frames.pop(self.animation.current_key_frame)
-            print(1)
+
         if len(self.animation.key_frames) == 0:
-            print(2)
             self.keyframesListControlWidget.deleteButton.setEnabled(False)
             self.keyframesListWidget.setEnabled(False)
             self.frameWidget.setEnabled(False)
@@ -169,13 +168,10 @@ class AnimationWidget(QWidget):
 
     def _key_adv_frame(self, event=None):
         """Go forwards in key-frame list"""
-
         new_frame = (self.animation.current_key_frame + 1) % len(
             self.animation.key_frames
         )
         self.animation.current_key_frame = new_frame
-        # self.animation.set_to_keyframe(new_frame)
-        # self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _key_back_frame(self, event=None):
         """Go backwards in key-frame list"""
@@ -184,8 +180,6 @@ class AnimationWidget(QWidget):
             self.animation.key_frames
         )
         self.animation.current_key_frame = new_frame
-        # self.animation.set_to_keyframe(new_frame)
-        # self.keyframesListWidget.setCurrentRow(new_frame)
 
     def _save_callback(self, event=None):
 
@@ -212,6 +206,7 @@ class AnimationWidget(QWidget):
         """Scroll through interpolated states. Computes states if key-frames changed"""
         self.animationsliderWidget.synchronise()
         new_frame = self.animationsliderWidget.value()
+
         self.animation._set_viewer_state(
             self.animationsliderWidget.interpol_states[new_frame]
         )
@@ -222,8 +217,18 @@ class AnimationWidget(QWidget):
         ).argmax()
         new_key_frame -= 1  # to get the previous key frame
         new_key_frame = int(new_key_frame)  # to enable slicing a list with it
-        # self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
+
+        # block selection callbacks during the setting
+        self.animation.key_frames.selection.events._current.block()
+        self.keyframesListWidget.blockSignals(True)
+
+        self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
         self.animation.current_key_frame = new_key_frame
+        self._update_frame_widget_from_animation()
+
+        # unblock callbacks
+        self.animation.key_frames.selection.events._current.unblock()
+        self.keyframesListWidget.blockSignals(False)
 
     def close(self):
         self._release_callbacks()
