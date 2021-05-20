@@ -172,15 +172,7 @@ class Animation:
 
     @property
     def active_key_frame(self):
-        try:
-            return self.key_frames.index(self.key_frames.selection.active)
-        except ValueError:
-            warnings.warn("No active frame selected !")
-            return None
-
-    @active_key_frame.setter
-    def active_key_frame(self, frame_index):
-        self.key_frames.selection.active = self.key_frames[frame_index]
+        return self.key_frames.selection.active
 
     def animate(
         self,
