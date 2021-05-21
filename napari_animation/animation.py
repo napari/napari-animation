@@ -82,7 +82,8 @@ class Animation:
         if insert:
             self.key_frames.insert(position + 1, new_frame)
         else:
-            self.key_frames[position] = new_frame
+            del self.key_frames[position]  # needed to trigger the remove event
+            self.key_frames.insert(position, new_frame)
 
     @property
     def n_frames(self):
