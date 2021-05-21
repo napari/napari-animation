@@ -43,6 +43,18 @@ class ViewerState:
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
 
+    def apply_to_viewer(self, viewer: Viewer):
+        viewer.camera.update(self.camera)
+        viewer.dims.update(self.dims)
+
+        for layer_name, layer_state in self.layers.items():
+            layer = viewer.layers[layer_name]
+            for key, value in layer_state.items():
+                original_value = getattr(layer, key)
+                # Only set if value differs to avoid expensive redraws
+                if not np.array_equal(original_value, value):
+                    setattr(layer, key, value)
+
     def __eq__(self, other):
         if isinstance(other, ViewerState):
             return (
@@ -93,6 +105,9 @@ class KeyFrame:
             steps=steps,
             ease=ease,
         )
+
+    def __repr__(self) -> str:
+        return f"<KeyFrame: {self.name}>"
 
     def __hash__(self) -> int:
         return id(self)

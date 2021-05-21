@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 
 
@@ -84,3 +86,10 @@ def make_thumbnail(image: np.ndarray, shape=(30, 30, 4)) -> np.ndarray:
     f_source = 1 - f_dest
     thumbnail = thumbnail * f_dest + background * f_source
     return thumbnail.astype(np.uint8)
+
+
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return zip(a, b)

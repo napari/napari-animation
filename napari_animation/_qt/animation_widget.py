@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from napari import Viewer
+from PyQt5.QtWidgets import QSlider
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QErrorMessage,
@@ -11,7 +12,6 @@ from qtpy.QtWidgets import (
 )
 
 from ..animation import Animation
-from .animationslider_widget import AnimationSliderWidget
 from .frame_widget import FrameWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
 from .keyframeslist_widget import KeyFramesListWidget
@@ -49,9 +49,13 @@ class AnimationWidget(QWidget):
         )
         self.frameWidget = FrameWidget(parent=self)
         self.saveButton = QPushButton("Save Animation", parent=self)
-        self.animationsliderWidget = AnimationSliderWidget(
-            self.animation, orientation=Qt.Horizontal, parent=self
+        self.animationSlider = QSlider(Qt.Horizontal, parent=self)
+        self.animationSlider.setToolTip("Scroll through animation")
+        self.animation._generator.events.n_frames.connect(
+            lambda e: self.animationSlider.setMaximum(e.value)
         )
+
+        self.animationSlider.setMaximum(len(self.animation._generator) - 1)
 
         # Create layout
         self.setLayout(QVBoxLayout())
@@ -59,7 +63,7 @@ class AnimationWidget(QWidget):
         self.layout().addWidget(self.keyframesListWidget)
         self.layout().addWidget(self.frameWidget)
         self.layout().addWidget(self.saveButton)
-        self.layout().addWidget(self.animationsliderWidget)
+        self.layout().addWidget(self.animationSlider)
 
         # establish key bindings and callbacks
         self._add_keybind_callbacks()
@@ -86,7 +90,7 @@ class AnimationWidget(QWidget):
             self._capture_keyframe_callback
         )
         self.saveButton.clicked.connect(self._save_callback)
-        self.animationsliderWidget.valueChanged.connect(
+        self.animationSlider.valueChanged.connect(
             self._move_animationslider_callback
         )
 
@@ -120,7 +124,6 @@ class AnimationWidget(QWidget):
         self.keyframesListControlWidget.deleteButton.setEnabled(has_frames)
         self.keyframesListWidget.setEnabled(has_frames)
         self.frameWidget.setEnabled(has_frames)
-        self.animationsliderWidget.requires_update = True
 
     def _save_callback(self, event=None):
 
@@ -145,18 +148,7 @@ class AnimationWidget(QWidget):
 
     def _move_animationslider_callback(self, new_frame):
         """Scroll through interpolated states. Computes states if key-frames changed"""
-        self.animationsliderWidget.synchronise()
-        self.animation._set_viewer_state(
-            self.animationsliderWidget.interpol_states[new_frame]
-        )
-
-        # This gets the index of the first key frame whose frame count is above new_frame
-        n_frames = self.animationsliderWidget.cumulative_frame_count
-        active_index = (n_frames > new_frame).argmax() - 1
-
-        key_frames = self.animation.key_frames
-        with key_frames.selection.events.blocker_all():
-            key_frames.selection.active = key_frames[active_index]
+        self.animation.set_movie_frame(new_frame)
 
     def closeEvent(self, ev) -> None:
         # release callbacks

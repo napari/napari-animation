@@ -63,7 +63,7 @@ def test_set_viewer_state(animation_with_key_frames, viewer_state):
     """Test Animation._set_viewer_state()"""
     animation: Animation = animation_with_key_frames
     current_state = ViewerState.from_viewer(animation.viewer)
-    animation._set_viewer_state(viewer_state)
+    viewer_state.apply_to_viewer(animation.viewer)
 
     animation_dims_state = animation.viewer.dims.dict()
     animation_camera_state = animation.viewer.camera.dict()

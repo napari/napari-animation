@@ -2,17 +2,138 @@ import os
 from dataclasses import asdict
 from itertools import count
 from pathlib import Path
-from typing import Iterator
+from typing import Dict, Iterator, Sequence, Tuple
 
 import imageio
 import numpy as np
-from napari.utils.events import SelectableEventedList
+from napari.utils.events import EmitterGroup, SelectableEventedList
 from napari.utils.io import imsave
 from scipy import ndimage as ndi
 
 from .easing import Easing
-from .interpolation import Interpolation, interpolate_state
+from .interpolation import Interpolation
 from .key_frame import KeyFrame, ViewerState
+from .utils import pairwise
+
+
+class AnimationGenerator(Sequence[ViewerState]):
+    def __init__(self, key_frames: SelectableEventedList[KeyFrame]) -> None:
+        super().__init__()
+        self.key_frames = key_frames
+        key_frames.events.inserted.connect(self._update_keyframe_map)
+        key_frames.events.removed.connect(self._update_keyframe_map)
+        key_frames.events.changed.connect(self._update_keyframe_map)
+        key_frames.events.reordered.connect(self._update_keyframe_map)
+
+        self.events = EmitterGroup(source=self, n_frames=None)
+
+        self.state_interpolation_map = {
+            "camera.angles": Interpolation.SLERP,
+            "camera.zoom": Interpolation.LOG,
+        }
+
+        # cache of interpolated viewer states
+        self._cache: Dict[int, ViewerState] = {}
+        # map of frame number -> (kf0, kf1, fraction)
+        self._keyframe_map: Dict[int, Tuple[KeyFrame, KeyFrame, float]] = {}
+        self._update_keyframe_map()
+
+    def _update_keyframe_map(self, event=None):
+        """Create a map of frame number -> (kf0, kf1, fraction)"""
+        self._keyframe_map.clear()
+        self._cache.clear()
+        if len(self.key_frames) < 2:
+            self.events.n_frames(value=len(self))
+            return
+
+        f = 0
+        for kf0, kf1 in pairwise(self.key_frames):
+            for s in range(kf1.steps):
+                fraction = s / kf1.steps
+                self._keyframe_map[f] = (kf0, kf1, fraction)
+                f += 1
+        self._keyframe_map[f] = (kf1, kf1, 0)
+        self.events.n_frames(value=len(self))
+
+    def __len__(self) -> int:
+        """The total frame count of the animation"""
+        return len(self._keyframe_map)
+
+    def __getitem__(self, key: int) -> ViewerState:
+        """Get the interpolated state at frame `key` in the animation."""
+        if key not in self._cache:
+            kf0, kf1, frac = self._keyframe_map[key]
+            if frac == 0:
+                self._cache[key] = kf0.viewer_state
+            else:
+                self._cache[key] = self._interpolate_state(
+                    kf0.viewer_state,
+                    kf1.viewer_state,
+                    frac,
+                    self.state_interpolation_map,
+                )
+
+        return self._cache[key]
+
+    def _interpolate_state(
+        self,
+        from_state: ViewerState,
+        to_state: ViewerState,
+        fraction,
+        state_interpolation_map=None,
+    ):
+        """Interpolate a state between two states
+
+        Parameters
+        ----------
+        initial_state : dict
+            Description of initial viewer state.
+        final_state : dict
+            Description of final viewer state.
+        fraction : float
+            Interpolation fraction, must be between `0` and `1`.
+            A value of `0` will return the initial state. A
+            value of `1` will return the final state.
+        state_interpolation_map : dict
+            Dictionary relating state attributes to interpolation functions.
+
+        Returns
+        -------
+        state : dict
+            Description of viewer state.
+        """
+        from .utils import keys_to_list, nested_get, nested_set
+
+        if state_interpolation_map is None:
+            state_interpolation_map = self.state_interpolation_map
+
+        state = {}
+        separator = "."
+
+        from_state = asdict(from_state)
+        to_state = asdict(to_state)
+
+        for keys in keys_to_list(from_state):
+            v0 = nested_get(from_state, keys)
+            v1 = nested_get(to_state, keys)
+
+            property_string = separator.join(keys)
+
+            if property_string in state_interpolation_map.keys():
+                interpolation_func = state_interpolation_map[property_string]
+            else:
+                interpolation_func = Interpolation.DEFAULT
+
+            nested_set(state, keys, interpolation_func(v0, v1, fraction))
+
+        return ViewerState(**state)
+
+    def iter_frames(self, viewer, canvas_only=True) -> Iterator[np.ndarray]:
+        n_frames = len(self)
+        for i, state in enumerate(self):
+            print("Rendering frame ", i + 1, "of", n_frames)
+            state.apply_to_viewer(viewer)
+            yield viewer.screenshot(canvas_only=canvas_only)
 
 
 class Animation:
@@ -42,11 +163,7 @@ class Animation:
         self.key_frames.selection.events._current.connect(
             self._on_current_keyframe_changed
         )
-
-        self.state_interpolation_map = {
-            "camera.angles": Interpolation.SLERP,
-            "camera.zoom": Interpolation.LOG,
-        }
+        self._generator = AnimationGenerator(self.key_frames)
         self._keyframe_counter = count()  # track number of frames created
 
     def capture_keyframe(
@@ -85,14 +202,6 @@ class Animation:
             del self.key_frames[position]  # needed to trigger the remove event
             self.key_frames.insert(position, new_frame)
 
-    @property
-    def n_frames(self):
-        """The total frame count of the animation"""
-        if len(self.key_frames) >= 2:
-            return np.sum([f.steps for f in self.key_frames[1:]]) + 1
-        else:
-            return 0
-
     def set_to_keyframe(self, frame: int):
         """Set the viewer to a given key-frame
 
@@ -103,65 +212,11 @@ class Animation:
         """
         self.key_frames.selection.active = self.key_frames[frame]
 
-    def _set_viewer_state(self, state: ViewerState):
-        """Sets the current viewer state
-        Parameters
-        ----------
-        state : dict
-            Description of viewer state.
-        """
-        self.viewer.camera.update(state.camera)
-        self.viewer.dims.update(state.dims)
-        self._set_layer_state(state.layers)
-
-    def _set_layer_state(self, layer_state: dict):
-        for layer_name, layer_state in layer_state.items():
-            layer = self.viewer.layers[layer_name]
-            for key, value in layer_state.items():
-                original_value = getattr(layer, key)
-                # Only set if value differs to avoid expensive redraws
-                if not np.array_equal(original_value, value):
-                    setattr(layer, key, value)
-
-    def _state_generator(self) -> Iterator[ViewerState]:
-        self._validate_animation()
-        # iterate over and interpolate between pairs of key-frames
-        for current_frame, next_frame in zip(
-            self.key_frames, self.key_frames[1:]
-        ):
-            # capture necessary info for interpolation
-            initial_state = current_frame.viewer_state
-            final_state = next_frame.viewer_state
-            interpolation_steps = next_frame.steps
-            ease = next_frame.ease
-
-            # generate intermediate states between key-frames
-            for interp in range(interpolation_steps):
-                fraction = interp / interpolation_steps
-                fraction = ease(fraction)
-                state = interpolate_state(
-                    asdict(initial_state),
-                    asdict(final_state),
-                    fraction,
-                    self.state_interpolation_map,
-                )
-                yield ViewerState(**state)
-
-        # be sure to include the final state
-        yield final_state
-
     def _validate_animation(self):
         if len(self.key_frames) < 2:
             raise ValueError(
                 f"Must have at least 2 key frames, received {len(self.key_frames)}"
             )
-
-    def _frame_generator(self, canvas_only=True) -> Iterator[np.ndarray]:
-        for i, state in enumerate(self._state_generator()):
-            print("Rendering frame ", i + 1, "of", self.n_frames)
-            self._set_viewer_state(state)
-            frame = self.viewer.screenshot(canvas_only=canvas_only)
-            yield frame
 
     def set_key_frame_index(self, index: int):
         self.key_frames.selection.active = self.key_frames[index]
@@ -250,7 +305,7 @@ class Animation:
                 folder_path.mkdir(exist_ok=True)
 
         # create a frame generator
-        frames = self._frame_generator(canvas_only=canvas_only)
+        frames = self._generator.iter_frames(self.viewer, canvas_only)
         # save frames
         for ind, frame in enumerate(frames):
             if scale_factor is not None:
@@ -267,4 +322,15 @@ class Animation:
 
     def _on_current_keyframe_changed(self, event):
         if event.value:
-            self._set_viewer_state(event.value.viewer_state)
+            event.value.viewer_state.apply_to_viewer(self.viewer)
+
+    def set_movie_frame(self, frame: int):
+        """Set state to a specific frame in the final movie."""
+        try:
+            self._generator[frame].apply_to_viewer(self.viewer)
+        except KeyError:
+            return
+
+        with self.key_frames.selection.events._current.blocker():
+            frame = self._generator._keyframe_map[frame][0]
+            self.key_frames.selection.active = frame
