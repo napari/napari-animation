@@ -93,6 +93,7 @@ class AnimationWidget(QWidget):
         keyframe_list = self.animation.key_frames
         keyframe_list.events.inserted.connect(self._on_keyframes_changed)
         keyframe_list.events.removed.connect(self._on_keyframes_changed)
+        keyframe_list.events.changed.connect(self._on_keyframes_changed)
 
     def _input_state(self):
         """Get current state of input widgets as {key->value} parameters."""
@@ -108,7 +109,6 @@ class AnimationWidget(QWidget):
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
         self.animation.capture_keyframe(**self._input_state(), insert=False)
-        self.animationsliderWidget.requires_update = True
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
@@ -153,8 +153,10 @@ class AnimationWidget(QWidget):
         # This gets the index of the first key frame whose frame count is above new_frame
         n_frames = self.animationsliderWidget.cumulative_frame_count
         active_index = (n_frames > new_frame).argmax() - 1
-        active_frame = self.animation.key_frames[active_index]
-        self.animation.key_frames.selection.active = active_frame
+
+        key_frames = self.animation.key_frames
+        with key_frames.selection.events.blocker_all():
+            key_frames.selection.active = key_frames[active_index]
 
     def closeEvent(self, ev) -> None:
         # release callbacks
