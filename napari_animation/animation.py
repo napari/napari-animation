@@ -1,7 +1,8 @@
 import os
 from dataclasses import asdict
-from pathlib import Path
 from itertools import count
+from pathlib import Path
+from typing import Iterator
 
 import imageio
 import numpy as np
@@ -125,7 +126,7 @@ class Animation:
                 if not np.array_equal(original_value, value):
                     setattr(layer, key, value)
 
-    def _state_generator(self):
+    def _state_generator(self) -> Iterator[ViewerState]:
         self._validate_animation()
         # iterate over and interpolate between pairs of key-frames
         for current_frame, next_frame in zip(
@@ -158,16 +159,12 @@ class Animation:
                 f"Must have at least 2 key frames, received {len(self.key_frames)}"
             )
 
-    def _frame_generator(self, canvas_only=True):
+    def _frame_generator(self, canvas_only=True) -> Iterator[np.ndarray]:
         for i, state in enumerate(self._state_generator()):
             print("Rendering frame ", i + 1, "of", self.n_frames)
             self._set_viewer_state(state)
             frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
-
-    @property
-    def current_key_frame(self):
-        return self.key_frames.selection._current
 
     @property
     def active_key_frame(self):
@@ -197,17 +194,16 @@ class Animation:
             number from 1 (lowest quality) to 9
             only applies to non-gif extensions
         format: str
-            The format to use to write the file. By default imageio selects the appropriate for you based on the filename.
+            The format to use to write the file. By default imageio selects the appropriate
+            for you based on the filename.
         canvas_only : bool
-            If True include just includes the canvas, otherwise include the full napari viewer.
+            If True include just includes the canvas, otherwise include the full napari
+            viewer.
         scale_factor : float
             Rescaling factor for the image size. Only used without
             viewer (with_viewer = False).
         """
         self._validate_animation()
-
-        # create a frame generator
-        frame_gen = self._frame_generator(canvas_only=canvas_only)
 
         # create path object
         path_obj = Path(path)
@@ -253,8 +249,10 @@ class Animation:
             else:
                 folder_path.mkdir(exist_ok=True)
 
+        # create a frame generator
+        frames = self._frame_generator(canvas_only=canvas_only)
         # save frames
-        for ind, frame in enumerate(frame_gen):
+        for ind, frame in enumerate(frames):
             if scale_factor is not None:
                 frame = ndi.zoom(frame, (scale_factor, scale_factor, 1))
                 frame = frame.astype(np.uint8)
