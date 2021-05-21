@@ -17,7 +17,7 @@ class FrameWidget(QWidget):
         super().__init__(parent=parent)
         self.animation: Animation = self.parentWidget().animation
         self.animation.key_frames.selection.events.active.connect(
-            self._on_active_keyframe_changed
+            self._on_current_keyframe_changed
         )
 
         # init steps
@@ -41,21 +41,21 @@ class FrameWidget(QWidget):
         self.layout().addRow("Steps", self.stepsSpinBox)
         self.layout().addRow("Ease", self.easeComboBox)
 
-    def _on_active_keyframe_changed(self, event):
+    def _on_current_keyframe_changed(self, event):
         """update state of self to reflect animation state at current key frame"""
         key_frame = event.value
         if key_frame:
             self.stepsSpinBox.setValue(key_frame.steps)
-            ease = self.animation.active_key_frame.ease
+            ease = self.animation.current_key_frame.ease
             self.easeComboBox.setCurrentText(ease.name.lower())
 
     def _update_animation_steps(self, event):
         """update state of 'steps' at current key-frame to reflect GUI state"""
-        self.animation.active_key_frame.steps = self.stepsSpinBox.value()
+        self.animation.current_key_frame.steps = self.stepsSpinBox.value()
 
     def _update_animation_ease(self, event):
         """update state of 'ease' at current key-frame to reflect GUI state"""
-        self.animation.active_key_frame.ease = self.get_easing_func()
+        self.animation.current_key_frame.ease = self.get_easing_func()
 
     def get_easing_func(self):
         return Easing[self.easeComboBox.currentText().upper()]

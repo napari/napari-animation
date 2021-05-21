@@ -71,8 +71,8 @@ class AnimationWidget(QWidget):
             ("Alt-f", self._capture_keyframe_callback),
             ("Alt-r", self._replace_keyframe_callback),
             ("Alt-d", self._delete_keyframe_callback),
-            ("Alt-a", self.animation.key_frames.select_next),
-            ("Alt-b", self.animation.key_frames.select_previous),
+            ("Alt-a", lambda e: self.animation.key_frames.select_next()),
+            ("Alt-b", lambda e: self.animation.key_frames.select_previous()),
         ]
         for key, cb in self._keybindings:
             self.viewer.bind_key(key, cb)

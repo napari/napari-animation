@@ -39,8 +39,8 @@ class Animation:
         self.key_frames: SelectableEventedList[
             KeyFrame
         ] = SelectableEventedList(basetype=KeyFrame)
-        self.key_frames.selection.events.active.connect(
-            self._on_active_frame_changed
+        self.key_frames.selection.events._current.connect(
+            self._on_current_keyframe_changed
         )
 
         self.state_interpolation_map = {
@@ -71,13 +71,13 @@ class Animation:
         """
         if position is None:
             position = (
-                self.key_frames.index(self.key_frames.selection.active)
-                if self.key_frames.selection.active
+                self.key_frames.index(self.current_key_frame)
+                if self.current_key_frame
                 else -1
             )
 
         new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
-        new_frame.name = f"KeyFrame {next(self._keyframe_counter)}"
+        new_frame.name = f"Key Frame {next(self._keyframe_counter)}"
 
         if insert:
             self.key_frames.insert(position + 1, new_frame)
@@ -162,9 +162,12 @@ class Animation:
             frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
 
+    def set_key_frame_index(self, index: int):
+        self.key_frames.selection.active = self.key_frames[index]
+
     @property
-    def active_key_frame(self):
-        return self.key_frames.selection.active
+    def current_key_frame(self):
+        return self.key_frames.selection._current
 
     def animate(
         self,
@@ -261,6 +264,6 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
-    def _on_active_frame_changed(self, event):
+    def _on_current_keyframe_changed(self, event):
         if event.value:
             self._set_viewer_state(event.value.viewer_state)
