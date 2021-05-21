@@ -89,15 +89,10 @@ class AnimationWidget(QWidget):
         self.animationsliderWidget.valueChanged.connect(
             self._move_animationslider_callback
         )
-        self.animation.key_frames.events.inserted.connect(
-            self._on_keyframes_changed
-        )
-        self.animation.key_frames.events.removed.connect(
-            self._on_keyframes_changed
-        )
-        self.animation.key_frames.selection.events.active.connect(
-            lambda e: self.frameWidget.update_from_animation()
-        )
+
+        keyframe_list = self.animation.key_frames
+        keyframe_list.events.inserted.connect(self._on_keyframes_changed)
+        keyframe_list.events.removed.connect(self._on_keyframes_changed)
 
     def _input_state(self):
         """Get current state of input widgets as {key->value} parameters."""

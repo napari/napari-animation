@@ -39,8 +39,8 @@ class Animation:
         self.key_frames: SelectableEventedList[
             KeyFrame
         ] = SelectableEventedList(basetype=KeyFrame)
-        self.key_frames.selection.events._current.connect(
-            self._current_callback
+        self.key_frames.selection.events.active.connect(
+            self._on_active_frame_changed
         )
 
         self.state_interpolation_map = {
@@ -101,10 +101,6 @@ class Animation:
             Key-frame index to visualize
         """
         self.key_frames.selection.active = self.key_frames[frame]
-
-    def set_to_current_keyframe(self):
-        """Set the viewer to the current key-frame"""
-        self._set_viewer_state(self.animation.current_key_frame)
 
     def _set_viewer_state(self, state: ViewerState):
         """Sets the current viewer state
@@ -265,6 +261,6 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
-    def _current_callback(self, event):
+    def _on_active_frame_changed(self, event):
         if event.value:
             self._set_viewer_state(event.value.viewer_state)
