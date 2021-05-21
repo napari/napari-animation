@@ -1,12 +1,12 @@
 from pathlib import Path
 
 from napari import Viewer
-from PyQt5.QtWidgets import QSlider
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QErrorMessage,
     QFileDialog,
     QPushButton,
+    QSlider,
     QVBoxLayout,
     QWidget,
 )
