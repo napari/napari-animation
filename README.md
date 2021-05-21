@@ -88,7 +88,22 @@ Support for more layer attributes will be added in future releases.
 
 ## Contributing
 
-Contributions are very welcome. Tests and additional infrastructure are being setup.
+Contributions are very welcome and a detailed contributing guide is coming soon. 
+
+Tests are run with `pytest`.
+
+We use [`pre-commit`](https://pre-commit.com) to sort imports with
+[`isort`](https://github.com/timothycrosley/isort), format code with
+[`black`](https://github.com/psf/black), and lint with
+[`flake8`](https://github.com/PyCQA/flake8) automatically prior to each commit.
+To minmize test errors when submitting pull requests, please install `pre-commit`
+in your environment as follows:
+
+```sh
+pre-commit install
+```
+
+
 
 ## License
 
