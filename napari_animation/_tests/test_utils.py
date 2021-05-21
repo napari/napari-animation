@@ -1,6 +1,5 @@
 import pytest
 
-from ..easing import Easing
 from ..utils import keys_to_list, nested_get
 
 input_dict = [{"a": 1, "b": {"c": "d"}}]
@@ -26,4 +25,3 @@ def test_keys_to_list(input_dict, expected):
     for keys in result:
         assert isinstance(keys, list)
     assert result == expected
-
