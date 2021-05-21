@@ -1,7 +1,6 @@
 import pytest
 
-from ..easing import Easing
-from ..utils import _easing_func_to_name, keys_to_list, nested_get
+from ..utils import keys_to_list, nested_get
 
 input_dict = [{"a": 1, "b": {"c": "d"}}]
 keys = [["b", "c"]]
@@ -25,13 +24,4 @@ def test_keys_to_list(input_dict, expected):
     result = [keys for keys in keys_to_list(input_dict)]
     for keys in result:
         assert isinstance(keys, list)
-    assert result == expected
-
-
-@pytest.mark.parametrize(
-    "easing_function,expected",
-    [(Easing.LINEAR, "LINEAR"), (Easing.CIRCULAR, "CIRCULAR")],
-)
-def test_easing_func_to_name(easing_function, expected):
-    result = _easing_func_to_name(easing_function)
     assert result == expected

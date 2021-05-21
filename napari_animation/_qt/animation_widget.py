@@ -40,37 +40,42 @@ class AnimationWidget(QWidget):
         self.viewer = viewer
         self.animation = Animation(self.viewer)
 
-        # Initialise UI
-        self._init_ui()
+        # Initialise User Interface
+        self.keyframesListControlWidget = KeyFrameListControlWidget(
+            animation=self.animation, parent=self
+        )
+        self.keyframesListWidget = KeyFramesListWidget(
+            self.animation.key_frames, parent=self
+        )
+        self.frameWidget = FrameWidget(parent=self)
+        self.saveButton = QPushButton("Save Animation", parent=self)
+        self.animationsliderWidget = AnimationSliderWidget(
+            self.animation, orientation=Qt.Horizontal, parent=self
+        )
+
+        # Create layout
+        self.setLayout(QVBoxLayout())
+        self.layout().addWidget(self.keyframesListControlWidget)
+        self.layout().addWidget(self.keyframesListWidget)
+        self.layout().addWidget(self.frameWidget)
+        self.layout().addWidget(self.saveButton)
+        self.layout().addWidget(self.animationsliderWidget)
 
         # establish key bindings and callbacks
         self._add_keybind_callbacks()
         self._add_callbacks()
 
-    def _init_ui(self):
-        """Initialise user interface"""
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
-
-        self._init_keyframes_list_control_widget()
-        self._init_keyframes_list_widget()
-        self._init_frame_widget()
-        self._init_save_button()
-        self._init_animation_slider_widget()
-
     def _add_keybind_callbacks(self):
         """Bind keys"""
-
-        self.animation.viewer.bind_key(
-            "Alt-f", self._capture_keyframe_callback
-        )
-        self.animation.viewer.bind_key(
-            "Alt-r", self._replace_keyframe_callback
-        )
-        self.animation.viewer.bind_key("Alt-d", self._delete_keyframe_callback)
-
-        self.animation.viewer.bind_key("Alt-a", self._key_adv_frame)
-        self.animation.viewer.bind_key("Alt-b", self._key_back_frame)
+        self._keybindings = [
+            ("Alt-f", self._capture_keyframe_callback),
+            ("Alt-r", self._replace_keyframe_callback),
+            ("Alt-d", self._delete_keyframe_callback),
+            ("Alt-a", lambda e: self.animation.key_frames.select_next()),
+            ("Alt-b", lambda e: self.animation.key_frames.select_previous()),
+        ]
+        for key, cb in self._keybindings:
+            self.viewer.bind_key(key, cb)
 
     def _add_callbacks(self):
         """Establish callbacks"""
@@ -84,102 +89,38 @@ class AnimationWidget(QWidget):
         self.animationsliderWidget.valueChanged.connect(
             self._move_animationslider_callback
         )
-        self.viewer.events.theme.connect(
-            lambda e: self.keyframesListWidget._update_theme(e.value)
-        )
 
-    def _release_callbacks(self):
-        """Release keys"""
+        keyframe_list = self.animation.key_frames
+        keyframe_list.events.inserted.connect(self._on_keyframes_changed)
+        keyframe_list.events.removed.connect(self._on_keyframes_changed)
+        keyframe_list.events.changed.connect(self._on_keyframes_changed)
 
-        self.animation.viewer.bind_key("Alt-f", None)
-        self.animation.viewer.bind_key("Alt-r", None)
-        self.animation.viewer.bind_key("Alt-d", None)
-
-        self.animation.viewer.bind_key("Alt-a", None)
-        self.animation.viewer.bind_key("Alt-b", None)
-
-    def _init_frame_widget(self):
-        self.frameWidget = FrameWidget(parent=self)
-        self._layout.addWidget(self.frameWidget)
-
-    def _init_keyframes_list_control_widget(self):
-        self.keyframesListControlWidget = KeyFrameListControlWidget(
-            animation=self.animation, parent=self
-        )
-        self._layout.addWidget(self.keyframesListControlWidget)
-
-    def _init_keyframes_list_widget(self):
-        self.keyframesListWidget = KeyFramesListWidget(
-            self.animation, parent=self
-        )
-        self.keyframesListWidget._update_theme(self.viewer.theme)
-        self._layout.addWidget(self.keyframesListWidget)
-
-    def _init_save_button(self):
-        self.saveButton = QPushButton("Save Animation", parent=self)
-        self._layout.addWidget(self.saveButton)
-
-    def _init_animation_slider_widget(self):
-        self.animationsliderWidget = AnimationSliderWidget(
-            self.animation, orientation=Qt.Horizontal, parent=self
-        )
-        self._layout.addWidget(self.animationsliderWidget)
-
-    def _get_interpolation_steps(self):
-        return int(self.frameWidget.stepsSpinBox.value())
-
-    def _get_easing_function(self):
-        return self.frameWidget.get_easing_func()
+    def _input_state(self):
+        """Get current state of input widgets as {key->value} parameters."""
+        return {
+            "steps": int(self.frameWidget.stepsSpinBox.value()),
+            "ease": self.frameWidget.get_easing_func(),
+        }
 
     def _capture_keyframe_callback(self, event=None):
         """Record current key-frame"""
-        self.animation.capture_keyframe(
-            steps=self._get_interpolation_steps(),
-            ease=self._get_easing_function(),
-        )
-        if len(self.animation.key_frames) == 1:
-            self.keyframesListControlWidget.deleteButton.setEnabled(True)
-            self.keyframesListWidget.setEnabled(True)
-            self.frameWidget.setEnabled(True)
-        self.animationsliderWidget.requires_update = True
-
-    def _update_frame_widget_from_animation(self):
-        self.frameWidget.update_from_animation()
+        self.animation.capture_keyframe(**self._input_state())
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
-        self.animation.capture_keyframe(
-            steps=self._get_interpolation_steps(),
-            ease=self._get_easing_function(),
-            insert=False,
-        )
-        self.animationsliderWidget.requires_update = True
+        self.animation.capture_keyframe(**self._input_state(), insert=False)
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
-        if len(self.animation.key_frames) > 0:
-            self.animation.key_frames.pop(self.animation.current_key_frame)
+        self.animation.key_frames.remove_selected()
 
-        if len(self.animation.key_frames) == 0:
-            self.keyframesListControlWidget.deleteButton.setEnabled(False)
-            self.keyframesListWidget.setEnabled(False)
-            self.frameWidget.setEnabled(False)
+    def _on_keyframes_changed(self, event=None):
+        has_frames = bool(self.animation.key_frames)
+
+        self.keyframesListControlWidget.deleteButton.setEnabled(has_frames)
+        self.keyframesListWidget.setEnabled(has_frames)
+        self.frameWidget.setEnabled(has_frames)
         self.animationsliderWidget.requires_update = True
-
-    def _key_adv_frame(self, event=None):
-        """Go forwards in key-frame list"""
-        new_frame = (self.animation.current_key_frame + 1) % len(
-            self.animation.key_frames
-        )
-        self.animation.current_key_frame = new_frame
-
-    def _key_back_frame(self, event=None):
-        """Go backwards in key-frame list"""
-
-        new_frame = (self.animation.current_key_frame - 1) % len(
-            self.animation.key_frames
-        )
-        self.animation.current_key_frame = new_frame
 
     def _save_callback(self, event=None):
 
@@ -202,34 +143,23 @@ class AnimationWidget(QWidget):
             if filename:
                 self.animation.animate(filename)
 
-    def _move_animationslider_callback(self, event=None):
+    def _move_animationslider_callback(self, new_frame):
         """Scroll through interpolated states. Computes states if key-frames changed"""
         self.animationsliderWidget.synchronise()
-        new_frame = self.animationsliderWidget.value()
-
         self.animation._set_viewer_state(
             self.animationsliderWidget.interpol_states[new_frame]
         )
 
         # This gets the index of the first key frame whose frame count is above new_frame
-        new_key_frame = (
-            self.animationsliderWidget.cumulative_frame_count > new_frame
-        ).argmax()
-        new_key_frame -= 1  # to get the previous key frame
-        new_key_frame = int(new_key_frame)  # to enable slicing a list with it
+        n_frames = self.animationsliderWidget.cumulative_frame_count
+        active_index = (n_frames > new_frame).argmax() - 1
 
-        # block selection callbacks during the setting
-        self.animation.key_frames.selection.events._current.block()
-        self.keyframesListWidget.blockSignals(True)
+        key_frames = self.animation.key_frames
+        with key_frames.selection.events.blocker_all():
+            key_frames.selection.active = key_frames[active_index]
 
-        self.keyframesListWidget.setCurrentRowBlockingSignals(new_key_frame)
-        self.animation.current_key_frame = new_key_frame
-        self._update_frame_widget_from_animation()
-
-        # unblock callbacks
-        self.animation.key_frames.selection.events._current.unblock()
-        self.keyframesListWidget.blockSignals(False)
-
-    def close(self):
-        self._release_callbacks()
-        super().close()
+    def closeEvent(self, ev) -> None:
+        # release callbacks
+        for key, _ in self._keybindings:
+            self.viewer.bind_key(key, None)
+        return super().closeEvent(ev)

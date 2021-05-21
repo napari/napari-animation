@@ -1,7 +1,8 @@
 import os
-import warnings
 from dataclasses import asdict
+from itertools import count
 from pathlib import Path
+from typing import Iterator
 
 import imageio
 import numpy as np
@@ -39,13 +40,14 @@ class Animation:
             KeyFrame
         ] = SelectableEventedList(basetype=KeyFrame)
         self.key_frames.selection.events._current.connect(
-            self._current_callback
+            self._on_current_keyframe_changed
         )
 
         self.state_interpolation_map = {
             "camera.angles": Interpolation.SLERP,
             "camera.zoom": Interpolation.LOG,
         }
+        self._keyframe_counter = count()  # track number of frames created
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -68,22 +70,20 @@ class Animation:
             active frame.
         """
         if position is None:
-            if self.key_frames:
-                position = (
-                    self.current_key_frame
-                    if self.current_key_frame
-                    else len(self.key_frames) - 1
-                )
-            else:
-                position = -1
-                insert = True
+            position = (
+                self.key_frames.index(self.current_key_frame)
+                if self.current_key_frame
+                else -1
+            )
 
         new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
+        new_frame.name = f"Key Frame {next(self._keyframe_counter)}"
 
         if insert:
             self.key_frames.insert(position + 1, new_frame)
         else:
-            self.key_frames[position] = new_frame
+            del self.key_frames[position]  # needed to trigger the remove event
+            self.key_frames.insert(position, new_frame)
 
     @property
     def n_frames(self):
@@ -102,10 +102,6 @@ class Animation:
             Key-frame index to visualize
         """
         self.key_frames.selection.active = self.key_frames[frame]
-
-    def set_to_current_keyframe(self):
-        """Set the viewer to the current key-frame"""
-        self._set_viewer_state(self.animation.current_key_frame)
 
     def _set_viewer_state(self, state: ViewerState):
         """Sets the current viewer state
@@ -127,7 +123,7 @@ class Animation:
                 if not np.array_equal(original_value, value):
                     setattr(layer, key, value)
 
-    def _state_generator(self):
+    def _state_generator(self) -> Iterator[ViewerState]:
         self._validate_animation()
         # iterate over and interpolate between pairs of key-frames
         for current_frame, next_frame in zip(
@@ -160,36 +156,19 @@ class Animation:
                 f"Must have at least 2 key frames, received {len(self.key_frames)}"
             )
 
-    def _frame_generator(self, canvas_only=True):
+    def _frame_generator(self, canvas_only=True) -> Iterator[np.ndarray]:
         for i, state in enumerate(self._state_generator()):
             print("Rendering frame ", i + 1, "of", self.n_frames)
             self._set_viewer_state(state)
             frame = self.viewer.screenshot(canvas_only=canvas_only)
             yield frame
 
+    def set_key_frame_index(self, index: int):
+        self.key_frames.selection.active = self.key_frames[index]
+
     @property
     def current_key_frame(self):
-        try:
-            return self.key_frames.index(self.key_frames.selection._current)
-        except ValueError:
-            warnings.warn("No current frame selected !")
-            return None
-
-    @current_key_frame.setter
-    def current_key_frame(self, frame_index):
-        self.key_frames.selection._current = self.key_frames[frame_index]
-
-    @property
-    def active_key_frame(self):
-        try:
-            return self.key_frames.index(self.key_frames.selection.active)
-        except ValueError:
-            warnings.warn("No active frame selected !")
-            return None
-
-    @active_key_frame.setter
-    def active_key_frame(self, frame_index):
-        self.key_frames.selection.active = self.key_frames[frame_index]
+        return self.key_frames.selection._current
 
     def animate(
         self,
@@ -215,17 +194,16 @@ class Animation:
             number from 1 (lowest quality) to 9
             only applies to non-gif extensions
         format: str
-            The format to use to write the file. By default imageio selects the appropriate for you based on the filename.
+            The format to use to write the file. By default imageio selects the appropriate
+            for you based on the filename.
         canvas_only : bool
-            If True include just includes the canvas, otherwise include the full napari viewer.
+            If True include just includes the canvas, otherwise include the full napari
+            viewer.
         scale_factor : float
             Rescaling factor for the image size. Only used without
             viewer (with_viewer = False).
         """
         self._validate_animation()
-
-        # create a frame generator
-        frame_gen = self._frame_generator(canvas_only=canvas_only)
 
         # create path object
         path_obj = Path(path)
@@ -271,8 +249,10 @@ class Animation:
             else:
                 folder_path.mkdir(exist_ok=True)
 
+        # create a frame generator
+        frames = self._frame_generator(canvas_only=canvas_only)
         # save frames
-        for ind, frame in enumerate(frame_gen):
+        for ind, frame in enumerate(frames):
             if scale_factor is not None:
                 frame = ndi.zoom(frame, (scale_factor, scale_factor, 1))
                 frame = frame.astype(np.uint8)
@@ -285,6 +265,6 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
-    def _current_callback(self, event):
+    def _on_current_keyframe_changed(self, event):
         if event.value:
             self._set_viewer_state(event.value.viewer_state)

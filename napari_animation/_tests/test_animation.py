@@ -38,8 +38,18 @@ def test_set_to_key_frame(animation_with_key_frames):
     """Test Animation.set_to_key_frame()"""
     animation = animation_with_key_frames
     for i in range(2):
-        animation.set_to_keyframe(i)
-        assert animation.current_key_frame == i
+        animation.set_key_frame_index(i)
+        assert animation.current_key_frame == animation.key_frames[i]
+
+
+def test_replace_keyframe(animation_with_key_frames):
+    """Test Animation.set_to_key_frame()"""
+    animation = animation_with_key_frames
+    assert len(animation.key_frames) == 2
+    animation.capture_keyframe(insert=False)
+    animation.capture_keyframe(insert=False)
+    animation.capture_keyframe(insert=False)
+    assert len(animation.key_frames) == 2
 
 
 def test_get_viewer_state(empty_animation):

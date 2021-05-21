@@ -38,6 +38,7 @@ class AnimationSliderWidget(QSlider):
         if self.requires_update:
             self._compute_states()
             self._compute_cumulative_frame_count()
+            self.requires_update = False
 
     def _compute_states(self):
         """Compute interpolation states"""
@@ -45,7 +46,6 @@ class AnimationSliderWidget(QSlider):
         for state in self.animation._state_generator():
             self.interpol_states.append(state)
         self.setMaximum(len(self.interpol_states) - 1)
-        self.requires_update = False
 
     def _compute_cumulative_frame_count(self):
         """Compute cumulative frame count"""
