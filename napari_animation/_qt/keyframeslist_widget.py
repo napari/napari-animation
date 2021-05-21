@@ -11,6 +11,8 @@ class KeyFrameModel(QtListModel):
 
         see https://doc.qt.io/qt-5/model-view-programming.html#item-roles
         """
+        if role == Qt.EditRole:
+            return index.data(Qt.UserRole).name
         if role == Qt.DecorationRole:  # thumbnail
             key_frame = index.data(Qt.UserRole)
             return QImage(
@@ -25,7 +27,7 @@ class KeyFrameModel(QtListModel):
 
     def setData(self, index, value, role) -> bool:
         """Set data at `index` for `role` to `value`."""
-        if role == Qt.EditRole:
+        if value and role == Qt.EditRole:
             # user has double-clicked on the keyframe name
             key_frame = index.data(Qt.UserRole)
             key_frame.name = value
