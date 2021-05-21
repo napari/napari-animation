@@ -132,8 +132,7 @@ class AnimationGenerator(Sequence[ViewerState]):
         n_frames = len(self)
         for i, state in enumerate(self):
             print("Rendering frame ", i + 1, "of", n_frames)
-            state.apply_to_viewer(viewer)
-            yield viewer.screenshot(canvas_only=canvas_only)
+            yield state.render(viewer, canvas_only=canvas_only)
 
 
 class Animation:

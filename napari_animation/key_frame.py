@@ -55,6 +55,10 @@ class ViewerState:
                 if not np.array_equal(original_value, value):
                     setattr(layer, key, value)
 
+    def render(self, viewer: Viewer, canvas_only=True) -> np.ndarray:
+        self.apply_to_viewer(viewer)
+        return viewer.screenshot(canvas_only=canvas_only)
+
     def __eq__(self, other):
         if isinstance(other, ViewerState):
             return (
