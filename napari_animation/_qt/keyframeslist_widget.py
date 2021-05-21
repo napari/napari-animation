@@ -25,9 +25,11 @@ class KeyFramesListWidget(QListWidget):
         self._item_id_to_key_frame = {}
         self._key_frame_id_to_item = {}
 
-        self._connect_key_frame_callbacks()
+        self._connect_callbacks()
         self.setDragDropMode(super().InternalMove)
 
+    def _connect_callbacks(self):
+        self._connect_key_frame_callbacks()
         self.itemSelectionChanged.connect(self._selection_callback)
 
     def _connect_key_frame_callbacks(self):
@@ -37,23 +39,20 @@ class KeyFramesListWidget(QListWidget):
         self.animation.key_frames.events.reordered.connect(
             self._reorder_frontend
         )
-
-    def dropEvent(self, event):
-        """update backend state on 'drop' of frame in key frames list"""
-        super().dropEvent(event)
-        self._reorder_backend()
-        self._update_frame_number()
+        self.animation.key_frames.selection.events._current.connect(
+            self._update_selected_frame
+        )
 
     def _selection_callback(self):
         self._update_frame_number()
-        if self.animation.frame != -1:
-            self.animation.set_to_current_keyframe()
+        if self.animation.current_key_frame:
             self.parentWidget()._update_frame_widget_from_animation()
 
     def _add(self, event):
         """Generate QListWidgetItem for current keyframe, store its unique id and add it to self"""
         key_frame, idx = event.value, event.index
         item = self._generate_list_item(key_frame)
+        self.insertItemBlockingSignals(idx, item)
         self.insertItem(idx, item)
         self._add_mappings(key_frame, item)
         self._frame_count += 1
@@ -65,7 +64,8 @@ class KeyFramesListWidget(QListWidget):
     def _remove(self, event):
         """Remove QListWidgetItem at event.index"""
         self.takeItemBlockingSignals(event.index)
-        self._update_frame_number()
+        if len(self.animation.key_frames) > 0:
+            self._update_frame_number()
 
     def _reorder_frontend(self, event=None):
         """Reorder items in frontend based on current state in backend"""
@@ -79,14 +79,13 @@ class KeyFramesListWidget(QListWidget):
         for idx, key_frame in enumerate(self.frontend_key_frames):
             self.animation.key_frames[idx] = key_frame
 
-    def insertItem(self, row, item):
-        """overrides QListWidget.insertItem to also update index to newly inserted item"""
-        super().insertItem(row, item)
-        self.setCurrentIndex(self.indexFromItem(item))
-
     def _update_frame_number(self):
         """update the frame number of self.animation based on selected item in frontend"""
-        self.animation.frame = self._get_selected_index()
+        self.animation.current_key_frame = self._get_selected_index()
+
+    def _update_selected_frame(self, event):
+        key_frame_idx = self.animation.current_key_frame
+        self.setCurrentRowBlockingSignals(key_frame_idx)
 
     def _generate_list_item(self, key_frame):
         """Generate a QListWidgetItem from a key-frame"""
@@ -103,10 +102,6 @@ class KeyFramesListWidget(QListWidget):
             QImage.Format_RGBA8888,
         )
         return QIcon(QPixmap.fromImage(thumbnail))
-
-    def _get_key_frame(self, key_frame_idx):
-        """Get key frame dict from key frames list at key_frame_idx"""
-        return self.animation.key_frames[key_frame_idx]
 
     def _get_selected_index(self):
         """Get index of currently selected row"""
@@ -165,6 +160,22 @@ class KeyFramesListWidget(QListWidget):
     def frontend_key_frames(self):
         for item in self.frontend_items:
             yield self._item_id_to_key_frame[id(item)]
+
+    def dropEvent(self, event):
+        """update backend state on 'drop' of frame in key frames list"""
+        super().dropEvent(event)
+        self._reorder_backend()
+        self._update_frame_number()
+
+    def insertItem(self, row, item):
+        """overrides QListWidget.insertItem to also update index to newly inserted item"""
+        super().insertItem(row, item)
+        self.setCurrentIndex(self.indexFromItem(item))
+
+    def insertItemBlockingSignals(
+        self, row: int, item: QListWidgetItem
+    ) -> None:
+        return self.callMethodBlockingSignals(self.insertItem, row, item)
 
     def setCurrentRowBlockingSignals(self, row: int) -> None:
         return self.callMethodBlockingSignals(self.setCurrentRow, row)

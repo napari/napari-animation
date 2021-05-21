@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from napari import Viewer
 
 
-@dataclass
+@dataclass(frozen=True)
 class ViewerState:
     """The state of the viewer camera, dims, and layers.
 
@@ -43,8 +43,19 @@ class ViewerState:
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
 
+    def __eq__(self, other):
+        if isinstance(other, ViewerState):
+            return (
+                self.camera == other.camera
+                and self.dims == other.dims
+                and self.layers == other.layers
+            )
+        else:
+            return False
 
-@dataclass
+
+# @dataclass(frozen=True)
+@dataclass  # we want to modify steps and ease from the widget for instance
 class KeyFrame:
     """A single keyframe in the animation.
 
@@ -76,3 +87,18 @@ class KeyFrame:
             steps=steps,
             ease=ease,
         )
+
+    def __hash__(self) -> int:
+        return id(self)
+
+    def __eq__(self, other):
+        if isinstance(other, KeyFrame):
+            return (
+                self.__hash__() == other.__hash__()
+                and self.viewer_state == other.viewer_state
+                and (self.thumbnail == other.thumbnail).all()
+                and self.steps == other.steps
+                and self.ease == other.ease
+            )
+        else:
+            return False

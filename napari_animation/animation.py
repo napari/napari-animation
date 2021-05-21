@@ -1,17 +1,17 @@
 import os
+import warnings
+from dataclasses import asdict
 from pathlib import Path
 
 import imageio
 import numpy as np
-from napari.utils.events import EventedList
+from napari.utils.events import SelectableEventedList
 from napari.utils.io import imsave
-
 from scipy import ndimage as ndi
 
 from .easing import Easing
 from .interpolation import Interpolation, interpolate_state
 from .key_frame import KeyFrame, ViewerState
-from dataclasses import asdict
 
 
 class Animation:
@@ -35,15 +35,20 @@ class Animation:
     def __init__(self, viewer):
         self.viewer = viewer
 
-        self.key_frames: EventedList[KeyFrame] = EventedList()
-        self.frame: int = -1
+        self.key_frames: SelectableEventedList[
+            KeyFrame
+        ] = SelectableEventedList(basetype=KeyFrame)
+        self.key_frames.selection.events._current.connect(
+            self._current_callback
+        )
+
         self.state_interpolation_map = {
             "camera.angles": Interpolation.SLERP,
             "camera.zoom": Interpolation.LOG,
         }
 
     def capture_keyframe(
-        self, steps=15, ease=Easing.LINEAR, insert=True, frame: int = None
+        self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
     ):
         """Record current key-frame
 
@@ -58,21 +63,27 @@ class Animation:
         insert : bool
             If captured key-frame should insert into current list or replace the current
             keyframe.
-        frame : int, optional
-            If provided use this value for frame rather than current frame number.
+        position : int, optional
+            If provided, place new frame at this index. By default, inserts at current
+            active frame.
         """
-        if frame is not None:
-            self.frame = frame
+        if position is None:
+            if self.key_frames:
+                position = (
+                    self.current_key_frame
+                    if self.current_key_frame
+                    else len(self.key_frames) - 1
+                )
+            else:
+                position = -1
+                insert = True
 
-        new_state = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
+        new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
 
-        if insert or self.frame == -1:
-            current_frame = self.frame
-            self.key_frames.insert(current_frame + 1, new_state)
-            self.frame = current_frame + 1
-
+        if insert:
+            self.key_frames.insert(position + 1, new_frame)
         else:
-            self.key_frames[self.frame] = new_state
+            self.key_frames[position] = new_frame
 
     @property
     def n_frames(self):
@@ -82,20 +93,19 @@ class Animation:
         else:
             return 0
 
-    def set_to_keyframe(self, frame):
+    def set_to_keyframe(self, frame: int):
         """Set the viewer to a given key-frame
+
         Parameters
-        -------
+        ----------
         frame : int
-            Key-frame to visualize
+            Key-frame index to visualize
         """
-        self.frame = frame
-        if len(self.key_frames) > 0 and self.frame > -1:
-            self._set_viewer_state(self.key_frames[frame].viewer_state)
+        self.key_frames.selection.active = self.key_frames[frame]
 
     def set_to_current_keyframe(self):
         """Set the viewer to the current key-frame"""
-        self._set_viewer_state(self.key_frames[self.frame].viewer_state)
+        self._set_viewer_state(self.animation.current_key_frame)
 
     def _set_viewer_state(self, state: ViewerState):
         """Sets the current viewer state
@@ -159,7 +169,27 @@ class Animation:
 
     @property
     def current_key_frame(self):
-        return self.key_frames[self.frame]
+        try:
+            return self.key_frames.index(self.key_frames.selection._current)
+        except ValueError:
+            warnings.warn("No current frame selected !")
+            return None
+
+    @current_key_frame.setter
+    def current_key_frame(self, frame_index):
+        self.key_frames.selection._current = self.key_frames[frame_index]
+
+    @property
+    def active_key_frame(self):
+        try:
+            return self.key_frames.index(self.key_frames.selection.active)
+        except ValueError:
+            warnings.warn("No active frame selected !")
+            return None
+
+    @active_key_frame.setter
+    def active_key_frame(self, frame_index):
+        self.key_frames.selection.active = self.key_frames[frame_index]
 
     def animate(
         self,
@@ -254,3 +284,7 @@ class Animation:
 
         if not save_as_folder:
             writer.close()
+
+    def _current_callback(self, event):
+        if event.value:
+            self._set_viewer_state(event.value.viewer_state)
