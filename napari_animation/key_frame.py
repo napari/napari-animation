@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+from napari.utils.events import SelectableEventedList
 
 from .easing import Easing
 from .utils import make_thumbnail
@@ -127,3 +128,8 @@ class KeyFrame:
             )
         else:
             return False
+
+
+class KeyFrameList(SelectableEventedList[KeyFrame]):
+    def __init__(self) -> None:
+        super().__init__(basetype=KeyFrame)

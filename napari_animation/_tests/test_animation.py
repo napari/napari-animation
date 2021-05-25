@@ -90,8 +90,9 @@ def test_thumbnail_generation(empty_animation):
 @patch("napari_animation.animation.imsave")
 @patch("imageio.get_writer")
 @patch(
-    "napari_animation.Animation._frame_generator", return_value=["frame"] * 30
-)  # noqa: E501
+    "napari_animation.frame_sequence.FrameSequence.iter_frames",
+    return_value=["frame"] * 30,
+)
 @pytest.mark.parametrize("ext", [".mp4", ".mov", ""])
 def test_animate_filenames(
     frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
@@ -121,6 +122,5 @@ def test_end_state_reached(image_animation):
     image_animation.capture_keyframe()
     image_animation.viewer.dims.current_step = (28, 0)
     image_animation.capture_keyframe(steps=2)
-    for state in image_animation._state_generator():
-        pass
-    assert state == image_animation.key_frames[-1].viewer_state
+    last_state = image_animation._frames[-1]
+    assert last_state == image_animation.key_frames[-1].viewer_state
