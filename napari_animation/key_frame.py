@@ -80,7 +80,7 @@ class ViewerState:
         Returns
         -------
         np.ndarray
-            An RGB image of shape (h, w, 4).
+            An RGBA image of shape (h, w, 4).
         """
         self.apply(viewer)
         return viewer.screenshot(canvas_only=canvas_only)
