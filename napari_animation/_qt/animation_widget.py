@@ -87,7 +87,7 @@ class AnimationWidget(QWidget):
         )
         self.saveButton.clicked.connect(self._save_callback)
         self.animationSlider.valueChanged.connect(
-            self._move_animationslider_callback
+            self.animation.set_movie_frame_index
         )
         self.animation._frames.events.n_frames.connect(self._nframes_changed)
 
@@ -146,11 +146,6 @@ class AnimationWidget(QWidget):
     def _nframes_changed(self, event):
         self.animationSlider.setEnabled(bool(event.value))
         self.animationSlider.setMaximum(event.value - 1 if event.value else 1)
-
-    def _move_animationslider_callback(self, new_frame: int):
-        """Set the animation to the specified (interpolated) frame index."""
-        print("new", new_frame)
-        self.animation.set_movie_frame_index(new_frame)
 
     def closeEvent(self, ev) -> None:
         # release callbacks
