@@ -51,11 +51,7 @@ class AnimationWidget(QWidget):
         self.saveButton = QPushButton("Save Animation", parent=self)
         self.animationSlider = QSlider(Qt.Horizontal, parent=self)
         self.animationSlider.setToolTip("Scroll through animation")
-        self.animation._frames.events.n_frames.connect(
-            lambda e: self.animationSlider.setMaximum(e.value)
-        )
-
-        self.animationSlider.setMaximum(len(self.animation._frames) - 1)
+        self.animationSlider.setRange(0, len(self.animation._frames) - 1)
 
         # Create layout
         self.setLayout(QVBoxLayout())
@@ -93,6 +89,7 @@ class AnimationWidget(QWidget):
         self.animationSlider.valueChanged.connect(
             self._move_animationslider_callback
         )
+        self.animation._frames.events.n_frames.connect(self._nframes_changed)
 
         keyframe_list = self.animation.key_frames
         keyframe_list.events.inserted.connect(self._on_keyframes_changed)
@@ -146,8 +143,13 @@ class AnimationWidget(QWidget):
             if filename:
                 self.animation.animate(filename)
 
+    def _nframes_changed(self, event):
+        self.animationSlider.setEnabled(bool(event.value))
+        self.animationSlider.setMaximum(event.value - 1 if event.value else 1)
+
     def _move_animationslider_callback(self, new_frame: int):
         """Set the animation to the specified (interpolated) frame index."""
+        print("new", new_frame)
         self.animation.set_movie_frame_index(new_frame)
 
     def closeEvent(self, ev) -> None:

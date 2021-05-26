@@ -97,6 +97,9 @@ class Animation:
         except KeyError:
             return
 
+        if frame < 0:
+            frame += len(self._frames)
+
         with self.key_frames.selection.events._current.blocker():
             frame = self._frames._frame_index[frame][0]
             self.key_frames.selection.active = frame
