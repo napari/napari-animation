@@ -146,9 +146,9 @@ class AnimationWidget(QWidget):
             if filename:
                 self.animation.animate(filename)
 
-    def _move_animationslider_callback(self, new_frame):
-        """Scroll through interpolated states. Computes states if key-frames changed"""
-        self.animation.set_movie_frame(new_frame)
+    def _move_animationslider_callback(self, new_frame: int):
+        """Set the animation to the specified (interpolated) frame index."""
+        self.animation.set_movie_frame_index(new_frame)
 
     def closeEvent(self, ev) -> None:
         # release callbacks

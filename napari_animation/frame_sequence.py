@@ -1,21 +1,36 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, Iterator, Sequence, Tuple
+from typing import TYPE_CHECKING, Dict, Iterator, Optional, Sequence, Tuple
 
+import numpy as np
 from napari.utils.events import EmitterGroup
 
-from .interpolation import Interpolation
+from .interpolation import Interpolation, InterpolationMap
 from .key_frame import ViewerState
 from .utils import pairwise
 
 if TYPE_CHECKING:
-    import numpy as np
+    import napari
 
     from .key_frame import KeyFrame, KeyFrameList
 
 
 class FrameSequence(Sequence[ViewerState]):
+    """Final sequence of of rendered animation frames, based on keyframes.
+
+    This object acts like an (immutable) sequence of frames, interpolated from
+    a sequence of KeyFrames.  It can be indexed at any (valid) frame in the
+    animation, and will inteprolate (and cache) viewer state on demand.
+
+    If the KeyFrameList changes in any way, the cache is cleared.
+
+    Parameters
+    ----------
+    key_frames : KeyFrameList
+        A KeyFrameList from which to render the final frame sequence.
+    """
+
     def __init__(self, key_frames: KeyFrameList) -> None:
         super().__init__()
         self._key_frames = key_frames
@@ -26,7 +41,7 @@ class FrameSequence(Sequence[ViewerState]):
 
         self.events = EmitterGroup(source=self, n_frames=None)
 
-        self.state_interpolation_map = {
+        self.state_interpolation_map: InterpolationMap = {
             "camera.angles": Interpolation.SLERP,
             "camera.zoom": Interpolation.LOG,
         }
@@ -86,8 +101,8 @@ class FrameSequence(Sequence[ViewerState]):
         self,
         from_state: ViewerState,
         to_state: ViewerState,
-        fraction,
-        state_interpolation_map=None,
+        fraction: float,
+        state_interpolation_map: Optional[InterpolationMap] = None,
     ):
         """Interpolate a state between two states
 
@@ -111,11 +126,10 @@ class FrameSequence(Sequence[ViewerState]):
         """
         from .utils import keys_to_list, nested_get, nested_set
 
-        if state_interpolation_map is None:
-            state_interpolation_map = self.state_interpolation_map
+        interp_map = state_interpolation_map or self.state_interpolation_map
 
         state = {}
-        separator = "."
+        sep = "."
 
         from_state = asdict(from_state)
         to_state = asdict(to_state)
@@ -124,20 +138,19 @@ class FrameSequence(Sequence[ViewerState]):
             v0 = nested_get(from_state, keys)
             v1 = nested_get(to_state, keys)
 
-            property_string = separator.join(keys)
+            interp_func = interp_map.get(sep.join(keys), Interpolation.DEFAULT)
 
-            if property_string in state_interpolation_map.keys():
-                interpolation_func = state_interpolation_map[property_string]
-            else:
-                interpolation_func = Interpolation.DEFAULT
-
-            nested_set(state, keys, interpolation_func(v0, v1, fraction))
+            nested_set(state, keys, interp_func(v0, v1, fraction))
 
         return ViewerState(**state)
 
     def iter_frames(
-        self, viewer, canvas_only=True, scale_factor=None
+        self,
+        viewer: napari.viewer.Viewer,
+        canvas_only: bool = True,
+        scale_factor: float = None,
     ) -> Iterator[np.ndarray]:
+        """Iterate over interpolated viewer states, and yield rendered frames."""
         for i, state in enumerate(self):
             frame = state.render(viewer, canvas_only=canvas_only)
 

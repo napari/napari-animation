@@ -1,6 +1,7 @@
 import numbers
 from enum import Enum
 from functools import partial
+from typing import Dict
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -161,6 +162,9 @@ class Interpolation(Enum):
 
     def __call__(self, *args):
         return self.value(*args)
+
+
+InterpolationMap = Dict[str, Interpolation]
 
 
 def interpolate_state(
