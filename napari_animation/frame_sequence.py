@@ -19,9 +19,9 @@ if TYPE_CHECKING:
 class FrameSequence(Sequence[ViewerState]):
     """Final sequence of of rendered animation frames, based on keyframes.
 
-    This object acts like an (immutable) sequence of frames, interpolated from
-    a sequence of KeyFrames.  It can be indexed at any (valid) frame in the
-    animation, and will inteprolate (and cache) viewer state on demand.
+    This object acts like an immutable sequence of frames, interpolated from
+    a sequence of (mutable) KeyFrames.  It can be indexed at any (valid) frame
+    in the animation, and will inteprolate (and cache) viewer state on demand.
 
     If the KeyFrameList changes in any way, the cache is cleared.
 
