@@ -51,11 +51,11 @@ class AnimationWidget(QWidget):
         self.saveButton = QPushButton("Save Animation", parent=self)
         self.animationSlider = QSlider(Qt.Horizontal, parent=self)
         self.animationSlider.setToolTip("Scroll through animation")
-        self.animation._generator.events.n_frames.connect(
+        self.animation._frames.events.n_frames.connect(
             lambda e: self.animationSlider.setMaximum(e.value)
         )
 
-        self.animationSlider.setMaximum(len(self.animation._generator) - 1)
+        self.animationSlider.setMaximum(len(self.animation._frames) - 1)
 
         # Create layout
         self.setLayout(QVBoxLayout())
