@@ -54,14 +54,14 @@ def test_iterframes(animation_with_key_frames, frame_sequence: FrameSequence):
 
     for n, i in enumerate(fs.iter_frames(viewer)):
         assert isinstance(i, np.ndarray)
-        assert i.shape == (1200, 1600, 4)
-        assert i.dtype == np.uint8
+        _shape = i.shape
+        assert _shape[-1] == 4
         if n > 4:
             break
 
     for n, i in enumerate(fs.iter_frames(viewer, scale_factor=0.5)):
         assert isinstance(i, np.ndarray)
-        assert i.shape == (600, 800, 4)
+        assert i.shape[:2] == (_shape[0] // 2, _shape[1] // 2)
         assert i.dtype == np.uint8
         if n > 4:
             break
