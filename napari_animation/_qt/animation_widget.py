@@ -95,6 +95,9 @@ class AnimationWidget(QWidget):
         keyframe_list.events.inserted.connect(self._on_keyframes_changed)
         keyframe_list.events.removed.connect(self._on_keyframes_changed)
         keyframe_list.events.changed.connect(self._on_keyframes_changed)
+        keyframe_list.selection.events.active.connect(
+            self._on_active_keyframe_changed
+        )
 
     def _input_state(self):
         """Get current state of input widgets as {key->value} parameters."""
@@ -121,6 +124,22 @@ class AnimationWidget(QWidget):
         self.keyframesListControlWidget.deleteButton.setEnabled(has_frames)
         self.keyframesListWidget.setEnabled(has_frames)
         self.frameWidget.setEnabled(has_frames)
+
+    def _on_active_keyframe_changed(self, event=None):
+        if (
+            self.animation._frames
+            and self.animation.key_frames.selection.active
+        ):
+            self.animationSlider.blockSignals(True)
+            kf1_list = [
+                self.animation._frames._frame_index[n][0]
+                for n in range(len(self.animation._frames))
+            ]
+            frame_index = kf1_list.index(
+                self.animation.key_frames.selection.active
+            )
+            self.animationSlider.setValue(frame_index)
+            self.animationSlider.blockSignals(False)
 
     def _save_callback(self, event=None):
 
