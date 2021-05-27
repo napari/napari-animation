@@ -4,12 +4,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+from napari.utils.events import SelectableEventedList
 
 from .easing import Easing
 from .utils import make_thumbnail
 
 if TYPE_CHECKING:
-    from napari import Viewer
+    import napari
 
 
 @dataclass(frozen=True)
@@ -32,7 +33,7 @@ class ViewerState:
     layers: dict
 
     @classmethod
-    def from_viewer(cls, viewer: Viewer):
+    def from_viewer(cls, viewer: napari.viewer.Viewer):
         """Create a ViewerState from a viewer instance."""
         layers = {
             layer.name: layer._get_base_state() for layer in viewer.layers
@@ -42,6 +43,47 @@ class ViewerState:
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
+
+    def apply(self, viewer: napari.viewer.Viewer):
+        """Update `viewer` to match this ViewerState.
+
+        Parameters
+        ----------
+        viewer : napari.viewer.Viewer
+            A napari viewer. (viewer state will be directly modified)
+        """
+
+        viewer.camera.update(self.camera)
+        viewer.dims.update(self.dims)
+
+        for layer_name, layer_state in self.layers.items():
+            layer = viewer.layers[layer_name]
+            for key, value in layer_state.items():
+                original_value = getattr(layer, key)
+                # Only set if value differs to avoid expensive redraws
+                if not np.array_equal(original_value, value):
+                    setattr(layer, key, value)
+
+    def render(
+        self, viewer: napari.viewer.Viewer, canvas_only=True
+    ) -> np.ndarray:
+        """Render this ViewerState to an image.
+
+        Parameters
+        ----------
+        viewer : napari.viewer.Viewer
+            A napari viewer to render screenshots from.
+        canvas_only : bool, optional
+            Whether to include only the canvas (and exclude the napari
+            gui), by default True
+
+        Returns
+        -------
+        np.ndarray
+            An RGBA image of shape (h, w, 4).
+        """
+        self.apply(viewer)
+        return viewer.screenshot(canvas_only=canvas_only)
 
     def __eq__(self, other):
         if isinstance(other, ViewerState):
@@ -85,7 +127,9 @@ class KeyFrame:
         return self.name
 
     @classmethod
-    def from_viewer(cls, viewer: Viewer, steps=15, ease=Easing.LINEAR):
+    def from_viewer(
+        cls, viewer: napari.viewer.Viewer, steps=15, ease=Easing.LINEAR
+    ):
         """Create a KeyFrame from a viewer instance."""
         return cls(
             viewer_state=ViewerState.from_viewer(viewer),
@@ -93,6 +137,9 @@ class KeyFrame:
             steps=steps,
             ease=ease,
         )
+
+    def __repr__(self) -> str:
+        return f"<KeyFrame: {self.name}>"
 
     def __hash__(self) -> int:
         return id(self)
@@ -108,3 +155,8 @@ class KeyFrame:
             )
         else:
             return False
+
+
+class KeyFrameList(SelectableEventedList[KeyFrame]):
+    def __init__(self) -> None:
+        super().__init__(basetype=KeyFrame)

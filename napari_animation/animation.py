@@ -1,18 +1,13 @@
 import os
-from dataclasses import asdict
 from itertools import count
 from pathlib import Path
-from typing import Iterator
 
 import imageio
-import numpy as np
-from napari.utils.events import SelectableEventedList
 from napari.utils.io import imsave
-from scipy import ndimage as ndi
 
 from .easing import Easing
-from .interpolation import Interpolation, interpolate_state
-from .key_frame import KeyFrame, ViewerState
+from .frame_sequence import FrameSequence
+from .key_frame import KeyFrame, KeyFrameList
 
 
 class Animation:
@@ -27,27 +22,18 @@ class Animation:
     ----------
     key_frames : list of dict
         List of viewer state dictionaries.
-    frame : int
-        Currently shown key frame.
-    state_interpolation_map : dict
-        Dictionary relating state attributes to interpolation functions.
     """
 
     def __init__(self, viewer):
         self.viewer = viewer
 
-        self.key_frames: SelectableEventedList[
-            KeyFrame
-        ] = SelectableEventedList(basetype=KeyFrame)
+        self.key_frames = KeyFrameList()
         self.key_frames.selection.events._current.connect(
             self._on_current_keyframe_changed
         )
-
-        self.state_interpolation_map = {
-            "camera.angles": Interpolation.SLERP,
-            "camera.zoom": Interpolation.LOG,
-        }
         self._keyframe_counter = count()  # track number of frames created
+
+        self._frames = FrameSequence(self.key_frames)
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -85,14 +71,6 @@ class Animation:
             del self.key_frames[position]  # needed to trigger the remove event
             self.key_frames.insert(position, new_frame)
 
-    @property
-    def n_frames(self):
-        """The total frame count of the animation"""
-        if len(self.key_frames) >= 2:
-            return np.sum([f.steps for f in self.key_frames[1:]]) + 1
-        else:
-            return 0
-
     def set_to_keyframe(self, frame: int):
         """Set the viewer to a given key-frame
 
@@ -103,68 +81,28 @@ class Animation:
         """
         self.key_frames.selection.active = self.key_frames[frame]
 
-    def _set_viewer_state(self, state: ViewerState):
-        """Sets the current viewer state
-        Parameters
-        ----------
-        state : dict
-            Description of viewer state.
-        """
-        self.viewer.camera.update(state.camera)
-        self.viewer.dims.update(state.dims)
-        self._set_layer_state(state.layers)
-
-    def _set_layer_state(self, layer_state: dict):
-        for layer_name, layer_state in layer_state.items():
-            layer = self.viewer.layers[layer_name]
-            for key, value in layer_state.items():
-                original_value = getattr(layer, key)
-                # Only set if value differs to avoid expensive redraws
-                if not np.array_equal(original_value, value):
-                    setattr(layer, key, value)
-
-    def _state_generator(self) -> Iterator[ViewerState]:
-        self._validate_animation()
-        # iterate over and interpolate between pairs of key-frames
-        for current_frame, next_frame in zip(
-            self.key_frames, self.key_frames[1:]
-        ):
-            # capture necessary info for interpolation
-            initial_state = current_frame.viewer_state
-            final_state = next_frame.viewer_state
-            interpolation_steps = next_frame.steps
-            ease = next_frame.ease
-
-            # generate intermediate states between key-frames
-            for interp in range(interpolation_steps):
-                fraction = interp / interpolation_steps
-                fraction = ease(fraction)
-                state = interpolate_state(
-                    asdict(initial_state),
-                    asdict(final_state),
-                    fraction,
-                    self.state_interpolation_map,
-                )
-                yield ViewerState(**state)
-
-        # be sure to include the final state
-        yield final_state
-
     def _validate_animation(self):
         if len(self.key_frames) < 2:
             raise ValueError(
                 f"Must have at least 2 key frames, received {len(self.key_frames)}"
             )
 
-    def _frame_generator(self, canvas_only=True) -> Iterator[np.ndarray]:
-        for i, state in enumerate(self._state_generator()):
-            print("Rendering frame ", i + 1, "of", self.n_frames)
-            self._set_viewer_state(state)
-            frame = self.viewer.screenshot(canvas_only=canvas_only)
-            yield frame
-
     def set_key_frame_index(self, index: int):
         self.key_frames.selection.active = self.key_frames[index]
+
+    def set_movie_frame_index(self, frame: int):
+        """Set state to a specific frame in the final movie."""
+        try:
+            self._frames[frame].apply(self.viewer)
+        except KeyError:
+            return
+
+        if frame < 0:
+            frame += len(self._frames)
+
+        with self.key_frames.selection.events._current.blocker():
+            frame = self._frames._frame_index[frame][0]
+            self.key_frames.selection.active = frame
 
     @property
     def current_key_frame(self):
@@ -250,12 +188,13 @@ class Animation:
                 folder_path.mkdir(exist_ok=True)
 
         # create a frame generator
-        frames = self._frame_generator(canvas_only=canvas_only)
+        frames = self._frames.iter_frames(
+            self.viewer, canvas_only, scale_factor
+        )
+        n_frames = len(self._frames)
         # save frames
         for ind, frame in enumerate(frames):
-            if scale_factor is not None:
-                frame = ndi.zoom(frame, (scale_factor, scale_factor, 1))
-                frame = frame.astype(np.uint8)
+            print("Rendering frame ", ind + 1, "of", n_frames)
             if not save_as_folder:
                 writer.append_data(frame)
             else:
@@ -267,4 +206,4 @@ class Animation:
 
     def _on_current_keyframe_changed(self, event):
         if event.value:
-            self._set_viewer_state(event.value.viewer_state)
+            event.value.viewer_state.apply(self.viewer)

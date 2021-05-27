@@ -52,6 +52,9 @@ class FrameWidget(QWidget):
     def _update_animation_steps(self, event):
         """update state of 'steps' at current key-frame to reflect GUI state"""
         self.animation.current_key_frame.steps = self.stepsSpinBox.value()
+        # TODO: if this changes programatically the slider will be out of sync.
+        # but we don't currently have events on the keyframe.steps attribute.
+        self.animation._frames._rebuild_frame_index()
 
     def _update_animation_ease(self, event):
         """update state of 'ease' at current key-frame to reflect GUI state"""
