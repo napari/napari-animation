@@ -17,6 +17,3 @@ def test_animation_widget(make_napari_viewer, qtbot):
     assert len(aw.animation.key_frames) == 2
     aw._delete_keyframe_callback()
     assert len(aw.animation.key_frames) == 1
-
-    aw._capture_keyframe_callback()
-    aw._move_animationslider_callback(4)
