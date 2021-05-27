@@ -126,18 +126,16 @@ class AnimationWidget(QWidget):
         self.frameWidget.setEnabled(has_frames)
 
     def _on_active_keyframe_changed(self, event=None):
-        if (
-            self.animation._frames
-            and self.animation.key_frames.selection.active
-        ):
+        n_frames = len(self.animation._frames)
+        active_keyframe = event.value
+
+        if active_keyframe and n_frames:
             self.animationSlider.blockSignals(True)
             kf1_list = [
                 self.animation._frames._frame_index[n][0]
-                for n in range(len(self.animation._frames))
+                for n in range(n_frames)
             ]
-            frame_index = kf1_list.index(
-                self.animation.key_frames.selection.active
-            )
+            frame_index = kf1_list.index(active_keyframe)
             self.animationSlider.setValue(frame_index)
             self.animationSlider.blockSignals(False)
 
