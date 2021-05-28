@@ -1,4 +1,5 @@
 import itertools
+import numbers
 
 import numpy as np
 
@@ -93,3 +94,29 @@ def pairwise(iterable):
     a, b = itertools.tee(iterable)
     next(b, None)
     return zip(a, b)
+
+
+def nested_assert_close(a, b):
+    """ Assert close on nested dicts."""
+    a_keys = [key for key in keys_to_list(a)]
+    b_keys = [key for key in keys_to_list(b)]
+
+    assert a_keys == b_keys
+
+    for key in a_keys:
+        a_1 = nested_get(a, key)
+        b_1 = nested_get(b, key)
+
+        nested_seq_assert_close(a_1, b_1)
+
+
+def nested_seq_assert_close(a, b):
+    """Assert close to scalar or potentially nested qequences of numeric types and others."""
+    if isinstance(a, (list, tuple)) or isinstance(b, (list, tuple)):
+        for a_v, b_v in zip(a, b):
+            nested_seq_assert_close(a_v, b_v)
+    else:
+        if isinstance(a, numbers.Number):
+            np.testing.assert_allclose(a, b)
+        else:
+            assert a == b
