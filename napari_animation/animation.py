@@ -90,19 +90,19 @@ class Animation:
     def set_key_frame_index(self, index: int):
         self.key_frames.selection.active = self.key_frames[index]
 
-    def set_movie_frame_index(self, frame: int):
+    def set_movie_frame_index(self, index: int):
         """Set state to a specific frame in the final movie."""
         try:
-            self._frames[frame].apply(self.viewer)
+            self._frames[index].apply(self.viewer)
         except KeyError:
             return
 
-        if frame < 0:
-            frame += len(self._frames)
+        if index < 0:
+            index += len(self._frames)
 
         with self.key_frames.selection.events._current.blocker():
-            frame = self._frames._frame_index[frame][0]
-            self.key_frames.selection.active = frame
+            key_frame = self._frames._frame_index[index][0]
+            self.key_frames.selection.active = key_frame
 
     @property
     def current_key_frame(self):
