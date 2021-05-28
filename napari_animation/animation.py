@@ -28,9 +28,15 @@ class Animation:
         self.viewer = viewer
 
         self.key_frames = KeyFrameList()
-        self.key_frames.selection.events._current.connect(
-            self._on_current_keyframe_changed
+
+        self.key_frames.events.removed.connect(self._on_keyframe_removed)
+
+        self.key_frames.events.changed.connect(self._on_keyframe_changed)
+
+        self.key_frames.selection.events.active.connect(
+            self._on_active_keyframe_changed
         )
+
         self._keyframe_counter = count()  # track number of frames created
 
         self._frames = FrameSequence(self.key_frames)
@@ -55,12 +61,16 @@ class Animation:
             If provided, place new frame at this index. By default, inserts at current
             active frame.
         """
+
         if position is None:
-            position = (
-                self.key_frames.index(self.current_key_frame)
-                if self.current_key_frame
-                else -1
-            )
+            active_keyframe = self.key_frames.selection.active
+            if active_keyframe:
+                position = self.key_frames.index(active_keyframe)
+            else:
+                if insert:
+                    position = -1
+                else:
+                    raise ValueError("No selected keyframe to replace !")
 
         new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
         new_frame.name = f"Key Frame {next(self._keyframe_counter)}"
@@ -68,8 +78,7 @@ class Animation:
         if insert:
             self.key_frames.insert(position + 1, new_frame)
         else:
-            del self.key_frames[position]  # needed to trigger the remove event
-            self.key_frames.insert(position, new_frame)
+            self.key_frames[position] = new_frame
 
     def set_to_keyframe(self, frame: int):
         """Set the viewer to a given key-frame
@@ -90,23 +99,18 @@ class Animation:
     def set_key_frame_index(self, index: int):
         self.key_frames.selection.active = self.key_frames[index]
 
-    def set_movie_frame_index(self, frame: int):
+    def set_movie_frame_index(self, index: int):
         """Set state to a specific frame in the final movie."""
         try:
-            self._frames[frame].apply(self.viewer)
+            self._frames[index].apply(self.viewer)
         except KeyError:
             return
 
-        if frame < 0:
-            frame += len(self._frames)
+        if index < 0:
+            index += len(self._frames)
 
-        with self.key_frames.selection.events._current.blocker():
-            frame = self._frames._frame_index[frame][0]
-            self.key_frames.selection.active = frame
-
-    @property
-    def current_key_frame(self):
-        return self.key_frames.selection._current
+        key_frame = self._frames._frame_index[index][0]
+        self.key_frames.selection.active = key_frame
 
     def animate(
         self,
@@ -204,6 +208,13 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
-    def _on_current_keyframe_changed(self, event):
-        if event.value:
-            event.value.viewer_state.apply(self.viewer)
+    def _on_keyframe_removed(self, event):
+        self.key_frames.selection.active = None
+
+    def _on_keyframe_changed(self, event):
+        self.key_frames.selection.active = event.value
+
+    def _on_active_keyframe_changed(self, event):
+        active_keyframe = event.value
+        if active_keyframe:
+            active_keyframe.viewer_state.apply(self.viewer)

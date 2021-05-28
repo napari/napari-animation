@@ -86,15 +86,16 @@ class AnimationWidget(QWidget):
             self._capture_keyframe_callback
         )
         self.saveButton.clicked.connect(self._save_callback)
-        self.animationSlider.valueChanged.connect(
-            self.animation.set_movie_frame_index
-        )
+        self.animationSlider.valueChanged.connect(self._on_slider_moved)
         self.animation._frames.events.n_frames.connect(self._nframes_changed)
 
         keyframe_list = self.animation.key_frames
         keyframe_list.events.inserted.connect(self._on_keyframes_changed)
         keyframe_list.events.removed.connect(self._on_keyframes_changed)
         keyframe_list.events.changed.connect(self._on_keyframes_changed)
+        keyframe_list.selection.events.active.connect(
+            self._on_active_keyframe_changed
+        )
 
     def _input_state(self):
         """Get current state of input widgets as {key->value} parameters."""
@@ -113,7 +114,10 @@ class AnimationWidget(QWidget):
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
-        self.animation.key_frames.remove_selected()
+        if self.animation.key_frames.selection.active:
+            self.animation.key_frames.remove_selected()
+        else:
+            raise ValueError("No selected keyframe to delete !")
 
     def _on_keyframes_changed(self, event=None):
         has_frames = bool(self.animation.key_frames)
@@ -121,6 +125,30 @@ class AnimationWidget(QWidget):
         self.keyframesListControlWidget.deleteButton.setEnabled(has_frames)
         self.keyframesListWidget.setEnabled(has_frames)
         self.frameWidget.setEnabled(has_frames)
+
+    def _on_active_keyframe_changed(self, event=None):
+        n_frames = len(self.animation._frames)
+        active_keyframe = event.value
+
+        if active_keyframe and n_frames:
+            self.animationSlider.blockSignals(True)
+            kf1_list = [
+                self.animation._frames._frame_index[n][0]
+                for n in range(n_frames)
+            ]
+            frame_index = kf1_list.index(active_keyframe)
+            self.animationSlider.setValue(frame_index)
+            self.animationSlider.blockSignals(False)
+
+        self.keyframesListControlWidget.deleteButton.setEnabled(
+            bool(active_keyframe)
+        )
+
+    def _on_slider_moved(self, event=None):
+        frame_index = event
+        if frame_index < len(self.animation._frames) - 1:
+            with self.animation.key_frames.selection.events.active.blocker():
+                self.animation.set_movie_frame_index(frame_index)
 
     def _save_callback(self, event=None):
 
@@ -144,8 +172,10 @@ class AnimationWidget(QWidget):
                 self.animation.animate(filename)
 
     def _nframes_changed(self, event):
-        self.animationSlider.setEnabled(bool(event.value))
-        self.animationSlider.setMaximum(event.value - 1 if event.value else 1)
+        has_frames = bool(event.value)
+        self.animationSlider.setEnabled(has_frames)
+        self.animationSlider.blockSignals(has_frames)
+        self.animationSlider.setMaximum(event.value - 1 if has_frames else 0)
 
     def closeEvent(self, ev) -> None:
         # release callbacks
