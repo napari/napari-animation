@@ -114,7 +114,10 @@ class AnimationWidget(QWidget):
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
-        self.animation.key_frames.remove_selected()
+        if self.animation.key_frames.selection.active:
+            self.animation.key_frames.remove_selected()
+        else:
+            raise ValueError("No selected keyframe to delete !")
 
     def _on_keyframes_changed(self, event=None):
         has_frames = bool(self.animation.key_frames)
@@ -137,10 +140,15 @@ class AnimationWidget(QWidget):
             self.animationSlider.setValue(frame_index)
             self.animationSlider.blockSignals(False)
 
+        self.keyframesListControlWidget.deleteButton.setEnabled(
+            bool(active_keyframe)
+        )
+
     def _slider_moved(self, event=None):
         frame_index = event
-        with self.animation.key_frames.selection.events.active.blocker():
-            self.animation.set_movie_frame_index(frame_index)
+        if frame_index < len(self.animation._frames) - 1:
+            with self.animation.key_frames.selection.events.active.blocker():
+                self.animation.set_movie_frame_index(frame_index)
 
     def _save_callback(self, event=None):
 
@@ -164,8 +172,10 @@ class AnimationWidget(QWidget):
                 self.animation.animate(filename)
 
     def _nframes_changed(self, event):
-        self.animationSlider.setEnabled(bool(event.value))
-        self.animationSlider.setMaximum(event.value - 1 if event.value else 1)
+        has_frames = bool(event.value)
+        self.animationSlider.setEnabled(has_frames)
+        self.animationSlider.blockSignals(has_frames)
+        self.animationSlider.setMaximum(event.value - 1 if has_frames else 0)
 
     def closeEvent(self, ev) -> None:
         # release callbacks

@@ -39,7 +39,7 @@ def test_set_to_key_frame(animation_with_key_frames):
     animation = animation_with_key_frames
     for i in range(2):
         animation.set_key_frame_index(i)
-        assert animation.current_key_frame == animation.key_frames[i]
+        assert animation.key_frames.selection.active == animation.key_frames[i]
 
 
 def test_replace_keyframe(animation_with_key_frames):
