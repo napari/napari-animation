@@ -1,10 +1,10 @@
 # napari-animation (WIP under active development)
 
-[![License](https://img.shields.io/pypi/l/napari-animation.svg?color=green)](https://github.com/napari/napari-animation/raw/master/LICENSE)
+[![License](https://img.shields.io/pypi/l/napari-animation.svg?color=green)](https://github.com/napari/napari-animation/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-animation.svg?color=green)](https://pypi.org/project/napari-animation)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-animation.svg?color=green)](https://python.org)
-[![tests](https://github.com/sofroniewn/napari-animation/workflows/tests/badge.svg)](https://github.com/sofroniewn/napari-animation/actions)
-[![codecov](https://codecov.io/gh/sofroniewn/napari-animation/branch/master/graph/badge.svg)](https://codecov.io/gh/sofroniewn/napari-animation)
+[![tests](https://github.com/napari/napari-animation/actions/workflows/test_and_deploy.yml/badge.svg)](https://github.com/napari/napari-animation/actions)
+[![codecov](https://codecov.io/gh/napari/napari-animation/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/napari-animation)
 
 **napari-animation** is a plugin for making animations in [napari].
 
