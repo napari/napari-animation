@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from typing import TYPE_CHECKING, Dict, Iterator, Optional, Sequence, Tuple
 
 import numpy as np
@@ -130,9 +129,6 @@ class FrameSequence(Sequence[ViewerState]):
 
         state = {}
         sep = "."
-
-        from_state = asdict(from_state)
-        to_state = asdict(to_state)
 
         for keys in keys_to_list(from_state):
             v0 = nested_get(from_state, keys)

@@ -85,6 +85,15 @@ class ViewerState:
         self.apply(viewer)
         return viewer.screenshot(canvas_only=canvas_only)
 
+    def keys(self):
+        return self.__dataclass_fields__.keys()
+
+    def items(self):
+        return self.__dataclass_fields__.items()
+
+    def get(self, key, value=None):
+        return self.__getitem__(key)
+
     def __eq__(self, other):
         if isinstance(other, ViewerState):
             return (
@@ -94,6 +103,12 @@ class ViewerState:
             )
         else:
             return False
+
+    def __getitem__(self, item):
+        if item in self.keys():
+            return self.__getattribute__(item)
+        else:
+            return super().__getitem__(item)
 
 
 # @dataclass(frozen=True)

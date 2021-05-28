@@ -5,6 +5,7 @@ import pytest
 
 from napari_animation.frame_sequence import FrameSequence
 from napari_animation.key_frame import ViewerState
+from napari_animation.utils import nested_assert_close
 
 
 def test_frame_seq(frame_sequence: FrameSequence):
@@ -65,3 +66,22 @@ def test_iterframes(animation_with_key_frames, frame_sequence: FrameSequence):
         assert i.dtype == np.uint8
         if n > 4:
             break
+
+
+@pytest.mark.parametrize("fraction", [0, 0.2, 0.4, 0.6, 0.8, 1])
+def test_interpolate_state(frame_sequence: FrameSequence, fraction):
+    """Check that state interpolation works"""
+    initial_state = frame_sequence[0]
+    final_state = frame_sequence[-1]
+    result = frame_sequence._interpolate_state(
+        initial_state, final_state, fraction
+    )
+    if fraction == 0:
+        # assert result == initial_state
+        nested_assert_close(result, initial_state)
+    elif fraction == 1:
+        # assert result == final_state
+        nested_assert_close(result, final_state)
+
+    # else:
+    # should find something else to test

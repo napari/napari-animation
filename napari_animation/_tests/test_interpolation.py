@@ -1,5 +1,3 @@
-from dataclasses import asdict
-
 import numpy as np
 import pytest
 
@@ -9,8 +7,6 @@ from napari_animation.interpolation import (
     interpolate_num,
     interpolate_seq,
 )
-
-from ..utils import nested_assert_close
 
 # Define some functions used for testing
 
@@ -56,23 +52,3 @@ def test_interpolate_log(a, b, fraction):
     """Check that log interpolation produces valid output"""
     result = interpolate_log(a, b, fraction)
     assert result == np.power(10, fraction)
-
-
-@pytest.mark.parametrize("fraction", [0, 0.2, 0.4, 0.6, 0.8, 1])
-def test_interpolate_state(frame_sequence, fraction):
-    """Check that state interpolation works"""
-    initial_state = frame_sequence[0]
-    final_state = frame_sequence[-1]
-    result = frame_sequence._interpolate_state(
-        initial_state, final_state, fraction
-    )
-    assert len(asdict(result)) == len(asdict(initial_state))
-    if fraction == 0:
-        # assert result == initial_state
-        nested_assert_close(asdict(result), asdict(initial_state))
-    elif fraction == 1:
-        # assert result == final_state
-        nested_assert_close(asdict(result), asdict(final_state))
-
-    # else:
-    # should find something else to test
