@@ -86,7 +86,7 @@ class AnimationWidget(QWidget):
             self._capture_keyframe_callback
         )
         self.saveButton.clicked.connect(self._save_callback)
-        self.animationSlider.valueChanged.connect(self._slider_moved)
+        self.animationSlider.valueChanged.connect(self._on_slider_moved)
         self.animation._frames.events.n_frames.connect(self._nframes_changed)
 
         keyframe_list = self.animation.key_frames
@@ -144,7 +144,7 @@ class AnimationWidget(QWidget):
             bool(active_keyframe)
         )
 
-    def _slider_moved(self, event=None):
+    def _on_slider_moved(self, event=None):
         frame_index = event
         if frame_index < len(self.animation._frames) - 1:
             with self.animation.key_frames.selection.events.active.blocker():
