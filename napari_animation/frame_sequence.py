@@ -108,9 +108,9 @@ class FrameSequence(Sequence[ViewerState]):
 
         Parameters
         ----------
-        from_state : dict
+        from_state : ViewerState
             Description of initial viewer state.
-        to_state : dict
+        to_state : ViewerState
             Description of final viewer state.
         fraction : float
             Interpolation fraction, must be between `0` and `1`.

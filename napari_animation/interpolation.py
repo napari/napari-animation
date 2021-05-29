@@ -6,8 +6,6 @@ from typing import Dict
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from .utils import keys_to_list, nested_get, nested_set
-
 
 def default(a, b, fraction):
     """Default interpolation for the corresponding type;
@@ -165,46 +163,3 @@ class Interpolation(Enum):
 
 
 InterpolationMap = Dict[str, Interpolation]
-
-
-def interpolate_state(
-    initial_state, final_state, fraction, state_interpolation_map={}
-):
-    """Interpolate a state between two states
-
-    Parameters
-    ----------
-    initial_state : dict
-        Description of initial viewer state.
-    final_state : dict
-        Description of final viewer state.
-    fraction : float
-        Interpolation fraction, must be between `0` and `1`.
-        A value of `0` will return the initial state. A
-        value of `1` will return the final state.
-    state_interpolation_map : dict
-        Dictionary relating state attributes to interpolation functions.
-
-    Returns
-    -------
-    state : dict
-        Description of viewer state.
-    """
-
-    state = dict()
-    separator = "."
-
-    for keys in keys_to_list(initial_state):
-        v0 = nested_get(initial_state, keys)
-        v1 = nested_get(final_state, keys)
-
-        property_string = separator.join(keys)
-
-        if property_string in state_interpolation_map.keys():
-            interpolation_func = state_interpolation_map[property_string]
-        else:
-            interpolation_func = Interpolation.DEFAULT
-
-        nested_set(state, keys, interpolation_func(v0, v1, fraction))
-
-    return state
