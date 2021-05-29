@@ -57,16 +57,20 @@ class FrameSequence(Sequence[ViewerState]):
         """Create a map of frame number -> (kf0, kf1, fraction)"""
         self._frame_index.clear()
         self._cache.clear()
-        if len(self._key_frames) < 2:
+        if len(self._key_frames) == 0:
             self.events.n_frames(value=len(self))
             return
 
-        f = 0
-        for kf0, kf1 in pairwise(self._key_frames):
-            for s in range(kf1.steps):
-                fraction = s / kf1.steps
-                self._frame_index[f] = (kf0, kf1, fraction)
-                f += 1
+        else:
+            f = 0
+            if len(self._key_frames) == 1:
+                kf1 = self._key_frames[0]
+            else:
+                for kf0, kf1 in pairwise(self._key_frames):
+                    for s in range(kf1.steps):
+                        fraction = s / kf1.steps
+                        self._frame_index[f] = (kf0, kf1, fraction)
+                        f += 1
         self._frame_index[f] = (kf1, kf1, 0)
         self.events.n_frames(value=len(self))
 

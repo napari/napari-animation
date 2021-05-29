@@ -3,6 +3,7 @@ from itertools import count
 from pathlib import Path
 
 import imageio
+from napari.utils.events import EmitterGroup
 from napari.utils.io import imsave
 
 from .easing import Easing
@@ -40,6 +41,8 @@ class Animation:
         self._keyframe_counter = count()  # track number of frames created
 
         self._frames = FrameSequence(self.key_frames)
+
+        self.events = EmitterGroup(source=self, frame_index=None)
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -97,20 +100,26 @@ class Animation:
             )
 
     def set_key_frame_index(self, index: int):
-        self.key_frames.selection.active = self.key_frames[index]
+        key_frame = self.key_frames[index]
+        frame_index = self._keyframe_frame_index(key_frame)
+        self.set_movie_frame_index(frame_index)
 
     def set_movie_frame_index(self, index: int):
         """Set state to a specific frame in the final movie."""
         try:
+            if index < 0:
+                index += len(self._frames)
+
+            key_frame = self._frames._frame_index[index][0]
+
+            # to prevent active callback again
+            if self.key_frames.selection.active != key_frame:
+                self.key_frames.selection.active = key_frame
+
             self._frames[index].apply(self.viewer)
+            self.events.frame_index(value=index)
         except KeyError:
             return
-
-        if index < 0:
-            index += len(self._frames)
-
-        key_frame = self._frames._frame_index[index][0]
-        self.key_frames.selection.active = key_frame
 
     def animate(
         self,
@@ -208,6 +217,12 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
+    def _keyframe_frame_index(self, keyframe):
+        n_frames = len(self._frames)
+        kf1_list = [self._frames._frame_index[n][0] for n in range(n_frames)]
+        frame_index = kf1_list.index(keyframe)
+        return frame_index
+
     def _on_keyframe_removed(self, event):
         self.key_frames.selection.active = None
 
@@ -217,4 +232,5 @@ class Animation:
     def _on_active_keyframe_changed(self, event):
         active_keyframe = event.value
         if active_keyframe:
-            active_keyframe.viewer_state.apply(self.viewer)
+            keyframe_index = self.key_frames.index(active_keyframe)
+            self.set_key_frame_index(keyframe_index)
