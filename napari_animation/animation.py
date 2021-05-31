@@ -42,7 +42,19 @@ class Animation:
 
         self._frames = FrameSequence(self.key_frames)
 
-        self.events = EmitterGroup(source=self, frame_index=None)
+        # make _set_frame_index an evented attribute
+        self.__set_frame_index = 0
+        self.events = EmitterGroup(source=self, _set_frame_index=None)
+
+    @property
+    def _set_frame_index(self):
+        return self.__set_frame_index
+
+    @_set_frame_index.setter
+    def _set_frame_index(self, frame_index):
+        if frame_index != self._set_frame_index:
+            self.__set_frame_index = frame_index
+            self.events._set_frame_index(value=frame_index)
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -117,7 +129,8 @@ class Animation:
                 self.key_frames.selection.active = key_frame
 
             self._frames[index].apply(self.viewer)
-            self.events.frame_index(value=index)
+            self._set_frame_index = index
+
         except KeyError:
             return
 

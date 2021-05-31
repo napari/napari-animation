@@ -96,7 +96,9 @@ class AnimationWidget(QWidget):
         keyframe_list.selection.events.active.connect(
             self._on_active_keyframe_changed
         )
-        self.animation.events.frame_index.connect(self._on_frame_index_changed)
+        self.animation.events._set_frame_index.connect(
+            self._on_frame_index_changed
+        )
 
     def _input_state(self):
         """Get current state of input widgets as {key->value} parameters."""
