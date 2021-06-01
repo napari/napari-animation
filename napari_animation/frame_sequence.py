@@ -64,7 +64,7 @@ class FrameSequence(Sequence[ViewerState]):
         f = 0
         for kf0, kf1 in pairwise(self._key_frames):
             for s in range(kf1.steps):
-                fraction = s / kf1.steps
+                fraction = kf1.ease(s / kf1.steps)
                 self._frame_index[f] = (kf0, kf1, fraction)
                 f += 1
         self._frame_index[f] = (kf1, kf1, 0)
