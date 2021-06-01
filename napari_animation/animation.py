@@ -3,6 +3,7 @@ from itertools import count
 from pathlib import Path
 
 import imageio
+import numpy as np
 from napari.utils.events import EmitterGroup
 from napari.utils.io import imsave
 
@@ -42,19 +43,19 @@ class Animation:
 
         self._frames = FrameSequence(self.key_frames)
 
-        # make _set_frame_index an evented attribute
-        self.__set_frame_index = 0
-        self.events = EmitterGroup(source=self, _set_frame_index=None)
+        # make _frame_index an evented attribute
+        self.__frame_index = 0
+        self.events = EmitterGroup(source=self, _frame_index=None)
 
     @property
-    def _set_frame_index(self):
-        return self.__set_frame_index
+    def _frame_index(self):
+        return self.__frame_index
 
-    @_set_frame_index.setter
-    def _set_frame_index(self, frame_index):
-        if frame_index != self._set_frame_index:
-            self.__set_frame_index = frame_index
-            self.events._set_frame_index(value=frame_index)
+    @_frame_index.setter
+    def _frame_index(self, frame_index):
+        if frame_index != self._frame_index:
+            self.__frame_index = frame_index
+            self.events._frame_index(value=frame_index)
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -112,8 +113,7 @@ class Animation:
             )
 
     def set_key_frame_index(self, index: int):
-        key_frame = self.key_frames[index]
-        frame_index = self._keyframe_frame_index(key_frame)
+        frame_index = self._keyframe_frame_index(index)
         self.set_movie_frame_index(frame_index)
 
     def set_movie_frame_index(self, index: int):
@@ -129,7 +129,7 @@ class Animation:
                 self.key_frames.selection.active = key_frame
 
             self._frames[index].apply(self.viewer)
-            self._set_frame_index = index
+            self._frame_index = index
 
         except KeyError:
             return
@@ -230,11 +230,14 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
-    def _keyframe_frame_index(self, keyframe):
-        n_frames = len(self._frames)
-        kf1_list = [self._frames._frame_index[n][0] for n in range(n_frames)]
-        frame_index = kf1_list.index(keyframe)
-        return frame_index
+    def _keyframe_frame_index(self, keyframe_index):
+        """Gets the frame index of the keyframe corresponding to keyframe_index."""
+        # Get all steps leading to keyframe.
+        steps_to_keyframe = [
+            kf.steps for kf in self.key_frames[1 : keyframe_index + 1]
+        ]
+        frame_index = np.sum(steps_to_keyframe) if steps_to_keyframe else 0
+        return int(frame_index)
 
     def _on_keyframe_removed(self, event):
         self.key_frames.selection.active = None
