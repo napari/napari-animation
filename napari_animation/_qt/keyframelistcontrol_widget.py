@@ -25,6 +25,8 @@ class KeyFrameDeleteButton(QPushButton):
         self.setToolTip("Delete selected key-frame")
         self.setText("Delete")
 
+        self.setEnabled(bool(self.animation.key_frames))
+
 
 class KeyFrameCaptureButton(QPushButton):
     def __init__(self, animation):
