@@ -120,11 +120,13 @@ class AnimationWidget(QWidget):
             raise ValueError("No selected keyframe to delete !")
 
     def _on_keyframes_changed(self, event=None):
+        n_keyframes = len(self.animation.key_frames)
         has_frames = bool(self.animation.key_frames)
 
         self.keyframesListControlWidget.deleteButton.setEnabled(has_frames)
         self.keyframesListWidget.setEnabled(has_frames)
         self.frameWidget.setEnabled(has_frames)
+        self.saveButton.setEnabled(n_keyframes > 1)
 
     def _on_active_keyframe_changed(self, event=None):
         n_frames = len(self.animation._frames)
@@ -152,14 +154,6 @@ class AnimationWidget(QWidget):
 
     def _save_callback(self, event=None):
 
-        try:
-            self.animation._validate_animation()
-        except ValueError as err:
-            error_dialog = QErrorMessage()
-            error_dialog.showMessage(str(err))
-            error_dialog.exec_()
-            return
-
         filters = (
             "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
             ";;Folder of PNGs (*)"  # sep filters with ";;"
@@ -177,13 +171,19 @@ class AnimationWidget(QWidget):
         )
 
         if filename:
-            self.animation.animate(
-                filename,
-                fps=fps,
-                quality=quality,
-                canvas_only=canvas_only,
-                scale_factor=scale_factor,
-            )
+            try:
+                self.animation.animate(
+                    filename,
+                    fps=fps,
+                    quality=quality,
+                    canvas_only=canvas_only,
+                    scale_factor=scale_factor,
+                )
+            except ValueError as err:
+                # Should handle other types, differently maybe
+                error_dialog = QErrorMessage()
+                error_dialog.showMessage(str(err))
+                error_dialog.exec_()
 
     def _nframes_changed(self, event):
         has_frames = bool(event.value)
