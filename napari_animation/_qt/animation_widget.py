@@ -4,7 +4,6 @@ from napari import Viewer
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QErrorMessage,
-    QFileDialog,
     QPushButton,
     QSlider,
     QVBoxLayout,
@@ -15,6 +14,7 @@ from ..animation import Animation
 from .frame_widget import FrameWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
 from .keyframeslist_widget import KeyFramesListWidget
+from .savedialog_widget import SaveDialogWidget
 
 
 class AnimationWidget(QWidget):
@@ -49,6 +49,7 @@ class AnimationWidget(QWidget):
         )
         self.frameWidget = FrameWidget(parent=self)
         self.saveButton = QPushButton("Save Animation", parent=self)
+        # self.saveDialogWidget = SaveDialogWidget(parent=self)
         self.animationSlider = QSlider(Qt.Horizontal, parent=self)
         self.animationSlider.setToolTip("Scroll through animation")
         self.animationSlider.setRange(0, len(self.animation._frames) - 1)
@@ -152,24 +153,38 @@ class AnimationWidget(QWidget):
 
     def _save_callback(self, event=None):
 
-        if len(self.animation.key_frames) < 2:
+        try:
+            self.animation._validate_animation()
+        except ValueError as err:
             error_dialog = QErrorMessage()
-            error_dialog.showMessage(
-                f"You need at least two key frames to generate \
-                an animation. Your only have {len(self.animation.key_frames)}"
-            )
+            error_dialog.showMessage(str(err))
             error_dialog.exec_()
+            return
 
-        else:
-            filters = (
-                "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
-                ";;Folder of PNGs (*)"  # sep filters with ";;"
+        filters = (
+            "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
+            ";;Folder of PNGs (*)"  # sep filters with ";;"
+        )
+
+        saveDialogWidget = SaveDialogWidget(self)
+        (
+            filename,
+            fps,
+            quality,
+            canvas_only,
+            scale_factor,
+        ) = saveDialogWidget.getSaveFileName(
+            self, "Save animation", str(Path.home()), filters
+        )
+
+        if filename:
+            self.animation.animate(
+                filename,
+                fps=fps,
+                quality=quality,
+                canvas_only=canvas_only,
+                scale_factor=scale_factor,
             )
-            filename, _filter = QFileDialog.getSaveFileName(
-                self, "Save animation", str(Path.home()), filters
-            )
-            if filename:
-                self.animation.animate(filename)
 
     def _nframes_changed(self, event):
         has_frames = bool(event.value)

@@ -153,8 +153,7 @@ class FrameSequence(Sequence[ViewerState]):
         """Iterate over interpolated viewer states, and yield rendered frames."""
         for i, state in enumerate(self):
             frame = state.render(viewer, canvas_only=canvas_only)
-
-            if scale_factor is not None:
+            if scale_factor not in (None, 1):
                 from scipy import ndimage as ndi
 
                 frame = ndi.zoom(frame, (scale_factor, scale_factor, 1))
