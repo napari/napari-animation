@@ -128,8 +128,6 @@ class Animation:
             path to use for saving the movie (can also be a path). Extension
             should be one of .gif, .mp4, .mov, .avi, .mpg, .mpeg, .mkv, .wmv
             If no extension is provided, images are saved as a folder of PNGs
-        interpolation_steps : int
-            Number of steps for interpolation.
         fps : int
             frames per second
         quality: float
