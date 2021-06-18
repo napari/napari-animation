@@ -65,18 +65,6 @@ class AnimationWidget(QWidget):
         self._add_keybind_callbacks()
         self._add_callbacks()
 
-    def _add_keybind_callbacks(self):
-        """Bind keys"""
-        self._keybindings = [
-            ("Alt-f", self._capture_keyframe_callback),
-            ("Alt-r", self._replace_keyframe_callback),
-            ("Alt-d", self._delete_keyframe_callback),
-            ("Alt-a", lambda e: self.animation.key_frames.select_next()),
-            ("Alt-b", lambda e: self.animation.key_frames.select_previous()),
-        ]
-        for key, cb in self._keybindings:
-            self.viewer.bind_key(key, cb)
-
     def _add_callbacks(self):
         """Establish callbacks"""
         self.keyframesListControlWidget.deleteButton.clicked.connect(
@@ -176,9 +164,3 @@ class AnimationWidget(QWidget):
         self.animationSlider.setEnabled(has_frames)
         self.animationSlider.blockSignals(has_frames)
         self.animationSlider.setMaximum(event.value - 1 if has_frames else 0)
-
-    def closeEvent(self, ev) -> None:
-        # release callbacks
-        for key, _ in self._keybindings:
-            self.viewer.bind_key(key, None)
-        return super().closeEvent(ev)
