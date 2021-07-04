@@ -96,7 +96,7 @@ class AnimationWidget(QWidget):
         keyframe_list.selection.events.active.connect(
             self._on_active_keyframe_changed
         )
-        self.animation.events._frame_index.connect(
+        self.animation._frames.events._current_index.connect(
             self._on_frame_index_changed
         )
 

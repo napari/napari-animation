@@ -4,7 +4,6 @@ from pathlib import Path
 
 import imageio
 import numpy as np
-from napari.utils.events import EmitterGroup
 from napari.utils.io import imsave
 
 from .easing import Easing
@@ -42,20 +41,6 @@ class Animation:
         self._keyframe_counter = count()  # track number of frames created
 
         self._frames = FrameSequence(self.key_frames)
-
-        # make _frame_index an evented attribute
-        self.__frame_index = 0
-        self.events = EmitterGroup(source=self, _frame_index=None)
-
-    @property
-    def _frame_index(self):
-        return self.__frame_index
-
-    @_frame_index.setter
-    def _frame_index(self, frame_index):
-        if frame_index != self._frame_index:
-            self.__frame_index = frame_index
-            self.events._frame_index(value=frame_index)
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -128,8 +113,8 @@ class Animation:
             if self.key_frames.selection.active != key_frame:
                 self.key_frames.selection.active = key_frame
 
-            self._frames[index].apply(self.viewer)
-            self._frame_index = index
+            self._frames.set_movie_frame_index(self.viewer, index)
+            self._current_frame = index
 
         except KeyError:
             return

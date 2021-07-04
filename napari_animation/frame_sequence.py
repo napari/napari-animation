@@ -39,7 +39,10 @@ class FrameSequence(Sequence[ViewerState]):
         key_frames.events.changed.connect(self._rebuild_frame_index)
         key_frames.events.reordered.connect(self._rebuild_frame_index)
 
-        self.events = EmitterGroup(source=self, n_frames=None)
+        self.__current_index = 0
+        self.events = EmitterGroup(
+            source=self, n_frames=None, _current_index=None
+        )
 
         self.state_interpolation_map: InterpolationMap = {
             "camera.angles": Interpolation.SLERP,
@@ -167,3 +170,17 @@ class FrameSequence(Sequence[ViewerState]):
                 frame = ndi.zoom(frame, (scale_factor, scale_factor, 1))
                 frame = frame.astype(np.uint8)
             yield frame
+
+    def set_movie_frame_index(self, viewer: napari.viewer.Viewer, index: int):
+        self[index].apply(viewer)
+        self._current_index = index
+
+    @property
+    def _current_index(self):
+        return self.__current_index
+
+    @_current_index.setter
+    def _current_index(self, frame_index):
+        if frame_index != self._frame_index:
+            self.__current_index = frame_index
+            self.events._current_index(value=frame_index)
