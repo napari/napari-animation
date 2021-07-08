@@ -30,10 +30,10 @@ def test_frame_seq_caching(frame_sequence: FrameSequence):
     ) as mock:
         frame_5 = fs[5]
 
-    # it should have been called once, and a single frame cached
+    # it should have been called once, and a 2 frames cached (the initial one too)
     mock.assert_called_once()
     assert isinstance(frame_5, ViewerState)
-    assert len(fs._cache) == 1
+    assert len(fs._cache) == 2
 
     # indexing the same frame again will not require re-interpolation
     with patch.object(

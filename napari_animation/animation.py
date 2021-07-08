@@ -3,6 +3,7 @@ from itertools import count
 from pathlib import Path
 
 import imageio
+import numpy as np
 from napari.utils.io import imsave
 
 from .easing import Easing
@@ -97,20 +98,26 @@ class Animation:
             )
 
     def set_key_frame_index(self, index: int):
-        self.key_frames.selection.active = self.key_frames[index]
+        frame_index = self._keyframe_frame_index(index)
+        self.set_movie_frame_index(frame_index)
 
     def set_movie_frame_index(self, index: int):
         """Set state to a specific frame in the final movie."""
         try:
-            self._frames[index].apply(self.viewer)
+            if index < 0:
+                index += len(self._frames)
+
+            key_frame = self._frames._frame_index[index][0]
+
+            # to prevent active callback again
+            if self.key_frames.selection.active != key_frame:
+                self.key_frames.selection.active = key_frame
+
+            self._frames.set_movie_frame_index(self.viewer, index)
+            self._current_frame = index
+
         except KeyError:
             return
-
-        if index < 0:
-            index += len(self._frames)
-
-        key_frame = self._frames._frame_index[index][0]
-        self.key_frames.selection.active = key_frame
 
     def animate(
         self,
@@ -208,6 +215,15 @@ class Animation:
         if not save_as_folder:
             writer.close()
 
+    def _keyframe_frame_index(self, keyframe_index):
+        """Gets the frame index of the keyframe corresponding to keyframe_index."""
+        # Get all steps leading to keyframe.
+        steps_to_keyframe = [
+            kf.steps for kf in self.key_frames[1 : keyframe_index + 1]
+        ]
+        frame_index = np.sum(steps_to_keyframe) if steps_to_keyframe else 0
+        return int(frame_index)
+
     def _on_keyframe_removed(self, event):
         self.key_frames.selection.active = None
 
@@ -217,4 +233,5 @@ class Animation:
     def _on_active_keyframe_changed(self, event):
         active_keyframe = event.value
         if active_keyframe:
-            active_keyframe.viewer_state.apply(self.viewer)
+            keyframe_index = self.key_frames.index(active_keyframe)
+            self.set_key_frame_index(keyframe_index)
