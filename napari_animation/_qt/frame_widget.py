@@ -53,6 +53,8 @@ class FrameWidget(QWidget):
     def _update_animation_steps(self, event):
         """update state of 'steps' at current key-frame to reflect GUI state"""
         active_keyframe = self.animation.key_frames.selection.active
+        if active_keyframe is None:
+            return
         active_keyframe.steps = self.stepsSpinBox.value()
         # TODO: if this changes programatically the slider will be out of sync.
         # but we don't currently have events on the keyframe.steps attribute.
