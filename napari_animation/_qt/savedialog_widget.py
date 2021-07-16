@@ -48,7 +48,7 @@ class SaveDialogWidget(QFileDialog):
         if self.exec_():
             animation_kwargs = {}
 
-            animation_kwargs["filename"] = list(self.selectedFiles())[0]
+            animation_kwargs["path"] = list(self.selectedFiles())[0]
             animation_kwargs["fps"] = self.optionsWidget.fpsSpinBox.value()
             animation_kwargs["quality"] = int(
                 self.optionsWidget.qualitySlider.value()

@@ -164,15 +164,9 @@ class AnimationWidget(QWidget):
             self, "Save animation", str(Path.home()), filters
         )
 
-        if animation_kwargs["filename"]:
+        if animation_kwargs["path"]:
             try:
-                self.animation.animate(
-                    animation_kwargs["filename"],
-                    fps=animation_kwargs["fps"],
-                    quality=animation_kwargs["quality"],
-                    canvas_only=animation_kwargs["canvas_only"],
-                    scale_factor=animation_kwargs["scale_factor"],
-                )
+                self.animation.animate(**animation_kwargs)
             except ValueError as err:
                 # Should handle other types, differently maybe
                 error_dialog = QErrorMessage()
