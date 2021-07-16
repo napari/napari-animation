@@ -1,7 +1,6 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QCheckBox,
-    QComboBox,
     QDoubleSpinBox,
     QFileDialog,
     QHBoxLayout,
@@ -10,6 +9,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from superqt import QLabeledSlider
 
 class SaveDialogWidget(QFileDialog):
     def __init__(self, *args, **kwargs):
@@ -48,7 +48,7 @@ class SaveDialogWidget(QFileDialog):
         if self.exec_():
             filename = list(self.selectedFiles())[0]
             fps = self.optionsWidget.fpsSpinBox.value()
-            quality = int(self.optionsWidget.qualityComboBox.currentText())
+            quality = int(self.optionsWidget.qualitySlider.value())
             canvas_only = self.optionsWidget.canvasCheckBox.isChecked()
             scale_factor = self.optionsWidget.scaleSpinBox.value()
 
@@ -69,13 +69,17 @@ class OptionsWidget(QWidget):
         layout.addWidget(self.canvasCheckBox)
 
         # Quality list
-        self.qualityComboBox = QComboBox(self)
-        self.qualityComboBox.addItems([str(i) for i in range(1, 10)])
-        self.qualityComboBox.setCurrentText("5")
+        self.qualitySlider = QLabeledSlider(Qt.Horizontal, self)
+        self.qualitySlider.setRange(1, 10)
+        self.qualitySlider.setValue(5)
+
+        self.qualitySlider._slider.setMinimumWidth(70)
+        self.qualitySlider._label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
         quality_label = QLabel("Quality", self)
         quality_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(quality_label)
-        layout.addWidget(self.qualityComboBox)
+        layout.addWidget(self.qualitySlider)
 
         # fps
         self.fpsSpinBox = QSpinBox(self)
@@ -96,3 +100,5 @@ class OptionsWidget(QWidget):
         layout.addWidget(self.scaleSpinBox)
 
         self.setLayout(layout)
+
+
