@@ -8,8 +8,8 @@ from qtpy.QtWidgets import (
     QSpinBox,
     QWidget,
 )
-
 from superqt import QLabeledSlider
+
 
 class SaveDialogWidget(QFileDialog):
     def __init__(self, *args, **kwargs):
@@ -100,5 +100,3 @@ class OptionsWidget(QWidget):
         layout.addWidget(self.scaleSpinBox)
 
         self.setLayout(layout)
-
-

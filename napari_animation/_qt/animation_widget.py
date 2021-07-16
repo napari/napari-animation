@@ -49,6 +49,7 @@ class AnimationWidget(QWidget):
         )
         self.frameWidget = FrameWidget(parent=self)
         self.saveButton = QPushButton("Save Animation", parent=self)
+        self.saveButton.setEnabled(len(self.animation.key_frames) > 1)
         self.animationSlider = QSlider(Qt.Horizontal, parent=self)
         self.animationSlider.setToolTip("Scroll through animation")
         self.animationSlider.setRange(0, len(self.animation._frames) - 1)
