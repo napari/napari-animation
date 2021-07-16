@@ -46,13 +46,21 @@ class SaveDialogWidget(QFileDialog):
 
         # Get info back from user
         if self.exec_():
-            filename = list(self.selectedFiles())[0]
-            fps = self.optionsWidget.fpsSpinBox.value()
-            quality = int(self.optionsWidget.qualitySlider.value())
-            canvas_only = self.optionsWidget.canvasCheckBox.isChecked()
-            scale_factor = self.optionsWidget.scaleSpinBox.value()
+            animation_kwargs = {}
 
-            return filename, fps, quality, canvas_only, scale_factor
+            animation_kwargs["filename"] = list(self.selectedFiles())[0]
+            animation_kwargs["fps"] = self.optionsWidget.fpsSpinBox.value()
+            animation_kwargs["quality"] = int(
+                self.optionsWidget.qualitySlider.value()
+            )
+            animation_kwargs[
+                "canvas_only"
+            ] = self.optionsWidget.canvasCheckBox.isChecked()
+            animation_kwargs[
+                "scale_factor"
+            ] = self.optionsWidget.scaleSpinBox.value()
+
+            return animation_kwargs
         else:
             return ""
 

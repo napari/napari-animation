@@ -160,24 +160,18 @@ class AnimationWidget(QWidget):
         )
 
         saveDialogWidget = SaveDialogWidget(self)
-        (
-            filename,
-            fps,
-            quality,
-            canvas_only,
-            scale_factor,
-        ) = saveDialogWidget.getSaveFileName(
+        animation_kwargs = saveDialogWidget.getSaveFileName(
             self, "Save animation", str(Path.home()), filters
         )
 
-        if filename:
+        if animation_kwargs["filename"]:
             try:
                 self.animation.animate(
-                    filename,
-                    fps=fps,
-                    quality=quality,
-                    canvas_only=canvas_only,
-                    scale_factor=scale_factor,
+                    animation_kwargs["filename"],
+                    fps=animation_kwargs["fps"],
+                    quality=animation_kwargs["quality"],
+                    canvas_only=animation_kwargs["canvas_only"],
+                    scale_factor=animation_kwargs["scale_factor"],
                 )
             except ValueError as err:
                 # Should handle other types, differently maybe
