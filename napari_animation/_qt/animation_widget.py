@@ -96,6 +96,9 @@ class AnimationWidget(QWidget):
         keyframe_list.selection.events.active.connect(
             self._on_active_keyframe_changed
         )
+        self.animation._frames.events._current_index.connect(
+            self._on_frame_index_changed
+        )
 
     def _input_state(self):
         """Get current state of input widgets as {key->value} parameters."""
@@ -128,27 +131,23 @@ class AnimationWidget(QWidget):
         self.frameWidget.setEnabled(has_frames)
         self.saveButton.setEnabled(n_keyframes > 1)
 
-    def _on_active_keyframe_changed(self, event=None):
-        n_frames = len(self.animation._frames)
+    def _on_frame_index_changed(self, event=None):
+        """Callback on change of last set frame index."""
+        frame_index = event.value
+        self.animationSlider.blockSignals(True)
+        self.animationSlider.setValue(frame_index)
+        self.animationSlider.blockSignals(False)
+
+    def _on_active_keyframe_changed(self, event):
+        """Callback on change of active keyframe in the key frames list."""
         active_keyframe = event.value
-
-        if active_keyframe and n_frames:
-            self.animationSlider.blockSignals(True)
-            kf1_list = [
-                self.animation._frames._frame_index[n][0]
-                for n in range(n_frames)
-            ]
-            frame_index = kf1_list.index(active_keyframe)
-            self.animationSlider.setValue(frame_index)
-            self.animationSlider.blockSignals(False)
-
         self.keyframesListControlWidget.deleteButton.setEnabled(
             bool(active_keyframe)
         )
 
     def _on_slider_moved(self, event=None):
         frame_index = event
-        if frame_index < len(self.animation._frames) - 1:
+        if frame_index < len(self.animation._frames):
             with self.animation.key_frames.selection.events.active.blocker():
                 self.animation.set_movie_frame_index(frame_index)
 
