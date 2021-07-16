@@ -155,12 +155,18 @@ class AnimationWidget(QWidget):
     def _save_callback(self, event=None):
 
         filters = (
-            "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
+            "MP4 (*.mp4)"
+            ";;GIF (*.gif)"
+            ";;MOV (*.mov)"
+            ";;AVI (*.avi)"
+            ";;MPEG (*.mpg *.mpeg)"
+            ";;MKV (*.mkv)"
+            ";;WMV (*.wmv)"
             ";;Folder of PNGs (*)"  # sep filters with ";;"
         )
 
         saveDialogWidget = SaveDialogWidget(self)
-        animation_kwargs = saveDialogWidget.getSaveFileName(
+        animation_kwargs = saveDialogWidget.getAnimationParameters(
             self, "Save animation", str(Path.home()), filters
         )
 

@@ -15,7 +15,7 @@ class SaveDialogWidget(QFileDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def getSaveFileName(
+    def getAnimationParameters(
         self,
         parent=None,
         caption="Select a file :",
