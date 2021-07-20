@@ -96,7 +96,7 @@ class AnimationWidget(QWidget):
         keyframe_list.selection.events.active.connect(
             self._on_active_keyframe_changed
         )
-        self.animation.events._set_frame_index.connect(
+        self.animation._frames.events._current_index.connect(
             self._on_frame_index_changed
         )
 
@@ -130,12 +130,14 @@ class AnimationWidget(QWidget):
         self.frameWidget.setEnabled(has_frames)
 
     def _on_frame_index_changed(self, event=None):
+        """Callback on change of last set frame index."""
         frame_index = event.value
         self.animationSlider.blockSignals(True)
         self.animationSlider.setValue(frame_index)
         self.animationSlider.blockSignals(False)
 
     def _on_active_keyframe_changed(self, event):
+        """Callback on change of active keyframe in the key frames list."""
         active_keyframe = event.value
         self.keyframesListControlWidget.deleteButton.setEnabled(
             bool(active_keyframe)
