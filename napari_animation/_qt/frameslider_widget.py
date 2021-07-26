@@ -1,6 +1,5 @@
 from typing import Optional, Tuple
 
-import numpy as np
 from napari._qt._constants import LoopMode
 from napari._qt.qthreading import _new_worker_qthread
 from napari._qt.widgets.qt_scrollbar import ModifiedScrollBar
@@ -340,6 +339,8 @@ class AnimationMovieWorker(QObject):
         slider.fps_changed.connect(self.set_fps)
         slider.mode_changed.connect(self.set_loop_mode)
         slider.range_changed.connect(self.set_frame_range)
+        slider.frames.events._current_index.connect(self._on_slider_moved)
+
         self.slider = slider
         self.set_fps(slider.fps)
         self.set_frame_range(slider.frame_range)
@@ -386,17 +387,14 @@ class AnimationMovieWorker(QObject):
         frame_range : tuple(int, int)
             Frame range as tuple/list with range (minimum_frame, maximum_frame)
         """
-        self.dimsrange = (0, self.slider.nframes - 1, 1)
-
+        self.nframes = self.slider.nframes
         self.frame_range = frame_range
 
         if self.frame_range is not None:
             self.min_point, self.max_point = self.frame_range
         else:
             self.min_point = 0
-            self.max_point = int(
-                np.floor(self.dimsrange[1] - self.dimsrange[2])
-            )
+            self.max_point = int(self.nframes - 1)
         self.max_point += 1  # range is inclusive
 
     @Slot(str)
@@ -422,17 +420,17 @@ class AnimationMovieWorker(QObject):
 
     def advance(self):
         """Advance the current frame in the animation.
-        Takes dims scale into account and restricts the animation to the
+        Takes the total number of frames into account and restricts the animation to the
         requested frame_range, if entered.
         """
-        self.current += self.step * self.dimsrange[2]
+        self.current += self.step
 
         if self.current < self.min_point:
             if (
                 self.loop_mode == LoopMode.BACK_AND_FORTH
             ):  # 'loop_back_and_forth'
                 self.step *= -1
-                self.current = self.min_point + self.step * self.dimsrange[2]
+                self.current = self.min_point + self.step
             elif self.loop_mode == LoopMode.LOOP:  # 'loop'
                 self.current = self.max_point + self.current - self.min_point
             else:  # loop_mode == 'once'
@@ -442,14 +440,14 @@ class AnimationMovieWorker(QObject):
                 self.loop_mode == LoopMode.BACK_AND_FORTH
             ):  # 'loop_back_and_forth'
                 self.step *= -1
-                self.current = (
-                    self.max_point + 2 * self.step * self.dimsrange[2]
-                )
+                self.current = self.max_point + 2 * self.step
             elif self.loop_mode == LoopMode.LOOP:  # 'loop'
                 self.current = self.min_point + self.current - self.max_point
             else:  # loop_mode == 'once'
                 return self.finish()
-        with self.slider.frames.events._current_index.blocker():
+        with self.slider.frames.events._current_index.blocker(
+            self._on_slider_moved
+        ):
             self.frame_requested.emit(self.current)
 
         # using a singleShot timer here instead of timer.start() because
@@ -459,3 +457,8 @@ class AnimationMovieWorker(QObject):
     def finish(self):
         """Emit the finished event signal."""
         self.finished.emit()
+
+    def _on_slider_moved(self, event):
+        """Update the current frame if the user moved the slider."""
+        # slot for external events to update the current frame
+        self.current = self.slider.frames._current_index
