@@ -1,3 +1,4 @@
+from napari._qt._constants import LoopMode
 from napari._qt.dialogs.qt_modal import QtPopup
 from napari._qt.widgets.qt_dims_slider import QtCustomDoubleSpinBox
 from napari.utils.translations import trans
@@ -10,8 +11,6 @@ from qtpy.QtWidgets import (
     QLabel,
     QPushButton,
 )
-
-from ..utils import LoopMode
 
 
 class QtPlayButton(QPushButton):
