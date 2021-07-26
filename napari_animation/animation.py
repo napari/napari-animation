@@ -4,13 +4,11 @@ from pathlib import Path
 
 import imageio
 import numpy as np
-from napari._qt.qthreading import _new_worker_qthread
 from napari.utils.io import imsave
 
 from .easing import Easing
 from .frame_sequence import FrameSequence
 from .key_frame import KeyFrame, KeyFrameList
-from .preview_worker import PreviewWorker
 
 
 class Animation:
@@ -43,10 +41,6 @@ class Animation:
         self._keyframe_counter = count()  # track number of frames created
 
         self._frames = FrameSequence(self.key_frames)
-
-        self.playing = False
-        self._preview_worker = None
-        self._preview_thread = None
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -123,46 +117,6 @@ class Animation:
 
         except KeyError:
             return
-
-    def start_preview(self, fps=20, frame_range=None):
-        """Start the preview of the animation."""
-
-        if fps == 0:
-            return
-
-        # Defaulting frame range
-        if frame_range is None:
-            frame_range = (0, len(self._frames) - 1)
-
-        worker, thread = _new_worker_qthread(
-            PreviewWorker,
-            self,
-            fps,
-            frame_range,
-            _start_thread=True,
-            _connect={"frame_requested": self.set_movie_frame_index},
-        )
-        # worker.frame_requested.connect(self._set_preview_frame)
-        worker.started.connect(self._preview_started)
-        worker.finished.connect(self.stop_preview)
-        self._preview_worker = worker
-        self._preview_thread = thread
-
-    def stop_preview(self):
-        """Stop the animation preview."""
-        if self._preview_thread:
-            self._preview_thread.quit()
-            self._preview_thread.wait()
-        self._preview_thread = None
-        self._preview_worker = None
-
-        self._preview_stopped()
-
-    def _preview_started(self):
-        self.playing = True
-
-    def _preview_stopped(self):
-        self.playing = False
 
     def animate(
         self,

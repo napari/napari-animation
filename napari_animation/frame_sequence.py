@@ -41,7 +41,7 @@ class FrameSequence(Sequence[ViewerState]):
 
         self.__current_index = 0
         self.events = EmitterGroup(
-            source=self, n_frames=None, _current_index=None
+            source=self, nframes=None, _current_index=None
         )
 
         self.state_interpolation_map: InterpolationMap = {
@@ -64,7 +64,7 @@ class FrameSequence(Sequence[ViewerState]):
         n_keyframes = len(self._key_frames)
 
         if n_keyframes == 0:
-            self.events.n_frames(value=len(self))
+            self.events.nframes(value=len(self))
             return
         elif n_keyframes == 1:
             f = 0
@@ -78,7 +78,7 @@ class FrameSequence(Sequence[ViewerState]):
                     f += 1
 
         self._frame_index[f] = (kf1, kf1, 0)
-        self.events.n_frames(value=len(self))
+        self.events.nframes(value=len(self))
 
     def __len__(self) -> int:
         """The total frame count of the animation"""
