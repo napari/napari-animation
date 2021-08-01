@@ -35,7 +35,6 @@ class AnimationWidget(QWidget):
 
     def __init__(self, viewer: Viewer, parent=None):
         super().__init__(parent=parent)
-
         # Store reference to viewer and create animation
         self.viewer = viewer
         self.animation = Animation(self.viewer)

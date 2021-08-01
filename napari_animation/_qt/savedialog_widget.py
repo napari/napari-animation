@@ -41,6 +41,7 @@ class SaveDialogWidget(QFileDialog):
         self.setOption(QFileDialog.DontUseNativeDialog, True)
         layout = self.layout()
         self.optionsWidget = OptionsWidget(self)
+
         layout.addWidget(self.optionsWidget, 4, 1)
         self.setLayout(layout)
 
@@ -82,7 +83,13 @@ class OptionsWidget(QWidget):
         self.qualitySlider.setValue(5)
 
         self.qualitySlider._slider.setMinimumWidth(70)
-        self.qualitySlider._label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.qualitySlider._slider.setMaximumWidth(210)
+
+        self.qualitySlider._label.setAlignment(Qt.AlignCenter)
+        self.qualitySlider._label.setStyleSheet(
+            "SliderLabel {background:transparent; border: 0; min-width: 20px; max-width: 20px;}"
+            "SliderLabel::up-button, SliderLabel::down-button {subcontrol-origin: margin; width: 0px; height: 0px; }"
+        )
 
         quality_label = QLabel("Quality", self)
         quality_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -108,3 +115,4 @@ class OptionsWidget(QWidget):
         layout.addWidget(self.scaleSpinBox)
 
         self.setLayout(layout)
+        self.setMaximumWidth(700)
