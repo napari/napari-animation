@@ -35,8 +35,8 @@ class QtFrameSliderWidget(QWidget):
         self._minframe = None
         self._maxframe = None
 
-        self.thread = None
-        self.worker = None
+        self._thread = None
+        self._worker = None
 
         layout = QHBoxLayout()
 
@@ -62,7 +62,8 @@ class QtFrameSliderWidget(QWidget):
 
     def _nframes_changed(self, event):
         self._update_range()
-        self.frame_range = (0, event.value - 1)
+        frame_range = None if event.value <= 1 else (0, event.value - 1)
+        self.frame_range = frame_range
 
     def _create_range_slider_widget(self):
         """Creates a range slider widget:"""
@@ -156,8 +157,8 @@ class QtFrameSliderWidget(QWidget):
         if frame_range is None:
             frame_range = (None, None)
 
-        if frame_range is not None:
-            if frame_range[0] > frame_range[1]:
+        else:
+            if frame_range[0] >= frame_range[1]:
                 raise ValueError(
                     trans._("frame_range[0] must be <= frame_range[1]")
                 )
@@ -224,7 +225,20 @@ class QtFrameSliderWidget(QWidget):
                 reversing direction when the maximum or minimum frame
                 has been reached.
         """
-        self._loop_mode = value
+        if value is not None:
+            _modes = LoopMode.keys()
+            if value not in LoopMode and value not in _modes:
+                raise ValueError(
+                    trans._(
+                        "loop_mode must be one of {_modes}. Got: {loop_mode}",
+                        _modes=_modes,
+                        loop_mode=value,
+                    )
+                )
+
+            loop_mode = LoopMode(value)
+
+        self._loop_mode = loop_mode
         self.play_button.mode_combo.setCurrentText(
             str(value).replace("_", " ")
         )
@@ -306,8 +320,8 @@ class QtFrameSliderWidget(QWidget):
         )
 
         thread.finished.connect(self._stop)
-        self.worker = worker
-        self.thread = thread
+        self._worker = worker
+        self._thread = thread
         self.play_started.emit()
 
         return worker, thread
@@ -315,11 +329,11 @@ class QtFrameSliderWidget(QWidget):
     def _stop(self):
         """Stop animation"""
 
-        if self.thread:
-            self.thread.quit()
-            self.thread.wait()
-        self.thread = None
-        self.worker = None
+        if self._thread:
+            self._thread.quit()
+            self._thread.wait()
+        self._thread = None
+        self._worker = None
         self.play_stopped.emit()
 
 
