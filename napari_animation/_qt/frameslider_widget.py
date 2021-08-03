@@ -226,12 +226,11 @@ class QtFrameSliderWidget(QWidget):
                 has been reached.
         """
         if value is not None:
-            _modes = LoopMode.keys()
-            if value not in LoopMode and value not in _modes:
+            if not isinstance(value, LoopMode) or value not in LoopMode:
                 raise ValueError(
                     trans._(
                         "loop_mode must be one of {_modes}. Got: {loop_mode}",
-                        _modes=_modes,
+                        _modes=LoopMode.keys(),
                         loop_mode=value,
                     )
                 )
