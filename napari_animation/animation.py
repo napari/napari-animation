@@ -1,10 +1,12 @@
 import os
 from itertools import count
 from pathlib import Path
+from time import sleep
 
 import imageio
 import numpy as np
 from napari.utils.io import imsave
+from tqdm import tqdm
 
 from .easing import Easing
 from .frame_sequence import FrameSequence
@@ -135,8 +137,6 @@ class Animation:
             path to use for saving the movie (can also be a path). Extension
             should be one of .gif, .mp4, .mov, .avi, .mpg, .mpeg, .mkv, .wmv
             If no extension is provided, images are saved as a folder of PNGs
-        interpolation_steps : int
-            Number of steps for interpolation.
         fps : int
             frames per second
         quality: float
@@ -203,14 +203,23 @@ class Animation:
             self.viewer, canvas_only, scale_factor
         )
         n_frames = len(self._frames)
-        # save frames
-        for ind, frame in enumerate(frames):
-            print("Rendering frame ", ind + 1, "of", n_frames)
-            if not save_as_folder:
-                writer.append_data(frame)
-            else:
-                fname = folder_path / (path_obj.stem + "_" + str(ind) + ".png")
-                imsave(fname, frame)
+
+        # initialize progress bar and start
+        print("Rendering frames...")
+        sleep(0.05)
+        with tqdm(total=n_frames) as pbar:
+            # save frames
+            for ind, frame in enumerate(frames):
+
+                if not save_as_folder:
+                    writer.append_data(frame)
+                else:
+                    fname = folder_path / (
+                        path_obj.stem + "_" + str(ind) + ".png"
+                    )
+                    imsave(fname, frame)
+
+                pbar.update(1)
 
         if not save_as_folder:
             writer.close()
