@@ -1,19 +1,14 @@
 from pathlib import Path
 
 from napari import Viewer
-from qtpy.QtWidgets import (
-    QErrorMessage,
-    QFileDialog,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
+from qtpy.QtWidgets import QErrorMessage, QPushButton, QVBoxLayout, QWidget
 
 from ..animation import Animation
 from .frame_widget import FrameWidget
 from .frameslider_widget import QtFrameSliderWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
 from .keyframeslist_widget import KeyFramesListWidget
+from .savedialog_widget import SaveDialogWidget
 
 
 class AnimationWidget(QWidget):
@@ -34,7 +29,6 @@ class AnimationWidget(QWidget):
 
     def __init__(self, viewer: Viewer, parent=None):
         super().__init__(parent=parent)
-
         # Store reference to viewer and create animation
         self.viewer = viewer
         self.animation = Animation(self.viewer)
@@ -48,7 +42,7 @@ class AnimationWidget(QWidget):
         )
         self.frameWidget = FrameWidget(parent=self)
         self.saveButton = QPushButton("Save Animation", parent=self)
-
+        self.saveButton.setEnabled(len(self.animation.key_frames) > 1)
         self.frameSliderWidget = QtFrameSliderWidget(
             parent=self, frames=self.animation._frames, viewer=self.viewer
         )
@@ -118,11 +112,13 @@ class AnimationWidget(QWidget):
             raise ValueError("No selected keyframe to delete !")
 
     def _on_keyframes_changed(self, event=None):
+        n_keyframes = len(self.animation.key_frames)
         has_frames = bool(self.animation.key_frames)
 
         self.keyframesListControlWidget.deleteButton.setEnabled(has_frames)
         self.keyframesListWidget.setEnabled(has_frames)
         self.frameWidget.setEnabled(has_frames)
+        self.saveButton.setEnabled(n_keyframes > 1)
 
     def _on_active_keyframe_changed(self, event):
         """Callback on change of active keyframe in the key frames list."""
@@ -133,24 +129,30 @@ class AnimationWidget(QWidget):
 
     def _save_callback(self, event=None):
 
-        if len(self.animation.key_frames) < 2:
-            error_dialog = QErrorMessage()
-            error_dialog.showMessage(
-                f"You need at least two key frames to generate \
-                an animation. Your only have {len(self.animation.key_frames)}"
-            )
-            error_dialog.exec_()
+        filters = (
+            "MP4 (*.mp4)"
+            ";;GIF (*.gif)"
+            ";;MOV (*.mov)"
+            ";;AVI (*.avi)"
+            ";;MPEG (*.mpg *.mpeg)"
+            ";;MKV (*.mkv)"
+            ";;WMV (*.wmv)"
+            ";;Folder of PNGs (*)"  # sep filters with ";;"
+        )
 
-        else:
-            filters = (
-                "Video files (*.mp4 *.gif *.mov *.avi *.mpg *.mpeg *.mkv *.wmv)"
-                ";;Folder of PNGs (*)"  # sep filters with ";;"
-            )
-            filename, _filter = QFileDialog.getSaveFileName(
-                self, "Save animation", str(Path.home()), filters
-            )
-            if filename:
-                self.animation.animate(filename)
+        saveDialogWidget = SaveDialogWidget(self)
+        animation_kwargs = saveDialogWidget.getAnimationParameters(
+            self, "Save animation", str(Path.home()), filters
+        )
+
+        if animation_kwargs["path"]:
+            try:
+                self.animation.animate(**animation_kwargs)
+            except ValueError as err:
+                # Should handle other types, differently maybe
+                error_dialog = QErrorMessage()
+                error_dialog.showMessage(str(err))
+                error_dialog.exec_()
 
     def closeEvent(self, ev) -> None:
         # release callbacks
