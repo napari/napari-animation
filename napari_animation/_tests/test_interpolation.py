@@ -43,10 +43,10 @@ def test_interpolate_seq(a, b, fraction, expected):
 @pytest.mark.parametrize("fraction", [0, 0.25, 0.75, 1])
 def test_interpolate_bool(a, b, fraction):
     result = interpolate_bool(a, b, fraction)
-    if fraction < 0.5:
-        assert result == a
-    else:
+    if fraction > 0.0:
         assert result == b
+    else:
+        assert result == a
 
 
 @pytest.mark.parametrize("a", [1.0, 1])
