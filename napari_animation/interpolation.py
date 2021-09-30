@@ -164,10 +164,7 @@ class Interpolation(Enum):
     SLERP = partial(slerp)
 
     def __call__(self, *args):
-        # print(args)
-        val = self.value(*args)
-        # print(val)
-        return val
+        return self.value(*args)
 
 
 InterpolationMap = Dict[str, Interpolation]
