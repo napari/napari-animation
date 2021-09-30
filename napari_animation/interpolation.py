@@ -9,7 +9,7 @@ from scipy.spatial.transform import Rotation as R
 
 def default(a, b, fraction):
     """Default interpolation for the corresponding type;
-    linear interpolation for numeric, step interpolation otherwise.
+    linear interpolation for numeric, instantaneous transition otherwise.
 
     Parameters
     ----------
@@ -24,13 +24,18 @@ def default(a, b, fraction):
     ----------
         Interpolated value between a and b at fraction.
     """
-    if isinstance(a, numbers.Number) and isinstance(b, numbers.Number):
+    if isinstance(a, bool) or isinstance(b, bool):
+        # checking this first because booleans are numbers
+        return interpolate_bool(a, b, fraction)
+
+    elif isinstance(a, numbers.Number) and isinstance(b, numbers.Number):
         return interpolate_num(a, b, fraction)
 
     elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
         return interpolate_seq(a, b, fraction)
 
     else:
+        # strings, etc.
         return interpolate_bool(a, b, fraction)
 
 
@@ -74,7 +79,7 @@ def interpolate_num(a, b, fraction):
 
 
 def interpolate_bool(a, b, fraction):
-    """Step interpolation.
+    """Instantaneous transition from a to b.
 
     Parameters
     ----------
@@ -88,12 +93,12 @@ def interpolate_bool(a, b, fraction):
     Returns
     ----------
     a or b :
-        Step interpolated value between a and b.
+        b if any step was taken into its direction, otherwise a.
     """
-    if fraction < 0.5:
-        return a
-    else:
+    if fraction > 0.0:
         return b
+    else:
+        return a
 
 
 def interpolate_log(a, b, fraction):
@@ -159,7 +164,10 @@ class Interpolation(Enum):
     SLERP = partial(slerp)
 
     def __call__(self, *args):
-        return self.value(*args)
+        # print(args)
+        val = self.value(*args)
+        # print(val)
+        return val
 
 
 InterpolationMap = Dict[str, Interpolation]
