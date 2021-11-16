@@ -1,4 +1,5 @@
 from ._hookimpls import napari_experimental_provide_dock_widget
 from ._qt import AnimationWidget
 from .animation import Animation
-from .key_frame import KeyFrame, ViewerState
+from .key_frame import KeyFrame
+from .viewer_state import ViewerState
