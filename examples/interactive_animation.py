@@ -13,5 +13,5 @@ viewer = napari.view_image(blobs.astype(float), name='blobs')
 labeled = ndi.label(blobs)[0]
 viewer.add_labels(labeled, name='blob ID')
 
-# viewer.window.add_plugin_dock_widget('animation')
+viewer.window.add_plugin_dock_widget('animation')
 napari.run()
