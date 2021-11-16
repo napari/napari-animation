@@ -83,7 +83,7 @@ class ViewerState:
             An RGBA image of shape (h, w, 4).
         """
         self.apply(viewer)
-        return viewer.screenshot(canvas_only=canvas_only)
+        return viewer.screenshot(canvas_only=canvas_only, flash=False)
 
     def __eq__(self, other):
         if isinstance(other, ViewerState):
@@ -133,7 +133,9 @@ class KeyFrame:
         """Create a KeyFrame from a viewer instance."""
         return cls(
             viewer_state=ViewerState.from_viewer(viewer),
-            thumbnail=make_thumbnail(viewer.screenshot(canvas_only=True)),
+            thumbnail=make_thumbnail(
+                viewer.screenshot(canvas_only=True, flash=False)
+            ),
             steps=steps,
             ease=ease,
         )
