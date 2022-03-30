@@ -23,8 +23,8 @@ class Animation:
 
     Attributes
     ----------
-    key_frames : list of KeyFrame
-        List of key-frames in the animation.
+    key_frames : list of dict
+        List of viewer state dictionaries.
     """
 
     def __init__(self, viewer):
