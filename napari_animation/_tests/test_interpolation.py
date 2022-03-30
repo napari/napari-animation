@@ -3,7 +3,7 @@ from dataclasses import asdict
 import numpy as np
 import pytest
 
-from napari_animation.interpolation import (
+from napari_animation.viewer_state_interpolation import (
     interpolate_bool,
     interpolate_log,
     interpolate_num,

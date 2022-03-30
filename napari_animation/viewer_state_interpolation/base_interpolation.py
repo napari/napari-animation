@@ -1,13 +1,13 @@
-import numbers
-from enum import Enum
-from functools import partial
-from typing import Dict
+from numbers import Number
+from typing import Sequence, Tuple, TypeVar
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
+_T = TypeVar("_T")
 
-def default(a, b, fraction):
+
+def default_interpolation(a: _T, b: _T, fraction: float) -> _T:
     """Default interpolation for the corresponding type;
     linear interpolation for numeric, instantaneous transition otherwise.
 
@@ -28,18 +28,20 @@ def default(a, b, fraction):
         # checking this first because booleans are numbers
         return interpolate_bool(a, b, fraction)
 
-    elif isinstance(a, numbers.Number) and isinstance(b, numbers.Number):
+    elif isinstance(a, Number) and isinstance(b, Number):
         return interpolate_num(a, b, fraction)
 
     elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
-        return interpolate_seq(a, b, fraction)
+        return interpolate_sequence(a, b, fraction)
 
     else:
         # strings, etc.
         return interpolate_bool(a, b, fraction)
 
 
-def interpolate_seq(a, b, fraction):
+def interpolate_sequence(
+    a: Sequence[_T], b: Sequence[_T], fraction: float
+) -> Sequence[_T]:
     """Interpolation of list or tuple.
     Parameters
     ----------
@@ -55,17 +57,20 @@ def interpolate_seq(a, b, fraction):
         : sequence of type a
     Interpolated sequence between a and b at fraction.
     """
-    return type(a)(default(v0, v1, fraction) for v0, v1 in zip(a, b))
+    seq_cls = type(a)
+    return seq_cls(
+        default_interpolation(v0, v1, fraction) for v0, v1 in zip(a, b)
+    )
 
 
-def interpolate_num(a, b, fraction):
+def interpolate_num(a: Number, b: Number, fraction: float) -> Number:
     """Linear interpolation for numeric types.
 
     Parameters
     ----------
-    a : numeric type
+    a : Number
         initial value
-    b : numeric type
+    b : Number
         final value
     fraction : float
         fraction to interpolate to between a and b.
@@ -75,10 +80,11 @@ def interpolate_num(a, b, fraction):
         : numeric type
     Interpolated value between a and b at fraction.
     """
-    return type(a)(a + (b - a) * fraction)
+    number_cls = type(a)
+    return number_cls(a + (b - a) * fraction)
 
 
-def interpolate_bool(a, b, fraction):
+def interpolate_bool(a: bool, b: bool, fraction: float) -> bool:
     """Instantaneous transition from a to b.
 
     Parameters
@@ -101,7 +107,7 @@ def interpolate_bool(a, b, fraction):
         return a
 
 
-def interpolate_log(a, b, fraction):
+def interpolate_log(a: float, b: float, fraction: float) -> float:
     """Log interpolation, for camera zoom mostly.
 
     Parameters
@@ -122,7 +128,11 @@ def interpolate_log(a, b, fraction):
     return np.power(10, c)
 
 
-def slerp(a, b, fraction):
+def slerp(
+    a: Tuple[float, float, float],
+    b: Tuple[float, float, float],
+    fraction: float,
+) -> Tuple[float, float, float]:
     """Compute Spherical linear interpolation from Euler angles,
     compatible with the napari view.
 
@@ -147,24 +157,3 @@ def slerp(a, b, fraction):
     rotation_vector *= fraction
     c_rotation = initial_rotation * R.from_rotvec(rotation_vector)
     return c_rotation.as_euler("ZYX", degrees=True)
-
-
-class Interpolation(Enum):
-    """Interpolation: interpolation function to use for a transition.
-
-    Selects a preset interpolation function
-        * DEFAULT: linear interpolation between start and endpoint.
-        * SLERP: spherical linear interpolation on Euler angles.
-        * LOG: log interpolation between start and endpoint.
-
-    """
-
-    DEFAULT = partial(default)
-    LOG = partial(interpolate_log)
-    SLERP = partial(slerp)
-
-    def __call__(self, *args):
-        return self.value(*args)
-
-
-InterpolationMap = Dict[str, Interpolation]

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, Iterator, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Dict, Iterator, Sequence, Tuple
 
 import numpy as np
 from napari.utils.events import EmitterGroup
 
-from .interpolation import Interpolation, InterpolationMap
 from .utils import pairwise
 from .viewer_state import ViewerState
+from .viewer_state_interpolation import (
+    Interpolation,
+    InterpolationMap,
+    interpolate_viewer_state,
+)
 
 if TYPE_CHECKING:
     import napari
@@ -34,10 +37,10 @@ class FrameSequence(Sequence[ViewerState]):
     def __init__(self, key_frames: KeyFrameList) -> None:
         super().__init__()
         self._key_frames = key_frames
-        key_frames.events.inserted.connect(self._rebuild_frame_index)
-        key_frames.events.removed.connect(self._rebuild_frame_index)
-        key_frames.events.changed.connect(self._rebuild_frame_index)
-        key_frames.events.reordered.connect(self._rebuild_frame_index)
+        key_frames.events.inserted.connect(self._rebuild_keyframe_index)
+        key_frames.events.removed.connect(self._rebuild_keyframe_index)
+        key_frames.events.changed.connect(self._rebuild_keyframe_index)
+        key_frames.events.reordered.connect(self._rebuild_keyframe_index)
 
         self.__current_index = 0
         self.events = EmitterGroup(
@@ -53,12 +56,12 @@ class FrameSequence(Sequence[ViewerState]):
         self._cache: Dict[int, ViewerState] = {}
 
         # map of frame number -> (kf0, kf1, fraction)
-        self._frame_index: Dict[int, Tuple[KeyFrame, KeyFrame, float]] = {}
-        self._rebuild_frame_index()
+        self._keyframe_index: Dict[int, Tuple[KeyFrame, KeyFrame, float]] = {}
+        self._rebuild_keyframe_index()
 
-    def _rebuild_frame_index(self, event=None):
+    def _rebuild_keyframe_index(self, event=None):
         """Create a map of frame number -> (kf0, kf1, fraction)"""
-        self._frame_index.clear()
+        self._keyframe_index.clear()
         self._cache.clear()
 
         n_keyframes = len(self._key_frames)
@@ -74,15 +77,15 @@ class FrameSequence(Sequence[ViewerState]):
             for kf0, kf1 in pairwise(self._key_frames):
                 for s in range(kf1.steps):
                     fraction = kf1.ease(s / kf1.steps)
-                    self._frame_index[f] = (kf0, kf1, fraction)
+                    self._keyframe_index[f] = (kf0, kf1, fraction)
                     f += 1
 
-        self._frame_index[f] = (kf1, kf1, 0)
+        self._keyframe_index[f] = (kf1, kf1, 0)
         self.events.n_frames(value=len(self))
 
     def __len__(self) -> int:
         """The total frame count of the animation"""
-        return len(self._frame_index)
+        return len(self._keyframe_index)
 
     def __getitem__(self, key: int) -> ViewerState:
         """Get the interpolated state at frame `key` in the animation."""
@@ -90,7 +93,7 @@ class FrameSequence(Sequence[ViewerState]):
             key += len(self)
         if key not in self._cache:
             try:
-                kf0, kf1, frac = self._frame_index[key]
+                kf0, kf1, frac = self._keyframe_index[key]
             except KeyError:
                 raise IndexError(
                     f"Frame index ({key}) out of range ({len(self)} frames)"
@@ -98,7 +101,7 @@ class FrameSequence(Sequence[ViewerState]):
             if frac == 0:
                 self._cache[key] = kf0.viewer_state
             else:
-                self._cache[key] = self._interpolate_state(
+                self._cache[key] = interpolate_viewer_state(
                     kf0.viewer_state,
                     kf1.viewer_state,
                     frac,
@@ -106,53 +109,6 @@ class FrameSequence(Sequence[ViewerState]):
                 )
 
         return self._cache[key]
-
-    def _interpolate_state(
-        self,
-        from_state: ViewerState,
-        to_state: ViewerState,
-        fraction: float,
-        state_interpolation_map: Optional[InterpolationMap] = None,
-    ):
-        """Interpolate a state between two states
-
-        Parameters
-        ----------
-        from_state : ViewerState
-            Description of initial viewer state.
-        to_state : ViewerState
-            Description of final viewer state.
-        fraction : float
-            Interpolation fraction, must be between `0` and `1`.
-            A value of `0` will return the initial state. A
-            value of `1` will return the final state.
-        state_interpolation_map : dict
-            Dictionary relating state attributes to interpolation functions.
-
-        Returns
-        -------
-        state : dict
-            Description of viewer state.
-        """
-        from .utils import keys_to_list, nested_get, nested_set
-
-        interp_map = state_interpolation_map or self.state_interpolation_map
-
-        state = {}
-        sep = "."
-
-        from_state = asdict(from_state)
-        to_state = asdict(to_state)
-
-        for keys in keys_to_list(from_state):
-            v0 = nested_get(from_state, keys)
-            v1 = nested_get(to_state, keys)
-
-            interp_func = interp_map.get(sep.join(keys), Interpolation.DEFAULT)
-
-            nested_set(state, keys, interp_func(v0, v1, fraction))
-
-        return ViewerState(**state)
 
     def iter_frames(
         self,
@@ -180,6 +136,6 @@ class FrameSequence(Sequence[ViewerState]):
 
     @_current_index.setter
     def _current_index(self, frame_index):
-        if frame_index != self._frame_index:
+        if frame_index != self._keyframe_index:
             self.__current_index = frame_index
             self.events._current_index(value=frame_index)

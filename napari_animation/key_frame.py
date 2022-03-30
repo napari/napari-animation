@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 from napari.utils.events import SelectableEventedList
 
-from .easing import Easing
+from napari_animation.easing import Easing
+
 from .utils import make_thumbnail
 from .viewer_state import ViewerState
 
@@ -14,8 +15,7 @@ if TYPE_CHECKING:
     import napari
 
 
-# @dataclass(frozen=True)
-@dataclass  # we want to modify steps and ease from the widget for instance
+@dataclass
 class KeyFrame:
     """A single keyframe in the animation.
 

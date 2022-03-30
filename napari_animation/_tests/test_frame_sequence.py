@@ -42,7 +42,7 @@ def test_frame_seq_caching(frame_sequence: FrameSequence):
         frame_5 = fs[5]
         mock.assert_not_called()
 
-    fs._rebuild_frame_index()
+    fs._rebuild_keyframe_index()
     assert len(fs._cache) == 0
 
 
