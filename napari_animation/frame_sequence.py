@@ -7,8 +7,8 @@ import numpy as np
 from napari.utils.events import EmitterGroup
 
 from .interpolation import Interpolation, InterpolationMap
-from .key_frame import ViewerState
 from .utils import pairwise
+from .viewer_state import ViewerState
 
 if TYPE_CHECKING:
     import napari

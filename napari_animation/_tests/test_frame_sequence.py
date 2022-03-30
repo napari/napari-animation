@@ -3,8 +3,8 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
+from napari_animation import ViewerState
 from napari_animation.frame_sequence import FrameSequence
-from napari_animation.key_frame import ViewerState
 
 
 def test_frame_seq(frame_sequence: FrameSequence):
