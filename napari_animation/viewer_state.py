@@ -27,7 +27,7 @@ class ViewerState:
     def from_viewer(cls, viewer: napari.viewer.Viewer):
         """Create a ViewerState from a viewer instance."""
         layers = {
-            layer.name: layer._get_base_state() for layer in viewer.layers
+            layer.name: layer._get_state() for layer in viewer.layers
         }
         for d in layers.values():
             d.pop("metadata")
