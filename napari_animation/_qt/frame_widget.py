@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QComboBox, QFormLayout, QSpinBox, QWidget
 
-from ..easing import Easing
+from napari_animation.easing import Easing
 
 if TYPE_CHECKING:
     from ..animation import Animation
@@ -58,7 +58,7 @@ class FrameWidget(QWidget):
         active_keyframe.steps = self.stepsSpinBox.value()
         # TODO: if this changes programatically the slider will be out of sync.
         # but we don't currently have events on the keyframe.steps attribute.
-        self.animation._frames._rebuild_frame_index()
+        self.animation._frames._rebuild_keyframe_index()
 
     def _update_animation_ease(self, event):
         """update state of 'ease' at current key-frame to reflect GUI state"""
