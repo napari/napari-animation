@@ -25,19 +25,19 @@ def test_frame_seq_caching(frame_sequence: FrameSequence):
     """Test that we only interpolate on demand, and cache results."""
     fs = frame_sequence
     # index into the sequence and watch whether interpolate is called
-    with patch.object(
-        fs, "_interpolate_state", wraps=fs._interpolate_state
+    with patch(
+        "napari_animation.frame_sequence.interpolate_viewer_state",
     ) as mock:
         frame_5 = fs[5]
 
-    # it should have been called once, and a 2 frames cached (the initial one too)
-    mock.assert_called_once()
-    assert isinstance(frame_5, ViewerState)
+        # it should have been called once, and a 2 frames cached (the initial one too)
+        mock.assert_called_once()
+
     assert len(fs._cache) == 2
 
     # indexing the same frame again will not require re-interpolation
-    with patch.object(
-        fs, "_interpolate_state", wraps=fs._interpolate_state
+    with patch(
+        "napari_animation.frame_sequence.interpolate_viewer_state"
     ) as mock:
         frame_5 = fs[5]
         mock.assert_not_called()
