@@ -3,14 +3,15 @@ from dataclasses import asdict
 import numpy as np
 import pytest
 
-from napari_animation.viewer_state_interpolation import (
+from napari_animation.viewer_state_interpolation import interpolate_viewer_state
+from napari_animation.viewer_state_interpolation.base_interpolation import (
     interpolate_bool,
     interpolate_log,
     interpolate_num,
-    interpolate_seq,
+    interpolate_sequence,
 )
 
-from ..utils import nested_assert_close
+from ..viewer_state_interpolation.utils import nested_assert_close
 
 # Define some functions used for testing
 
@@ -33,7 +34,7 @@ def test_interpolate_num(a, b, fraction):
 )
 def test_interpolate_seq(a, b, fraction, expected):
     """Check that interpolation of sequences produces valid output"""
-    result = interpolate_seq(a, b, fraction)
+    result = interpolate_sequence(a, b, fraction)
     assert isinstance(result, type(a))
     assert result == expected
 
@@ -63,7 +64,7 @@ def test_interpolate_state(frame_sequence, fraction):
     """Check that state interpolation works"""
     initial_state = frame_sequence[0]
     final_state = frame_sequence[-1]
-    result = frame_sequence._interpolate_state(
+    result = interpolate_viewer_state(
         initial_state, final_state, fraction
     )
     assert len(asdict(result)) == len(asdict(initial_state))
