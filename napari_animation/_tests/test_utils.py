@@ -1,6 +1,6 @@
 import pytest
 
-from ..viewer_state_interpolation.utils import nested_get, keys_to_list
+from ..viewer_state_interpolation.utils import keys_to_list, nested_get
 
 input_dict = [{"a": 1, "b": {"c": "d"}}]
 keys = [["b", "c"]]

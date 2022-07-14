@@ -3,7 +3,9 @@ from dataclasses import asdict
 import numpy as np
 import pytest
 
-from napari_animation.viewer_state_interpolation import interpolate_viewer_state
+from napari_animation.viewer_state_interpolation import (
+    interpolate_viewer_state,
+)
 from napari_animation.viewer_state_interpolation.base_interpolation import (
     interpolate_bool,
     interpolate_log,
@@ -64,9 +66,7 @@ def test_interpolate_state(frame_sequence, fraction):
     """Check that state interpolation works"""
     initial_state = frame_sequence[0]
     final_state = frame_sequence[-1]
-    result = interpolate_viewer_state(
-        initial_state, final_state, fraction
-    )
+    result = interpolate_viewer_state(initial_state, final_state, fraction)
     assert len(asdict(result)) == len(asdict(initial_state))
     if fraction == 0:
         # assert result == initial_state
