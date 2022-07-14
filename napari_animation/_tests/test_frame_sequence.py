@@ -3,7 +3,6 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from napari_animation import ViewerState
 from napari_animation.frame_sequence import FrameSequence
 
 
@@ -28,7 +27,7 @@ def test_frame_seq_caching(frame_sequence: FrameSequence):
     with patch(
         "napari_animation.frame_sequence.interpolate_viewer_state",
     ) as mock:
-        frame_5 = fs[5]
+        _ = fs[5]
 
         # it should have been called once, and a 2 frames cached (the initial one too)
         mock.assert_called_once()
@@ -39,7 +38,7 @@ def test_frame_seq_caching(frame_sequence: FrameSequence):
     with patch(
         "napari_animation.frame_sequence.interpolate_viewer_state"
     ) as mock:
-        frame_5 = fs[5]
+        _ = fs[5]
         mock.assert_not_called()
 
     fs._rebuild_keyframe_index()
