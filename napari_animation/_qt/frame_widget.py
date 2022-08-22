@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QComboBox, QFormLayout, QSpinBox, QWidget
 
-from napari_animation.easing import Easing
+from ..easing import Easing
 
 if TYPE_CHECKING:
     from ..animation import Animation
