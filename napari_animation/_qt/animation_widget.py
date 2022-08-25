@@ -75,7 +75,7 @@ class AnimationWidget(QWidget):
             ("Alt-b", lambda e: self.animation.key_frames.select_previous()),
         ]
         for key, cb in self._keybindings:
-            self.viewer.bind_key(key, cb)
+            self.viewer.bind_key(key, cb, overwrite=True)
 
     def _add_callbacks(self):
         """Establish callbacks"""
