@@ -116,7 +116,6 @@ class Animation:
                 self.key_frames.selection.active = key_frame
 
             self._frames.set_movie_frame_index(self.viewer, index)
-            self._current_frame = index
 
         except KeyError:
             return
