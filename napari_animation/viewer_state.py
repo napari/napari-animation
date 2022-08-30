@@ -56,7 +56,7 @@ class ViewerState:
                     setattr(layer, key, value)
 
     def render(
-        self, viewer: napari.viewer.Viewer, canvas_only=True
+        self, viewer: napari.viewer.Viewer, canvas_only: bool = True
     ) -> np.ndarray:
         """Render this ViewerState to an image.
 
@@ -74,7 +74,7 @@ class ViewerState:
             An RGBA image of shape (h, w, 4).
         """
         self.apply(viewer)
-        return viewer.screenshot(canvas_only=canvas_only)
+        return viewer.screenshot(canvas_only=canvas_only, flash=False)
 
     def __eq__(self, other):
         if isinstance(other, ViewerState):
