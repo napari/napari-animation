@@ -1,0 +1,10 @@
+name: napari-animation
+display_name: napari-animation
+contributions:
+  commands:
+    - id: napari-animation.make_animation_widget
+      python_name: napari_animation:AnimationWidget
+      title: Make animation widget
+  widgets:
+    - command: napari-animation.make_animation_widget
+      display_name: wizard
