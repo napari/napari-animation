@@ -57,7 +57,7 @@ def test_interpolate_log(a, b, fraction):
 
 
 @pytest.mark.parametrize("fraction", [0, 0.2, 0.4, 0.6, 0.8, 1])
-def test_interpolate_state(frame_sequence, fraction):
+def test_interpolate_viewer_state(frame_sequence, fraction):
     """Check that state interpolation works"""
     initial_state = frame_sequence[0]
     final_state = frame_sequence[-1]
