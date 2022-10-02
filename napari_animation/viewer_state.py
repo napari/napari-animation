@@ -1,4 +1,6 @@
+import warnings
 from dataclasses import dataclass
+from warnings import catch_warnings
 
 import napari
 import numpy as np
@@ -15,7 +17,7 @@ class ViewerState:
     dims : dict
         The state of the `napari.components.Dims` in the viewer.
     layers : dict
-        A map of layer.name -> _base_state for each layer in the viewer
+        A map of layer.name -> Dict[k, v] for layer attributes for each layer in the viewer
         (excluding metadata).
     """
 
@@ -27,10 +29,11 @@ class ViewerState:
     def from_viewer(cls, viewer: napari.viewer.Viewer):
         """Create a ViewerState from a viewer instance."""
         layers = {
-            layer.name: layer._get_base_state() for layer in viewer.layers
+            layer.name: layer.as_layer_data_tuple()[1]
+            for layer in viewer.layers
         }
-        for d in layers.values():
-            d.pop("metadata")
+        for layer_attributes in layers.values():
+            layer_attributes.pop("metadata")
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
@@ -52,8 +55,12 @@ class ViewerState:
             for key, value in layer_state.items():
                 original_value = getattr(layer, key)
                 # Only set if value differs to avoid expensive redraws
-                if not np.array_equal(original_value, value):
-                    setattr(layer, key, value)
+                with catch_warnings():  # __eq__ with certain napari objects raises warnings
+                    warnings.simplefilter(
+                        action="ignore", category=FutureWarning
+                    )
+                    if not np.array_equal(original_value, value):
+                        setattr(layer, key, value)
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True
