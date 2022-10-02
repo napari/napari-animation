@@ -50,11 +50,12 @@ class ViewerState:
 
         for layer_name, layer_state in self.layers.items():
             layer = viewer.layers[layer_name]
-            for key, value in layer_state.items():
-                original_value = getattr(layer, key)
+            layer_attributes = layer.as_layer_data_tuple()[1]
+            for attribute_name, value in layer_state.items():
+                original_value = layer_attributes[attribute_name]
                 # Only set if value differs to avoid expensive redraws
                 if not np.array_equal(original_value, value):
-                    setattr(layer, key, value)
+                    setattr(layer, attribute_name, value)
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True
