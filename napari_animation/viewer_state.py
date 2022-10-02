@@ -1,6 +1,4 @@
-import warnings
 from dataclasses import dataclass
-from warnings import catch_warnings
 
 import napari
 import numpy as np
@@ -52,15 +50,12 @@ class ViewerState:
 
         for layer_name, layer_state in self.layers.items():
             layer = viewer.layers[layer_name]
-            for key, value in layer_state.items():
-                original_value = getattr(layer, key)
+            layer_attributes = layer.as_layer_data_tuple()[1]
+            for attribute_name, value in layer_state.items():
+                original_value = layer_attributes[attribute_name]
                 # Only set if value differs to avoid expensive redraws
-                with catch_warnings():  # __eq__ with certain napari objects raises warnings
-                    warnings.simplefilter(
-                        action="ignore", category=FutureWarning
-                    )
-                    if not np.array_equal(original_value, value):
-                        setattr(layer, key, value)
+                if not np.array_equal(original_value, value):
+                    setattr(layer, attribute_name, value)
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True
