@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Dict, Iterator, Sequence, Tuple
 import numpy as np
 from napari.utils.events import EmitterGroup
 
-from .utils import pairwise
-from .viewer_state import ViewerState
-from .viewer_state_interpolation import (
+from .interpolation import (
     Interpolation,
     InterpolationMap,
     interpolate_viewer_state,
 )
+from .utils import pairwise
+from .viewer_state import ViewerState
 
 if TYPE_CHECKING:
     import napari

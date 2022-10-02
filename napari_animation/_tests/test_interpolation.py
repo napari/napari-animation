@@ -3,19 +3,14 @@ from dataclasses import asdict
 import numpy as np
 import pytest
 
-from napari_animation.viewer_state_interpolation import (
-    interpolate_viewer_state,
-)
-from napari_animation.viewer_state_interpolation.base_interpolation import (
+from napari_animation.interpolation import interpolate_viewer_state
+from napari_animation.interpolation.base_interpolation import (
     interpolate_bool,
     interpolate_log,
     interpolate_num,
     interpolate_sequence,
 )
-
-from ..viewer_state_interpolation.utils import nested_assert_close
-
-# Define some functions used for testing
+from napari_animation.interpolation.utils import nested_assert_close
 
 
 # Actual tests
