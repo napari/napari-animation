@@ -8,7 +8,8 @@ import numpy as np
 from napari.utils.io import imsave
 from tqdm import tqdm
 
-from .easing import Easing
+from napari_animation.easing import Easing
+
 from .frame_sequence import FrameSequence
 from .key_frame import KeyFrame, KeyFrameList
 
@@ -109,7 +110,7 @@ class Animation:
             if index < 0:
                 index += len(self._frames)
 
-            key_frame = self._frames._frame_index[index][0]
+            key_frame = self._frames._keyframe_index[index][0]
 
             # to prevent active callback again
             if self.key_frames.selection.active != key_frame:
