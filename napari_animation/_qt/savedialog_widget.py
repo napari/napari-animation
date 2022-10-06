@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QCheckBox,
@@ -48,8 +50,8 @@ class SaveDialogWidget(QFileDialog):
         # Get info back from user
         if self.exec_():
             animation_kwargs = {}
-
-            animation_kwargs["path"] = list(self.selectedFiles())[0]
+            extension = self.selectedNameFilter().split()[-1].strip('()*')
+            animation_kwargs["path"] = Path(list(self.selectedFiles())[0]).with_suffix(extension)
             animation_kwargs["fps"] = self.optionsWidget.fpsSpinBox.value()
             animation_kwargs["quality"] = int(
                 self.optionsWidget.qualitySlider.value()
