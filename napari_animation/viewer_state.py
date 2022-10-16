@@ -15,7 +15,7 @@ class ViewerState:
     dims : dict
         The state of the `napari.components.Dims` in the viewer.
     layers : dict
-        A map of layer.name -> _base_state for each layer in the viewer
+        A map of layer.name -> Dict[k, v] for layer attributes for each layer in the viewer
         (excluding metadata).
     """
 
@@ -27,10 +27,11 @@ class ViewerState:
     def from_viewer(cls, viewer: napari.viewer.Viewer):
         """Create a ViewerState from a viewer instance."""
         layers = {
-            layer.name: layer._get_state() for layer in viewer.layers
+            layer.name: layer.as_layer_data_tuple()[1]
+            for layer in viewer.layers
         }
-        for d in layers.values():
-            d.pop("metadata")
+        for layer_attributes in layers.values():
+            layer_attributes.pop("metadata")
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
@@ -49,11 +50,12 @@ class ViewerState:
 
         for layer_name, layer_state in self.layers.items():
             layer = viewer.layers[layer_name]
-            for key, value in layer_state.items():
-                original_value = getattr(layer, key)
+            layer_attributes = layer.as_layer_data_tuple()[1]
+            for attribute_name, value in layer_state.items():
+                original_value = layer_attributes[attribute_name]
                 # Only set if value differs to avoid expensive redraws
                 if not np.array_equal(original_value, value):
-                    setattr(layer, key, value)
+                    setattr(layer, attribute_name, value)
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True
