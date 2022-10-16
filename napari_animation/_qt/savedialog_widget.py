@@ -14,6 +14,17 @@ from superqt import QLabeledSlider
 
 
 class SaveDialogWidget(QFileDialog):
+    _file_name_filters = (
+        "mp4 (*.mp4)"
+        ";;gif (*.gif)"
+        ";;mov (*.mov)"
+        ";;avi (*.avi)"
+        ";;mpeg (*.mpg *.mpeg)"
+        ";;mkv (*.mkv)"
+        ";;wmv (*.wmv)"
+        ";;folder of png files (*)"  # sep filters with ";;"
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -22,20 +33,16 @@ class SaveDialogWidget(QFileDialog):
         parent=None,
         caption="Select a file :",
         dir=".",
-        filter="All files (*.*)",
-        selectedFilter="",
         options=None,
     ):
 
         # Set dialog parameters
         self.setWindowTitle(caption)
         self.setDirectory(dir)
-        self.setNameFilter(filter)
+        self.setNameFilter(self._file_name_filters)
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
 
-        if selectedFilter != "":
-            self.selectNameFilter(selectedFilter)
         if options is not None:
             self.setOptions(options)
 
@@ -50,8 +57,10 @@ class SaveDialogWidget(QFileDialog):
         # Get info back from user
         if self.exec_():
             animation_kwargs = {}
-            extension = self.selectedNameFilter().split()[-1].strip('()*')
-            animation_kwargs["path"] = Path(list(self.selectedFiles())[0]).with_suffix(extension)
+            extension = self.selectedNameFilter().split()[-1].strip("()*")
+            animation_kwargs["path"] = Path(
+                list(self.selectedFiles())[0]
+            ).with_suffix(extension)
             animation_kwargs["fps"] = self.optionsWidget.fpsSpinBox.value()
             animation_kwargs["quality"] = int(
                 self.optionsWidget.qualitySlider.value()
