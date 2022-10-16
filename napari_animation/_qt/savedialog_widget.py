@@ -14,14 +14,17 @@ from superqt import QLabeledSlider
 
 
 class SaveDialogWidget(QFileDialog):
-    _file_name_filters = (
+    _valid_file_extensions = (
+        ".mp4",
+        ".gif",
+        ".mov",
+        ".mkv",
+    )
+    _qt_file_name_filters = (
         "mp4 (*.mp4)"
         ";;gif (*.gif)"
         ";;mov (*.mov)"
-        ";;avi (*.avi)"
-        ";;mpeg (*.mpg *.mpeg)"
         ";;mkv (*.mkv)"
-        ";;wmv (*.wmv)"
         ";;folder of png files (*)"  # sep filters with ";;"
     )
 
@@ -35,11 +38,10 @@ class SaveDialogWidget(QFileDialog):
         dir=".",
         options=None,
     ):
-
         # Set dialog parameters
         self.setWindowTitle(caption)
         self.setDirectory(dir)
-        self.setNameFilter(self._file_name_filters)
+        self.setNameFilter(self._qt_file_name_filters)
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
 
@@ -56,25 +58,32 @@ class SaveDialogWidget(QFileDialog):
 
         # Get info back from user
         if self.exec_():
-            animation_kwargs = {}
-            extension = self.selectedNameFilter().split()[-1].strip("()*")
-            animation_kwargs["path"] = Path(
-                list(self.selectedFiles())[0]
-            ).with_suffix(extension)
-            animation_kwargs["fps"] = self.optionsWidget.fpsSpinBox.value()
-            animation_kwargs["quality"] = int(
-                self.optionsWidget.qualitySlider.value()
-            )
-            animation_kwargs[
-                "canvas_only"
-            ] = self.optionsWidget.canvasCheckBox.isChecked()
-            animation_kwargs[
-                "scale_factor"
-            ] = self.optionsWidget.scaleSpinBox.value()
-
+            animation_kwargs = {
+                "path": self.get_file_path(),
+                "fps": self.optionsWidget.fpsSpinBox.value(),
+                "quality": int(self.optionsWidget.qualitySlider.value()),
+                "canvas_only": self.optionsWidget.canvasCheckBox.isChecked(),
+                "scale_factor": self.optionsWidget.scaleSpinBox.value(),
+            }
             return animation_kwargs
         else:
             return ""
+
+    def get_file_path(self) -> Path:
+        provided_file_name = Path(list(self.selectedFiles())[0])
+        if provided_file_name.suffix not in self._valid_file_extensions:
+            extension_in_gui = self.qt_filter_to_extension(
+                self.selectedNameFilter()
+            )
+            provided_file_name = provided_file_name.with_suffix(
+                extension_in_gui
+            )
+        return provided_file_name
+
+    @staticmethod
+    def qt_filter_to_extension(name_filter: str) -> str:
+        """Get an extension from the qt name filter."""
+        return name_filter.split()[-1].strip("()*")
 
 
 class OptionsWidget(QWidget):
