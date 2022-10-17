@@ -1,4 +1,4 @@
-# napari-animation (WIP under active development)
+# napari-animation
 
 [![License](https://img.shields.io/pypi/l/napari-animation.svg?color=green)](https://github.com/napari/napari-animation/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-animation.svg?color=green)](https://pypi.org/project/napari-animation)
@@ -8,44 +8,51 @@
 
 **napari-animation** is a plugin for making animations in [napari].
 
+<p align="center">
+  <img width="500" src="https://user-images.githubusercontent.com/7307488/196110138-6c4663b1-67b2-4c79-97b7-57b706d1d49c.gif">
+</p>
+
 ----------------------------------
 
-This [napari] plugin was generated with [Cookiecutter] using with [@napari]'s [cookiecutter-napari-plugin] template.
-
-It is built off of great work from @guiwitz in [naparimovie](https://github.com/guiwitz/naparimovie) which was initially submitted to napari in [PR#851](https://github.com/napari/napari/pull/780).
+This plugin is built on [naparimovie](https://github.com/guiwitz/naparimovie) from @guiwitz. naparimovie was submitted to napari in [PR#851](https://github.com/napari/napari/pull/780) before napari plugin infrastructure existed.
 
 ----------------------------------
 ## Overview
 
-**napari-animation** provides a framework for the creation of animations in napari and features:
-- an easy to use GUI for interactive creation of animations
-- Python tools for programmatic creation of animations
+**napari-animation** provides a framework for the creation of animations in napari, the plugin contains:
+- an easy to use GUI for creating animations interactively
+- a Python package for the programmatic creation of animations
 
-This plugin is currently pre-release and under active development. APIs are likely to change before it's first 0.0.1 release,
-but feedback and contributions are welcome.
+This plugin remains under development and contributions are very welcome, please open an issue to discuss potential improvements.
 
 ## Installation
 
-You can clone this repository with install locally with
+### PyPI
+`napari-animation` is available through the Python package index and can be installed using `pip`.
+
+```sh
+pip install napari-animation
+```
+
+### Local
+You can clone this repository and install locally with
 
     pip install -e .
 
-## Examples
-Examples can be found in our [examples](examples) folder. Simple examples for both interactive and headless 
-use of the plugin follow.
+### Interactive use
+**napari-animation** can be used interactively.
 
-### Interactive
-**napari-animation** can be used interactively by creating an `AnimationWidget` from a napari `Viewer` and adding it to
-the viewer as a dock widget.
+An animation is created by capturing [keyframes](https://en.wikipedia.org/wiki/Key_frame) containing the current viewer state.
 
-```python
-from napari_animation import AnimationWidget
+<p align="center">
+  <img width="600" src="https://user-images.githubusercontent.com/7307488/196113682-96ce0da3-fa5c-411e-8fb1-52dc3a8f96b6.png">
+</p>
 
-animation_widget = AnimationWidget(viewer)
-viewer.window.add_dock_widget(animation_widget, area='right')
-```
+To activate the GUI, select **napari-animation: wizard** from the *plugins menu*
 
-![AnimationWidget image](resources/screenshot-animation-widget.png)
+<p align="center">
+  <img width="200" src="https://user-images.githubusercontent.com/7307488/196114466-56cb5985-0d79-4cfa-96f1-38cf3ccfbc48.png">
+</p>
 
 ### Headless
 **napari-animation** can also be run headless, allowing for reproducible, scripted creation of animations.
@@ -70,21 +77,9 @@ animation.capture_keyframe()
 animation.animate('demo.mov', canvas_only=False)
 ```
 
-## Is everything animate-able?
-
-Unfortunately, not yet! Currently differences in the following objects are tracked by the `Animation` class
-
-- `Viewer.camera`
-- `Viewer.dims`
-- `Layer.scale`
-- `Layer.translate`
-- `Layer.rotate`
-- `Layer.shear`
-- `layer.opacity`
-- `Layer.blending`
-- `Layer.visible`
-
-Support for more layer attributes will be added in future releases.
+## Examples
+Examples can be found in our [examples](examples) folder. Simple examples for both interactive and headless 
+use of the plugin follow.
 
 ## Contributing
 
@@ -102,8 +97,6 @@ in your environment as follows:
 ```sh
 pre-commit install
 ```
-
-
 
 ## License
 
