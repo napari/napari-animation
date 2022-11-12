@@ -32,6 +32,7 @@ class ViewerState:
         }
         for layer_attributes in layers.values():
             layer_attributes.pop("metadata")
+            layer_attributes.pop("properties", None)
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
