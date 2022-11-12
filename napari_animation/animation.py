@@ -211,14 +211,14 @@ class Animation:
         print("Rendering frames...")
         sleep(0.05)
         with tqdm(total=n_frames) as pbar:
-            for frame_index, frame in enumerate(frame_generator):
+            for frame_index, image in enumerate(frame_generator):
                 if save_as_folder is True:
-                    fname = (
+                    frame_filename = (
                         folder_path / f"{file_path.stem}_{frame_index:06d}.png"
                     )
-                    imsave(fname, frame)
+                    imsave(frame_filename, image)
                 else:
-                    writer.append_data(frame)
+                    writer.append_data(image)
                 pbar.update(1)
         if not save_as_folder:
             writer.close()
