@@ -158,7 +158,7 @@ class AnimationWidget(QWidget):
             self, "Save animation", str(Path.home())
         )
 
-        if animation_kwargs["path"]:
+        if animation_kwargs.get("filename", None) is not None:
             try:
                 self.animation.animate(**animation_kwargs)
             except ValueError as err:
