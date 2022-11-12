@@ -216,7 +216,7 @@ class Animation:
                     writer.append_data(frame)
                 else:
                     fname = folder_path / (
-                        path_obj.stem + "_" + str(ind).zfill(5) + ".png"
+                        path_obj.stem + "_" + str(ind).zfill(6) + ".png"
                     )
                     imsave(fname, frame)
 
