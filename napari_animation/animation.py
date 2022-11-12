@@ -124,7 +124,7 @@ class Animation:
 
     def animate(
         self,
-        path,
+        filename,
         fps=20,
         quality=5,
         format=None,
@@ -134,7 +134,7 @@ class Animation:
         """Create a movie based on key-frames
         Parameters
         -------
-        path : str
+        filename : str
             path to use for saving the movie (can also be a path). Extension
             should be one of .gif, .mp4, .mov, .avi, .mpg, .mpeg, .mkv, .wmv
             If no extension is provided, images are saved as a folder of PNGs
@@ -156,20 +156,20 @@ class Animation:
         self._validate_animation()
 
         # create path object
-        path_obj = Path(path)
-        folder_path = path_obj.absolute().parent.joinpath(path_obj.stem)
+        file_path = Path(filename)
+        folder_path = file_path.absolute().parent.joinpath(file_path.stem)
 
         # if path has no extension, save as fold of PNG
         save_as_folder = False
-        if path_obj.suffix == "":
+        if file_path.suffix == "":
             save_as_folder = True
 
         # try to create an ffmpeg writer. If not installed default to folder creation
-        if not save_as_folder:
+        if save_as_folder is False:
             try:
                 # create imageio writer. Handle separately imageio-ffmpeg extensions and
                 # gif extension which doesn't accept the quality parameter.
-                if path_obj.suffix in [
+                if file_path.suffix in [
                     ".mov",
                     ".avi",
                     ".mpg",
@@ -179,13 +179,15 @@ class Animation:
                     ".wmv",
                 ]:
                     writer = imageio.get_writer(
-                        path,
+                        filename,
                         fps=fps,
                         quality=quality,
                         format=format,
                     )
                 else:
-                    writer = imageio.get_writer(path, fps=fps, format=format)
+                    writer = imageio.get_writer(
+                        filename, fps=fps, format=format
+                    )
             except ValueError as err:
                 print(err)
                 print("Your file will be saved as a series of PNG files")
@@ -200,28 +202,24 @@ class Animation:
                 folder_path.mkdir(exist_ok=True)
 
         # create a frame generator
-        frames = self._frames.iter_frames(
+        frame_generator = self._frames.iter_frames(
             self.viewer, canvas_only, scale_factor
         )
         n_frames = len(self._frames)
 
-        # initialize progress bar and start
+        # Render frames (with a progress bar)
         print("Rendering frames...")
         sleep(0.05)
         with tqdm(total=n_frames) as pbar:
-            # save frames
-            for ind, frame in enumerate(frames):
-
-                if not save_as_folder:
-                    writer.append_data(frame)
-                else:
-                    fname = folder_path / (
-                        path_obj.stem + "_" + str(ind).zfill(6) + ".png"
+            for frame_index, frame in enumerate(frame_generator):
+                if save_as_folder is True:
+                    fname = (
+                        folder_path / f"{file_path.stem}_{frame_index:06d}.png"
                     )
                     imsave(fname, frame)
-
+                else:
+                    writer.append_data(frame)
                 pbar.update(1)
-
         if not save_as_folder:
             writer.close()
 
