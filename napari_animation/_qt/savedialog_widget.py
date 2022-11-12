@@ -59,7 +59,7 @@ class SaveDialogWidget(QFileDialog):
         # Get info back from user
         if self.exec_():
             animation_kwargs = {
-                "path": self.get_file_path(),
+                "filename": self.get_file_path(),
                 "fps": self.optionsWidget.fpsSpinBox.value(),
                 "quality": int(self.optionsWidget.qualitySlider.value()),
                 "canvas_only": self.optionsWidget.canvasCheckBox.isChecked(),
