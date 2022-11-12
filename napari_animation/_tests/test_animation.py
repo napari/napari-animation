@@ -95,7 +95,7 @@ def test_thumbnail_generation(empty_animation):
 )
 @pytest.mark.parametrize("ext", [".mp4", ".mov", ""])
 def test_animate_filenames(
-    get_writer, imsave, animation_with_key_frames, ext, tmp_path
+    frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
 ):
     """Test that Animation.animate() produces files with correct filenames"""
     output_filename = tmp_path / f"test{ext}"
