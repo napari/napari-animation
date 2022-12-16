@@ -34,7 +34,7 @@ class FrameSequence(Sequence[ViewerState]):
         A KeyFrameList from which to render the final frame sequence.
     """
 
-    def __init__(self, key_frames: KeyFrameList) -> None:
+    def __init__(self, key_frames: KeyFrameList, cache_size: int = 10) -> None:
         super().__init__()
         self._key_frames = key_frames
         key_frames.events.inserted.connect(self._rebuild_keyframe_index)
@@ -54,6 +54,7 @@ class FrameSequence(Sequence[ViewerState]):
 
         # cache of interpolated viewer states
         self._cache: Dict[int, ViewerState] = {}
+        self._cache_size = cache_size
 
         # map of frame number -> (kf0, kf1, fraction)
         self._keyframe_index: Dict[int, Tuple[KeyFrame, KeyFrame, float]] = {}
@@ -91,6 +92,13 @@ class FrameSequence(Sequence[ViewerState]):
         """Get the interpolated state at frame `key` in the animation."""
         if key < 0:
             key += len(self)
+
+        if len(self._cache) >= self._cache_size:
+            # clears everything except last state
+            key, state = self._cache.popitem()
+            self._cache.clear()
+            self._cache[key] = state
+
         if key not in self._cache:
             try:
                 kf0, kf1, frac = self._keyframe_index[key]
