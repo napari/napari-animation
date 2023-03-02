@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import deque
 from typing import TYPE_CHECKING, Dict, Iterator, Sequence, Tuple
 
 import numpy as np
@@ -19,6 +20,35 @@ if TYPE_CHECKING:
     from .key_frame import KeyFrame, KeyFrameList
 
 
+class LRUDict(dict):
+    def __init__(self, *args, cache_size=None, **kwargs):
+        self._cache_size = None
+        if cache_size is not None and cache_size > 0:
+            self._cache_size = cache_size
+        self._q = deque()
+        super().__init__(*args, **kwargs)
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        if self._cache_size is not None:
+            # bring that key back to the top
+            self._q.remove(key)
+            self._q.append(key)
+        return value
+
+    def __setitem__(self, key, value):
+        if self._cache_size is not None:
+            while len(self) >= self._cache_size:
+                evicted_key = self._q.popleft()
+                super().__delitem__(evicted_key)
+            super().__setitem__(key, value)
+            self._q.append(key)
+
+    def clear(self):
+        self._q.clear()
+        super().clear()
+
+
 class FrameSequence(Sequence[ViewerState]):
     """Final sequence of of rendered animation frames, based on keyframes.
 
@@ -34,7 +64,7 @@ class FrameSequence(Sequence[ViewerState]):
         A KeyFrameList from which to render the final frame sequence.
     """
 
-    def __init__(self, key_frames: KeyFrameList) -> None:
+    def __init__(self, key_frames: KeyFrameList, cache_size: int = 10) -> None:
         super().__init__()
         self._key_frames = key_frames
         key_frames.events.inserted.connect(self._rebuild_keyframe_index)
@@ -53,7 +83,7 @@ class FrameSequence(Sequence[ViewerState]):
         }
 
         # cache of interpolated viewer states
-        self._cache: Dict[int, ViewerState] = {}
+        self._cache: Dict[int, ViewerState] = LRUDict(cache_size=cache_size)
 
         # map of frame number -> (kf0, kf1, fraction)
         self._keyframe_index: Dict[int, Tuple[KeyFrame, KeyFrame, float]] = {}
@@ -91,6 +121,7 @@ class FrameSequence(Sequence[ViewerState]):
         """Get the interpolated state at frame `key` in the animation."""
         if key < 0:
             key += len(self)
+
         if key not in self._cache:
             try:
                 kf0, kf1, frac = self._keyframe_index[key]
