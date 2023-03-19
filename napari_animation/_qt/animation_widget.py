@@ -11,6 +11,7 @@ from qtpy.QtWidgets import (
 )
 
 from ..animation import Animation
+from .camera_spline_widget import CameraSplineWidget
 from .frame_widget import FrameWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
 from .keyframeslist_widget import KeyFramesListWidget
@@ -53,6 +54,10 @@ class AnimationWidget(QWidget):
         self.animationSlider.setToolTip("Scroll through animation")
         self.animationSlider.setRange(0, len(self.animation._frames) - 1)
 
+        self.camera_spline_widget = CameraSplineWidget(
+            viewer=viewer, parent=self
+        )
+
         # Create layout
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self.keyframesListControlWidget)
@@ -60,6 +65,7 @@ class AnimationWidget(QWidget):
         self.layout().addWidget(self.frameWidget)
         self.layout().addWidget(self.saveButton)
         self.layout().addWidget(self.animationSlider)
+        self.layout().addWidget(self.camera_spline_widget)
 
         # establish key bindings and callbacks
         self._add_keybind_callbacks()

@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: 5.12.0
     hooks:
     - id: isort
       exclude: _vendor|vendored|examples 
