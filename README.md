@@ -14,6 +14,10 @@
 
 ----------------------------------
 
+[Merlin Lange](https://twitter.com/Merlin_Lange) used *napari-animation* to create one of [Nature's best science images for September 2022](https://www.nature.com/immersive/d41586-022-03051-6/index.html)
+
+----------------------------------
+
 This plugin is built on [naparimovie](https://github.com/guiwitz/naparimovie) from @guiwitz. naparimovie was submitted to napari in [PR#851](https://github.com/napari/napari/pull/780) before napari plugin infrastructure existed.
 
 ----------------------------------
