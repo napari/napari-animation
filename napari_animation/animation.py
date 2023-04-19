@@ -6,6 +6,7 @@ from time import sleep
 import imageio
 import numpy as np
 from napari.utils.io import imsave
+from napari._version import __version__
 from tqdm import tqdm
 
 from napari_animation.easing import Easing
@@ -155,6 +156,9 @@ class Animation:
         """
         self._validate_animation()
 
+        descr = f"napari version {__version__} https://napari.org/"
+        output_params = [f'-metadata title=napari']
+
         # create path object
         file_path = Path(filename)
         folder_path = file_path.absolute().parent.joinpath(file_path.stem)
@@ -183,10 +187,12 @@ class Animation:
                         fps=fps,
                         quality=quality,
                         format=format,
+                        output_params=output_params,
                     )
                 else:
                     writer = imageio.get_writer(
-                        filename, fps=fps, format=format
+                        filename, fps=fps, format=format,
+                        output_params=output_params,
                     )
             except ValueError as err:
                 print(err)
