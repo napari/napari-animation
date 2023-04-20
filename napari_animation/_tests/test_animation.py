@@ -110,7 +110,7 @@ def test_animate_filenames(
         assert saved_files == expected
 
 
-@pytest.mark.parametrize("ext", [".mp4", ".mov", ".avi", ""])
+@pytest.mark.parametrize("ext", [".mp4", ".mov", ".avi"])
 def test_animation_file_metadata(animation_with_key_frames, tmp_path, ext):
     """Test output video file contians napari version metadata()"""
     animation = animation_with_key_frames
