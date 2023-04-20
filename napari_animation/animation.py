@@ -156,8 +156,8 @@ class Animation:
         """
         self._validate_animation()
 
-        descr = f"napari version {__version__} https://napari.org/"
-        output_params = [f'-metadata title=napari']
+        description = f"napari version {__version__} https://napari.org/"
+        output_params = ['-metadata', f'title="{description}"']
 
         # create path object
         file_path = Path(filename)
