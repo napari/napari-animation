@@ -1,5 +1,3 @@
-import os
-import subprocess
 from unittest.mock import patch
 
 import numpy as np
@@ -119,13 +117,12 @@ def test_animation_file_metadata(animation_with_key_frames, tmp_path, ext):
     output_filename = tmp_path / f"test{ext}"
     animation.animate(output_filename)
     # Read metadata back in, and check for napari version information
-    output_metadata_filename = os.path.splitext(output_filename)[0] + ext.replace('.', '-') + ".txt"
-    subprocess.run(f"ffmpeg -i {output_filename} -f ffmetadata {output_metadata_filename}", shell=True, check=True)
-    with open(output_metadata_filename) as f:
-        content = f.read()
     # We expect to see a metadata line in the metadata like this:
     # title="napari version 0.4.17 https://napari.org/"
-    assert 'title="napari version' in content
+    with open(output_filename, 'rb') as f:
+        content = f.read()
+    assert b"napari version" in content
+    assert b"https://napari.org" in content
 
 
 @pytest.mark.parametrize("attribute", CAPTURED_LAYER_ATTRIBUTES)
