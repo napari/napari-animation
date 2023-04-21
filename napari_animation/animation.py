@@ -5,7 +5,7 @@ from time import sleep
 
 import imageio
 import numpy as np
-from napari._version import __version__
+from napari._version import __version__ as napari_version
 from napari.utils.io import imsave
 from tqdm import tqdm
 
@@ -156,7 +156,7 @@ class Animation:
         """
         self._validate_animation()
 
-        description = f"napari version {__version__} https://napari.org/"
+        description = f"napari version {napari_version} https://napari.org/"
         output_params = ["-metadata", f'title="{description}"']
 
         # create path object
