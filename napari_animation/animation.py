@@ -46,6 +46,8 @@ class Animation:
 
         self._frames = FrameSequence(self.key_frames)
 
+        self._filename = None
+
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
     ):
@@ -162,6 +164,7 @@ class Animation:
         # create path object
         file_path = Path(filename)
         folder_path = file_path.absolute().parent.joinpath(file_path.stem)
+        self._filename = file_path
 
         # if path has no extension, save as fold of PNG
         save_as_folder = False
@@ -251,3 +254,10 @@ class Animation:
         if active_keyframe:
             keyframe_index = self.key_frames.index(active_keyframe)
             self.set_key_frame_index(keyframe_index)
+
+    def _repr_html_(self):
+        if self._filename is None:
+            return 'Video animation not yet available (use the "animate" method to generate it).'
+        else:
+            html = f'<video width="100%" height="100%" controls> <source src="{self._filename}"> </video>'
+            return html
