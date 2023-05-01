@@ -110,6 +110,21 @@ def test_animate_filenames(
         assert saved_files == expected
 
 
+@pytest.mark.parametrize("ext", [".mp4", ".mov", ".avi"])
+def test_animation_file_metadata(animation_with_key_frames, tmp_path, ext):
+    """Test output video file contians napari version metadata()"""
+    animation = animation_with_key_frames
+    output_filename = tmp_path / f"test{ext}"
+    animation.animate(output_filename)
+    # Read metadata back in, and check for napari version information
+    # We expect to see a metadata line in the metadata like this:
+    # title="napari version 0.4.17 https://napari.org/"
+    with open(output_filename, "rb") as f:
+        content = f.read()
+    assert b"napari version" in content
+    assert b"https://napari.org" in content
+
+
 @pytest.mark.parametrize("attribute", CAPTURED_LAYER_ATTRIBUTES)
 def test_layer_attribute_capture(layer_state, attribute):
     """Test that 'attribute' is captured in the layer state dictionary"""
