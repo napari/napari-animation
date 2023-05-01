@@ -248,5 +248,8 @@ class Animation:
             self.set_key_frame_index(keyframe_index)
 
     def _repr_html_(self):
-        html = f'<video width="100%" height="100%" controls> <source src="{self._filename}"> </video>'
-        return html
+        if self._filename is None:
+            return None
+        else:
+            html = f'<video width="100%" height="100%" controls> <source src="{self._filename}"> </video>'
+            return html
