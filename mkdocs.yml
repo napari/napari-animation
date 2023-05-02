@@ -11,6 +11,8 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+use_directory_urls: true
+
 nav:
   - Home: index.md
   - Example gallery: generated/gallery
@@ -19,7 +21,7 @@ plugins:
   - gallery:
       examples_dirs: docs/examples          # path to your example scripts
       gallery_dirs: docs/generated/gallery  # where to save generated gallery
-      plot_gallery: False
+      plot_gallery: True
       min_reported_time: 10
       conf_script: docs/gallery_conf.py
       filename_pattern: '.py'
