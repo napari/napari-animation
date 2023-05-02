@@ -1,13 +1,15 @@
 """
+# Animate 2D
+
 Display a labels layer above of an image layer using the add_labels and
 add_image APIs
-"""
 
+"""
 from skimage import data
 from scipy import ndimage as ndi
 from napari_animation import Animation
 import napari
-
+# sphinx_gallery_thumbnail_path = 'docs/assets/animate2D.png'
 
 blobs = data.binary_blobs(length=128, volume_fraction=0.1, n_dim=3)
 viewer = napari.view_image(blobs.astype(float), name='blobs')
@@ -17,16 +19,17 @@ viewer.add_labels(labeled, name='blob ID')
 animation = Animation(viewer)
 viewer.update_console({'animation': animation})
 
-viewer.dims.ndisplay = 3
-viewer.camera.angles = (0.0, 0.0, 90.0)
 animation.capture_keyframe()
-viewer.camera.zoom = 2.4
+viewer.camera.zoom = 0.2
 animation.capture_keyframe()
-viewer.camera.angles = (-7.0, 15.7, 62.4)
+viewer.camera.zoom = 10.0
+viewer.camera.center = (0, 40.0, 10.0)
+animation.capture_keyframe()
+viewer.dims.current_step = (60, 0, 0)
 animation.capture_keyframe(steps=60)
-viewer.camera.angles = (2.0, -24.4, -36.7)
+viewer.dims.current_step = (0, 0, 0)
 animation.capture_keyframe(steps=60)
 viewer.reset_view()
-viewer.camera.angles = (0.0, 0.0, 90.0)
 animation.capture_keyframe()
-animation.animate('demo3D.mov', canvas_only=False)
+
+#animation.animate('demo2D.mov', canvas_only=False)

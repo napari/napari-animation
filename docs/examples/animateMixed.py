@@ -1,4 +1,6 @@
 """
+# Animate mixed
+
 Display a labels layer above of an image layer using the add_labels and
 add_image APIs
 """
@@ -29,5 +31,17 @@ viewer.dims.current_step = (0, 0, 0)
 animation.capture_keyframe(steps=60)
 viewer.reset_view()
 animation.capture_keyframe()
-animation.animate('demo2D.mov', canvas_only=False)
 
+viewer.dims.ndisplay = 3
+viewer.camera.angles = (0.0, 0.0, 90.0)
+animation.capture_keyframe()
+viewer.camera.zoom = 2.4
+animation.capture_keyframe()
+viewer.camera.angles = (-7.0, 15.7, 62.4)
+animation.capture_keyframe(steps=60)
+viewer.camera.angles = (2.0, -24.4, -36.7)
+animation.capture_keyframe(steps=60)
+viewer.reset_view()
+viewer.camera.angles = (0.0, 0.0, 90.0)
+animation.capture_keyframe()
+#animation.animate('demoMixed.mov', canvas_only=False)

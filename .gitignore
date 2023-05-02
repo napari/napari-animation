@@ -63,6 +63,9 @@ docs/_build/
 # MkDocs documentation
 /site/
 
+# Gallery examples
+docs/generated/
+
 # PyBuilder
 target/
 

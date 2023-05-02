@@ -1,0 +1,33 @@
+site_name: napari-animation
+repo_url: https://github.com/napari/napari-animation
+repo_name: napari/napari-animation
+
+theme:
+  name: material
+  logo: assets/images/logo.png
+  palette:
+    primary: custom
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Example gallery: generated/gallery
+
+plugins:
+  - gallery:
+      examples_dirs: docs/examples          # path to your example scripts
+      gallery_dirs: docs/generated/gallery  # where to save generated gallery
+      plot_gallery: False
+      min_reported_time: 10
+      conf_script: docs/gallery_conf.py
+      filename_pattern: '.py'
+      binder:
+        org: napari
+        repo: napari-animation
+        branch: gh-pages  # Use a branch that hosts your docs.
+        dependencies: docs/binder/requirements.txt  # binder configuration files
+        notebooks_dir: notebooks  # Notebooks for Binder will be copied to this dir (relative to built doc root).
+        use_jupyter_lab: True     # Binder links will start Jupyter Lab instead of the Jupyter Notebook interface.
+  - search
