@@ -1,5 +1,5 @@
 from numbers import Number
-from typing import Sequence, Tuple, TypeVar
+from typing import Sequence, Tuple, TypeVar, NamedTuple
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -58,9 +58,13 @@ def interpolate_sequence(
     Interpolated sequence between a and b at fraction.
     """
     seq_cls = type(a)
-    return seq_cls(
-        default_interpolation(v0, v1, fraction) for v0, v1 in zip(a, b)
-    )
+    gen = (default_interpolation(v0, v1, fraction) for v0, v1 in zip(a, b))
+    try:
+        seq = seq_cls(gen)
+    except TypeError:
+        # some interables, like NamedTuple, want the arguments separately
+        seq = seq_cls(*gen)
+    return seq
 
 
 def interpolate_num(a: Number, b: Number, fraction: float) -> Number:
