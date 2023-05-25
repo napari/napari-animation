@@ -1,8 +1,8 @@
 from dataclasses import asdict
+from typing import NamedTuple
 
 import numpy as np
 import pytest
-from typing import NamedTuple
 
 from napari_animation.interpolation import interpolate_viewer_state
 from napari_animation.interpolation.base_interpolation import (
