@@ -1,5 +1,5 @@
 from numbers import Number
-from typing import Sequence, Tuple, TypeVar, NamedTuple
+from typing import Sequence, Tuple, TypeVar
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
