@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from typing import NamedTuple
 
 import numpy as np
 import pytest
@@ -72,3 +73,21 @@ def test_interpolate_viewer_state(frame_sequence, fraction):
 
     # else:
     # should find something else to test
+
+
+class NTuple(NamedTuple):
+    a: float
+    b: int
+
+
+@pytest.mark.parametrize(
+    "fraction,expected",
+    [(0.0, (0.0, 0)), (0.5, (0.5, 0)), (1.0, (1.0, 1))],
+)
+def test_interpolate_namedtuple(fraction, expected):
+    initial_state = NTuple(a=0.0, b=0)
+    final_state = NTuple(a=1.0, b=1)
+    expected = NTuple(*expected)
+    result = interpolate_sequence(initial_state, final_state, fraction)
+    assert isinstance(result, NTuple)
+    assert result == expected
