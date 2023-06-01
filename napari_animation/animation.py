@@ -197,7 +197,6 @@ class Animation:
                         filename,
                         fps=fps,
                         format=format,
-                        output_params=output_params,
                     )
             except ValueError as err:
                 print(err)
