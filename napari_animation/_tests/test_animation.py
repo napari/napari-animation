@@ -93,14 +93,14 @@ def test_thumbnail_generation(empty_animation):
     "napari_animation.frame_sequence.FrameSequence.iter_frames",
     return_value=["frame"] * 30,
 )
-@pytest.mark.parametrize("ext", [".mp4", ".mov", ""])
+@pytest.mark.parametrize("ext", [".mp4", ".mov", ".gif", ""])
 def test_animate_filenames(
     frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
 ):
     """Test that Animation.animate() produces files with correct filenames"""
     output_filename = tmp_path / f"test{ext}"
     animation_with_key_frames.animate(output_filename)
-    if ext in (".mp4", ".mov"):
+    if ext in (".mp4", ".mov", ".gif"):
         expected_filename = output_filename
         saved_filename = get_writer.call_args[0][0]
         assert saved_filename == expected_filename
