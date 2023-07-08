@@ -69,7 +69,7 @@ def test_set_viewer_state(animation_with_key_frames, viewer_state):
     animation_camera_state = animation.viewer.camera.dict()
 
     assert animation_dims_state == current_state.dims
-    for key in ("center", "angles", "interactive"):
+    for key in ("center", "angles", "mouse_pan", "mouse_zoom"):
         assert animation_camera_state[key] == current_state.camera[key]
 
 
