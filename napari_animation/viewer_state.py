@@ -54,8 +54,14 @@ class ViewerState:
             layer_attributes = layer.as_layer_data_tuple()[1]
             for attribute_name, value in layer_state.items():
                 original_value = layer_attributes[attribute_name]
-                # Only set if value differs to avoid expensive redraws
-                if not np.array_equal(original_value, value):
+                # Only setattr if value differs to avoid expensive redraws
+                # dicts can hold arrays, e.g. `color`, requiring comparisons of key/value pairs
+                if type(value) is dict:
+                    for key, val in value.items():
+                        if not np.array_equal(val, original_value.get(key)):
+                            setattr(layer, attribute_name, value)
+                            break
+                elif not np.array_equal(original_value, value):
                     setattr(layer, attribute_name, value)
 
     def render(
