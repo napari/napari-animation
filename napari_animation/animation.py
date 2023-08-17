@@ -128,7 +128,7 @@ class Animation:
     def animate(
         self,
         filename,
-        fps=20,
+        duration=50,
         quality=5,
         format=None,
         canvas_only=True,
@@ -141,8 +141,8 @@ class Animation:
             path to use for saving the movie (can also be a path). Extension
             should be one of .gif, .mp4, .mov, .avi, .mpg, .mpeg, .mkv, .wmv
             If no extension is provided, images are saved as a folder of PNGs
-        fps : int
-            frames per second
+        duration : int
+            duration of the animation (same as 1000 / fps)
         quality: float
             number from 1 (lowest quality) to 9
             only applies to non-gif extensions
@@ -187,7 +187,7 @@ class Animation:
                 ]:
                     writer = imageio.get_writer(
                         filename,
-                        fps=fps,
+                        duration=duration,
                         quality=quality,
                         format=format,
                         output_params=output_params,
@@ -195,7 +195,7 @@ class Animation:
                 else:
                     writer = imageio.get_writer(
                         filename,
-                        fps=fps,
+                        duration=duration,
                         format=format,
                     )
             except ValueError as err:
