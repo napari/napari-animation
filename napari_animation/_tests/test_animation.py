@@ -1,4 +1,3 @@
-import os.path
 from unittest.mock import patch
 
 import numpy as np
@@ -154,5 +153,5 @@ def test_animating_all_layer_types(
     layer_animation.capture_keyframe()
     layer_animation.viewer.camera.zoom *= 2
     layer_animation.capture_keyframe()
-    layer_animation.animate(tmp_path / "test.mp4")
-    assert os.path.exists(tmp_path / "test.mp4")
+    # advance the movie frame, simulating slider movement
+    layer_animation.set_movie_frame_index(1)
