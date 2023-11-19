@@ -1,15 +1,12 @@
+import os.path
 from unittest.mock import patch
 
-import os.path
 import numpy as np
 import pytest
-import os.path
-
 from napari._tests.utils import add_layer_by_type, layer_test_data
-    
+
 from napari_animation import Animation, ViewerState
 from napari_animation.utils import make_thumbnail
-from napari._tests.utils import add_layer_by_type, layer_test_data
 
 CAPTURED_LAYER_ATTRIBUTES = [
     "name",
@@ -145,8 +142,11 @@ def test_end_state_reached(image_animation):
     last_state = image_animation._frames[-1]
     assert last_state == image_animation.key_frames[-1].viewer_state
 
-@pytest.mark.parametrize('layer_class, data, ndim', layer_test_data)
-def test_animating_all_layer_types(make_napari_viewer, layer_class, data, ndim, tmp_path):
+
+@pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
+def test_animating_all_layer_types(
+    make_napari_viewer, layer_class, data, ndim, tmp_path
+):
     """Test that all napari layer types can be animated"""
     viewer = make_napari_viewer()
     add_layer_by_type(viewer, layer_class, data, visible=True)
@@ -154,5 +154,5 @@ def test_animating_all_layer_types(make_napari_viewer, layer_class, data, ndim, 
     layer_animation.capture_keyframe()
     layer_animation.viewer.camera.zoom *= 2
     layer_animation.capture_keyframe()
-    layer_animation.animate(tmp_path / 'test.mp4')
-    assert os.path.exists(tmp_path / 'test.mp4')
+    layer_animation.animate(tmp_path / "test.mp4")
+    assert os.path.exists(tmp_path / "test.mp4")
