@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import os.path
 import numpy as np
 import pytest
 import os.path
@@ -8,6 +9,7 @@ from napari._tests.utils import add_layer_by_type, layer_test_data
     
 from napari_animation import Animation, ViewerState
 from napari_animation.utils import make_thumbnail
+from napari._tests.utils import add_layer_by_type, layer_test_data
 
 CAPTURED_LAYER_ATTRIBUTES = [
     "name",
