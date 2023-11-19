@@ -4,6 +4,8 @@ import napari
 import numpy as np
 
 from napari_animation.utils import check_layer_attribute_changed
+
+
 @dataclass(frozen=True)
 class ViewerState:
     """The state of the viewer camera, dims, and layers.
@@ -36,7 +38,7 @@ class ViewerState:
             layer_attributes.pop("property_choices", None)
             layer_attributes.pop("ndim", None)
             layer_attributes.pop("colormaps_dict", None)
-            
+
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
@@ -62,8 +64,6 @@ class ViewerState:
                 # dicts can hold arrays, e.g. `color`, requiring comparisons of key/value pairs
                 if not check_layer_attribute_changed(value, original_value):
                     setattr(layer, attribute_name, value)
-
-        
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True
