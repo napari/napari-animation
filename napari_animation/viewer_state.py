@@ -32,6 +32,10 @@ class ViewerState:
         }
         for layer_attributes in layers.values():
             layer_attributes.pop("metadata")
+            # the following can't be set as attributes
+            layer_attributes.pop("property_choices", None)
+            layer_attributes.pop("ndim", None)
+            layer_attributes.pop("colormaps_dict", None)
             
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
