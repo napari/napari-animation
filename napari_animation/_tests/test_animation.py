@@ -16,6 +16,7 @@ CAPTURED_LAYER_ATTRIBUTES = [
     "opacity",
     "blending",
     "visible",
+    "color",
 ]
 
 
