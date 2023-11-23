@@ -162,6 +162,9 @@ def test_attributes_for_all_layer_types(
     layer_state.pop("property_choices", None)
     layer_state.pop("colormaps_dict", None)
     layer_state.pop("data")
+    # these have `allow_mutation=False` so can't be set
+    layer_state["normals"]["face"].pop("mode", None)
+    layer_state["normals"]["vertex"].pop("mode", None)
 
     layer_animation.capture_keyframe()
     # get the layer attributes captured to viewer_state
