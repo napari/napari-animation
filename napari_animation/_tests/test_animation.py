@@ -2,12 +2,16 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
-from napari._tests.utils import add_layer_by_type, layer_test_data
+from napari._tests.utils import (
+    add_layer_by_type,
+    assert_layer_state_equal,
+    layer_test_data,
+)
 
 from napari_animation import Animation, ViewerState
 from napari_animation.utils import make_thumbnail
 
-CAPTURED_LAYER_ATTRIBUTES = [
+CAPTURED_IMAGE_LAYER_ATTRIBUTES = [
     "name",
     "scale",
     "translate",
@@ -16,7 +20,6 @@ CAPTURED_LAYER_ATTRIBUTES = [
     "opacity",
     "blending",
     "visible",
-    "color",
 ]
 
 
@@ -127,7 +130,7 @@ def test_animation_file_metadata(animation_with_key_frames, tmp_path, ext):
     assert b"https://napari.org" in content
 
 
-@pytest.mark.parametrize("attribute", CAPTURED_LAYER_ATTRIBUTES)
+@pytest.mark.parametrize("attribute", CAPTURED_IMAGE_LAYER_ATTRIBUTES)
 def test_layer_attribute_capture(layer_state, attribute):
     """Test that 'attribute' is captured in the layer state dictionary"""
     for layer_state_dict in layer_state.values():
@@ -144,9 +147,31 @@ def test_end_state_reached(image_animation):
 
 
 @pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
-def test_animating_all_layer_types(
-    make_napari_viewer, layer_class, data, ndim, tmp_path
-):
+def test_attributes_for_all_layer_types(make_napari_viewer, layer_class, data):
+    """Test that attributes are in the viewer_state for all napari layer types"""
+    viewer = make_napari_viewer()
+    add_layer_by_type(viewer, layer_class, data, visible=True)
+    layer_animation = Animation(viewer)
+    # get the state of the layer
+    layer_state = viewer.layers[0]._get_state()
+    # remove attributes that arn't captured
+    layer_state.pop("metadata")
+    layer_state.pop("ndim", None)
+    layer_state.pop("property_choices", None)
+    layer_state.pop("colormaps_dict", None)
+    layer_state.pop("data")
+
+    layer_animation.capture_keyframe()
+    # get the layer attributes captured to viewer_state
+    animation_state = layer_animation.key_frames[0].viewer_state.layers[
+        viewer.layers[0].name
+    ]
+
+    assert_layer_state_equal(animation_state, layer_state)
+
+
+@pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
+def test_animating_all_layer_types(make_napari_viewer, layer_class, data):
     """Test that all napari layer types can be animated"""
     viewer = make_napari_viewer()
     add_layer_by_type(viewer, layer_class, data, visible=True)
