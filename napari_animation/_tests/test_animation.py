@@ -147,7 +147,9 @@ def test_end_state_reached(image_animation):
 
 
 @pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
-def test_attributes_for_all_layer_types(make_napari_viewer, layer_class, data):
+def test_attributes_for_all_layer_types(
+    make_napari_viewer, layer_class, data, ndim
+):
     """Test that attributes are in the viewer_state for all napari layer types"""
     viewer = make_napari_viewer()
     add_layer_by_type(viewer, layer_class, data, visible=True)
@@ -171,7 +173,9 @@ def test_attributes_for_all_layer_types(make_napari_viewer, layer_class, data):
 
 
 @pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
-def test_animating_all_layer_types(make_napari_viewer, layer_class, data):
+def test_animating_all_layer_types(
+    make_napari_viewer, layer_class, data, ndim
+):
     """Test that all napari layer types can be animated"""
     viewer = make_napari_viewer()
     add_layer_by_type(viewer, layer_class, data, visible=True)
