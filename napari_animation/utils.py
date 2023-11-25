@@ -35,13 +35,11 @@ def pairwise(iterable):
 
 def check_layer_attribute_changed(value, original_value):
     """Recursively check if a layer attribute has changed."""
-    changed = False
     if isinstance(value, dict):
+        if not isinstance(original_value, dict) or value.keys() != original_value.keys():
+            return True
         for key in value.keys():
             if check_layer_attribute_changed(value[key], original_value[key]):
-                changed = True
-                break
-    else:
-        changed = not np.array_equal(value, original_value)
+                return True
 
-    return changed
+    return not np.array_equal(value, original_value)
