@@ -90,6 +90,7 @@ use of the plugin follow.
 Contributions are very welcome and a detailed contributing guide is coming soon.
 In the meantime, clone this repository and install it in editable mode:
 `pip install -e .[dev]`
+[!NOTE]
 Ensure you have a suitable Qt backend for napari!
 
 Tests are run with `pytest`.
