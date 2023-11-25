@@ -34,10 +34,6 @@ class ViewerState:
         }
         for layer_attributes in layers.values():
             layer_attributes.pop("metadata")
-            # the following can't be set as attributes
-            layer_attributes.pop("property_choices", None)
-            layer_attributes.pop("ndim", None)
-            layer_attributes.pop("colormaps_dict", None)
 
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
@@ -63,7 +59,10 @@ class ViewerState:
                 # Only setattr if value differs to avoid expensive redraws
                 # dicts can hold arrays, e.g. `color`, requiring comparisons of key/value pairs
                 if not layer_attribute_changed(value, original_value):
-                    setattr(layer, attribute_name, value)
+                    try:
+                        setattr(layer, attribute_name, value)
+                    except AttributeError:
+                        pass
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True
