@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import napari
 import numpy as np
 
-from napari_animation.utils import check_layer_attribute_changed
+from napari_animation.utils import layer_attribute_changed
 
 
 @dataclass(frozen=True)
@@ -62,7 +62,7 @@ class ViewerState:
                 original_value = layer_attributes[attribute_name]
                 # Only setattr if value differs to avoid expensive redraws
                 # dicts can hold arrays, e.g. `color`, requiring comparisons of key/value pairs
-                if not check_layer_attribute_changed(value, original_value):
+                if not layer_attribute_changed(value, original_value):
                     setattr(layer, attribute_name, value)
 
     def render(
