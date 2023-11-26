@@ -1,4 +1,4 @@
-from numbers import Number, Real, Integral
+from numbers import Integral, Number, Real
 from typing import Sequence, Tuple, TypeVar
 
 import numpy as np
