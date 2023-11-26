@@ -1,4 +1,4 @@
-from numbers import Number
+from numbers import Number, Real, Integral
 from typing import Sequence, Tuple, TypeVar
 
 import numpy as np
@@ -85,6 +85,8 @@ def interpolate_num(a: Number, b: Number, fraction: float) -> Number:
     Interpolated value between a and b at fraction.
     """
     number_cls = type(a)
+    if isinstance(b, Real):
+        number_cls = type(b)
     return number_cls(a + (b - a) * fraction)
 
 
