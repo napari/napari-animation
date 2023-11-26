@@ -21,7 +21,7 @@ except ImportError:
     except ImportError:
 
         def version(_=None):
-            return "unknown"
+            return "<0.4.15"
 
 
 napari_version = version("napari")
