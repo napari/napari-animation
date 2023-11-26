@@ -56,9 +56,9 @@ class ViewerState:
             layer_attributes = layer.as_layer_data_tuple()[1]
             for attribute_name, value in layer_state.items():
                 original_value = layer_attributes[attribute_name]
-                # Only setattr if value differs to avoid expensive redraws
+                # Only setattr if value has changed to avoid expensive redraws
                 # dicts can hold arrays, e.g. `color`, requiring comparisons of key/value pairs
-                if not layer_attribute_changed(value, original_value):
+                if layer_attribute_changed(value, original_value):
                     try:
                         setattr(layer, attribute_name, value)
                     except AttributeError:
