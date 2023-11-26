@@ -7,7 +7,6 @@ from napari._tests.utils import (
     assert_layer_state_equal,
     layer_test_data,
 )
-from napari.layers import Surface
 
 from napari_animation import Animation, ViewerState
 from napari_animation.utils import make_thumbnail
@@ -160,10 +159,6 @@ def test_attributes_for_all_layer_types(
     # remove attributes that arn't captured
     layer_state.pop("metadata")
     layer_state.pop("data", None)
-
-    if layer_class == Surface:
-        layer_state["normals"]["face"].pop("mode", None)
-        layer_state["normals"]["vertex"].pop("mode", None)
 
     layer_animation.capture_keyframe()
     # get the layer attributes captured to viewer_state
