@@ -85,7 +85,7 @@ def interpolate_num(a: Number, b: Number, fraction: float) -> Number:
     Interpolated value between a and b at fraction.
     """
     number_cls = type(a)
-    if isinstance(b, Real):
+    if isinstance(b, Real) and isinstance(a, Integral):
         number_cls = type(b)
     return number_cls(a + (b - a) * fraction)
 
