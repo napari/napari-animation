@@ -88,23 +88,33 @@ use of the plugin follow.
 ## Contributing
 
 Contributions are very welcome and a detailed contributing guide is coming soon.
-In the meantime, clone this repository and install it in editable mode:
-`pip install -e .[dev]`
-> [!NOTE]
-> Ensure you have a suitable Qt backend for napari!
-
-Tests are run with `pytest`.
-
-We use [`pre-commit`](https://pre-commit.com) to sort imports with
-[`isort`](https://github.com/timothycrosley/isort), format code with
-[`black`](https://github.com/psf/black), and lint with
-[`flake8`](https://github.com/PyCQA/flake8) automatically prior to each commit.
-To minmize test errors when submitting pull requests, please install `pre-commit`
-in your environment as follows:
+In the meantime, clone this repository and install it in editable mode using `pip`. 
+We recommend using a virtual environment, for example `conda`.
+> [!IMPORTANT]
+> Ensure you have a suitable Qt backend for napari! We recommend `PyQt5`.
+> For more information, see the napari [Qt backend installation guide](https://napari.org/stable/tutorials/fundamentals/installation.html#choosing-a-different-qt-backend)
 
 ```sh
-pre-commit install
+conda create -n nap-anim python=3.10
+conda activate nap-anim
+pip install -e ".[dev]" PyQt5
+
 ```
+
+Tests are run with `pytest`.
+You can make sure your `[dev]` installation is working properly by running
+`pytest .` from within the repository.
+
+> [!NOTE]
+> We use [`pre-commit`](https://pre-commit.com) to sort imports with
+> [`isort`](https://github.com/timothycrosley/isort), format code with
+> [`black`](https://github.com/psf/black), and lint with
+> [`flake8`](https://github.com/PyCQA/flake8) automatically prior to each commit.
+> To minmize test errors when submitting pull requests, please install `pre-commit`
+> in your environment as follows:
+> ```sh
+> pre-commit install
+> ```
 
 ## License
 
