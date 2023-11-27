@@ -188,7 +188,7 @@ class Animation:
                 ]:
                     writer = imageio.get_writer(
                         filename,
-                        duration=duration,
+                        fps=fps,
                         quality=quality,
                         format=format,
                         output_params=output_params,
