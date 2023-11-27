@@ -58,8 +58,9 @@ To activate the GUI, select **napari-animation: wizard** from the *plugins menu*
   <img width="200" src="https://user-images.githubusercontent.com/7307488/196114466-56cb5985-0d79-4cfa-96f1-38cf3ccfbc48.png">
 </p>
 
-### Headless
-**napari-animation** can also be run headless, allowing for reproducible, scripted creation of animations.
+### Scripting
+
+**napari-animation** can also be run programmatically, allowing for reproducible, scripted creation of animations.
 
 ```python
 from napari_animation import Animation
@@ -82,7 +83,7 @@ animation.animate('demo.mov', canvas_only=False)
 ```
 
 ## Examples
-Examples can be found in our [examples](examples) folder. Simple examples for both interactive and headless 
+Examples can be found in our [examples](docs/examples/) folder. Simple examples for both interactive and headless 
 use of the plugin follow.
 
 ## Contributing

@@ -10,7 +10,7 @@ napari-animation is hosted on GitHub at [github.com/napari/napari-animation](htt
 
 ## Overview
 
-**napari-animation** provides a framework for the creation of animations in napari, the plugin contains:
+**napari-animation** provides a framework for the creation of animations in napari. The plugin contains:
 
 - an easy to use GUI for creating animations interactively;
 - a Python package for the programmatic creation of animations.
@@ -46,8 +46,9 @@ To activate the GUI, select **napari-animation: wizard** from the *plugins menu*
   <img width="200" src="https://user-images.githubusercontent.com/7307488/196114466-56cb5985-0d79-4cfa-96f1-38cf3ccfbc48.png">
 </p>
 
-### Headless
-**napari-animation** can also be run headless, allowing for reproducible, scripted creation of animations.
+### Scripting
+
+**napari-animation** can also be run programmatically, allowing for reproducible, scripted creation of animations.
 
 ```python
 from napari_animation import Animation
@@ -71,20 +72,42 @@ animation.animate('demo.mov', canvas_only=False)
 
 ## Contributing
 
-Contributions are very welcome and a detailed contributing guide is coming soon. 
+Contributions are very welcome and a detailed contributing guide is coming soon.
 
-Tests are run with `pytest`.
+We recommend using a virtual environment, for example `conda`.
 
-We use [`pre-commit`](https://pre-commit.com) to sort imports with
-[`isort`](https://github.com/timothycrosley/isort), format code with
-[`black`](https://github.com/psf/black), and lint with
-[`flake8`](https://github.com/PyCQA/flake8) automatically prior to each commit.
-To minmize test errors when submitting pull requests, please install `pre-commit`
-in your environment as follows:
+!!! important
+
+    Ensure you have a suitable Qt backend for napari! We recommend `PyQt5`.
+    For more information, see the napari [Qt backend installation guide](https://napari.org/stable/tutorials/fundamentals/installation.html#choosing-a-different-qt-backend)
+
+
+To set up your development installation, clone this repository, navigate to the clone folder, and install napari-animation in editable mode using `pip`.
 
 ```sh
-pre-commit install
+conda create -n nap-anim python=3.10
+conda activate nap-anim
+pip install -e ".[dev]" PyQt5
+
 ```
+
+Tests are run with `pytest`:
+
+```sh
+pytest .
+```
+
+!!! note
+
+    We use [`pre-commit`](https://pre-commit.com) to sort imports with
+    [`isort`](https://github.com/timothycrosley/isort), format code with
+    [`black`](https://github.com/psf/black), and lint with
+    [`flake8`](https://github.com/PyCQA/flake8) automatically prior to each commit.
+    To minmize test errors when submitting pull requests, please install `pre-commit` in your environment as follows:
+
+    ```sh
+    pre-commit install
+    ```
 
 ## Documentation
 
