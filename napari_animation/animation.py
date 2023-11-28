@@ -174,6 +174,7 @@ class Animation:
         # try to create an ffmpeg writer. If not installed default to folder creation
         if save_as_folder is False:
             try:
+                duration = 1000 / fps
                 # create imageio writer. Handle separately imageio-ffmpeg extensions and
                 # gif extension which doesn't accept the quality parameter.
                 if file_path.suffix in [
@@ -195,7 +196,7 @@ class Animation:
                 else:
                     writer = imageio.get_writer(
                         filename,
-                        fps=fps,
+                        duration=duration,
                         format=format,
                     )
             except ValueError as err:
