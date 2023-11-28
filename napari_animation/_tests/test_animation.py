@@ -22,6 +22,11 @@ CAPTURED_IMAGE_LAYER_ATTRIBUTES = [
     "visible",
 ]
 
+NOT_CAPTURED_LAYER_ATTRIBUTES = [
+    "metadata",
+    "data",
+]
+
 
 def test_animation(make_napari_viewer):
     """Test creation of an animation class."""
@@ -157,8 +162,8 @@ def test_attributes_for_all_layer_types(
     # get the state of the layer
     layer_state = viewer.layers[0]._get_state()
     # remove attributes that arn't captured
-    layer_state.pop("metadata")
-    layer_state.pop("data", None)
+    for key in NOT_CAPTURED_LAYER_ATTRIBUTES:
+        layer_state.pop(key)
 
     layer_animation.capture_keyframe()
     # get the layer attributes captured to viewer_state
