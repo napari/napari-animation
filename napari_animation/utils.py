@@ -41,8 +41,8 @@ def layer_attribute_changed(value, original_value):
             or value.keys() != original_value.keys()
         ):
             return True
-        for key in value.keys():
-            if layer_attribute_changed(value[key], original_value[key]):
-                return True
-    else:
-        return not np.array_equal(value, original_value)
+        return any(
+            layer_attribute_changed(value[key], original_value[key])
+            for key in value.keys()
+        )
+    return not np.array_equal(value, original_value)
