@@ -161,7 +161,7 @@ def test_attributes_for_all_layer_types(
     layer_animation = Animation(viewer)
     # get the state of the layer
     layer_state = viewer.layers[0]._get_state()
-    # remove attributes that arn't captured
+    # remove attributes that are not captured
     for key in NOT_CAPTURED_LAYER_ATTRIBUTES:
         layer_state.pop(key)
 
