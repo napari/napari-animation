@@ -5,7 +5,6 @@ from time import sleep
 
 import imageio
 import numpy as np
-from napari._version import version as napari_version
 from napari.utils.io import imsave
 from tqdm import tqdm
 
@@ -13,6 +12,19 @@ from napari_animation.easing import Easing
 
 from .frame_sequence import FrameSequence
 from .key_frame import KeyFrame, KeyFrameList
+
+try:
+    from importlib.metadata import version
+except ImportError:
+    try:
+        from importlib_metadata import version
+    except ImportError:
+
+        def version(_=None):
+            return "<0.4.15"
+
+
+napari_version = version("napari")
 
 
 class Animation:
