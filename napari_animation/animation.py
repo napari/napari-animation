@@ -5,7 +5,7 @@ from time import sleep
 
 import imageio
 import numpy as np
-from napari._version import __version__ as napari_version
+from napari._version import version as napari_version
 from napari.utils.io import imsave
 from tqdm import tqdm
 
@@ -154,7 +154,7 @@ class Animation:
             viewer.
         scale_factor : float
             Rescaling factor for the image size. Only used without
-            viewer (with_viewer = False).
+            viewer (canvas_only = True).
         """
         self._validate_animation()
 
