@@ -5,7 +5,6 @@ from time import sleep
 
 import imageio
 import numpy as np
-from napari._version import __version__ as napari_version
 from napari.utils.io import imsave
 from tqdm import tqdm
 
@@ -13,6 +12,19 @@ from napari_animation.easing import Easing
 
 from .frame_sequence import FrameSequence
 from .key_frame import KeyFrame, KeyFrameList
+
+try:
+    from importlib.metadata import version
+except ImportError:
+    try:
+        from importlib_metadata import version
+    except ImportError:
+
+        def version(_=None):
+            return "<0.4.15"
+
+
+napari_version = version("napari")
 
 
 class Animation:
@@ -154,7 +166,7 @@ class Animation:
             viewer.
         scale_factor : float
             Rescaling factor for the image size. Only used without
-            viewer (with_viewer = False).
+            viewer (canvas_only = True).
         """
         self._validate_animation()
 
@@ -174,6 +186,7 @@ class Animation:
         # try to create an ffmpeg writer. If not installed default to folder creation
         if save_as_folder is False:
             try:
+                duration = 1000 / fps
                 # create imageio writer. Handle separately imageio-ffmpeg extensions and
                 # gif extension which doesn't accept the quality parameter.
                 if file_path.suffix in [
@@ -195,7 +208,7 @@ class Animation:
                 else:
                     writer = imageio.get_writer(
                         filename,
-                        fps=fps,
+                        duration=duration,
                         format=format,
                     )
             except ValueError as err:
