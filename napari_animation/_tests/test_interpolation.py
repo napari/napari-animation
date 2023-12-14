@@ -1,3 +1,4 @@
+import numbers
 from dataclasses import asdict
 from typing import NamedTuple
 
@@ -14,15 +15,27 @@ from napari_animation.interpolation.base_interpolation import (
 from napari_animation.interpolation.utils import nested_assert_close
 
 
+def _expected_type(a, b):
+    if isinstance(a, numbers.Integral) and isinstance(b, numbers.Real):
+        return type(b)
+    return type(a)
+
+
 # Actual tests
-@pytest.mark.parametrize("a", [0.0, 0])
-@pytest.mark.parametrize("b", [100.0, 100])
+@pytest.mark.parametrize("a", [0.0, 0, np.float32(0)])
+@pytest.mark.parametrize("b", [100.0, 100, np.float32(100)])
 @pytest.mark.parametrize("fraction", [0, 0.0, 0.5, 1.0, 1])
 def test_interpolate_num(a, b, fraction):
     """Check that interpolation of numbers produces valid output"""
     result = interpolate_num(a, b, fraction)
-    assert isinstance(result, type(a))
+    assert isinstance(result, _expected_type(a, b))
     assert result == fraction * b
+
+
+@pytest.mark.parametrize("b", [1.0, np.float32(1)])
+def test_interpolate_proper_type(b):
+    result = interpolate_num(0, b, 0.5)
+    assert np.isclose(result, 0.5)
 
 
 @pytest.mark.parametrize("a,b", [([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])])
