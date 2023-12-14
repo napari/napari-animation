@@ -31,3 +31,18 @@ def pairwise(iterable):
     a, b = itertools.tee(iterable)
     next(b, None)
     return zip(a, b)
+
+
+def layer_attribute_changed(value, original_value):
+    """Recursively check if a layer attribute has changed."""
+    if isinstance(value, dict):
+        if (
+            not isinstance(original_value, dict)
+            or value.keys() != original_value.keys()
+        ):
+            return True
+        return any(
+            layer_attribute_changed(value[key], original_value[key])
+            for key in value.keys()
+        )
+    return not np.array_equal(value, original_value)

@@ -65,9 +65,10 @@ class SaveDialogWidget(QFileDialog):
                 "canvas_only": self.optionsWidget.canvasCheckBox.isChecked(),
                 "scale_factor": self.optionsWidget.scaleSpinBox.value(),
             }
-            return animation_kwargs
         else:
-            return ""
+            animation_kwargs = {}
+
+        return animation_kwargs
 
     def get_file_path(self) -> Path:
         provided_file_name = Path(list(self.selectedFiles())[0])
