@@ -13,6 +13,19 @@ from napari_animation.easing import Easing
 from .frame_sequence import FrameSequence
 from .key_frame import KeyFrame, KeyFrameList
 
+try:
+    from importlib.metadata import version
+except ImportError:
+    try:
+        from importlib_metadata import version
+    except ImportError:
+
+        def version(_=None):
+            return "<0.4.15"
+
+
+napari_version = version("napari")
+
 
 class Animation:
     """Make animations using the napari viewer.
@@ -44,6 +57,8 @@ class Animation:
         self._keyframe_counter = count()  # track number of frames created
 
         self._frames = FrameSequence(self.key_frames)
+
+        self._filename = None
 
     def capture_keyframe(
         self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
@@ -151,13 +166,17 @@ class Animation:
             viewer.
         scale_factor : float
             Rescaling factor for the image size. Only used without
-            viewer (with_viewer = False).
+            viewer (canvas_only = True).
         """
         self._validate_animation()
+
+        description = f"napari version {napari_version} https://napari.org/"
+        output_params = ["-metadata", f'title="{description}"']
 
         # create path object
         file_path = Path(filename)
         folder_path = file_path.absolute().parent.joinpath(file_path.stem)
+        self._filename = file_path
 
         # if path has no extension, save as fold of PNG
         save_as_folder = False
@@ -167,6 +186,7 @@ class Animation:
         # try to create an ffmpeg writer. If not installed default to folder creation
         if save_as_folder is False:
             try:
+                duration = 1000 / fps
                 # create imageio writer. Handle separately imageio-ffmpeg extensions and
                 # gif extension which doesn't accept the quality parameter.
                 if file_path.suffix in [
@@ -183,10 +203,13 @@ class Animation:
                         fps=fps,
                         quality=quality,
                         format=format,
+                        output_params=output_params,
                     )
                 else:
                     writer = imageio.get_writer(
-                        filename, fps=fps, format=format
+                        filename,
+                        duration=duration,
+                        format=format,
                     )
             except ValueError as err:
                 print(err)
@@ -243,3 +266,10 @@ class Animation:
         if active_keyframe:
             keyframe_index = self.key_frames.index(active_keyframe)
             self.set_key_frame_index(keyframe_index)
+
+    def _repr_html_(self):
+        if self._filename is None:
+            return 'Video animation not yet available (use the "animate" method to generate it).'
+        else:
+            html = f'<video width="100%" height="100%" controls> <source src="{self._filename}"> </video>'
+            return html
