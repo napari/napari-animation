@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import napari
 import numpy as np
 
+from napari_animation.utils import layer_attribute_changed
+
 
 @dataclass(frozen=True)
 class ViewerState:
@@ -32,7 +34,7 @@ class ViewerState:
         }
         for layer_attributes in layers.values():
             layer_attributes.pop("metadata")
-            layer_attributes.pop("properties", None)
+
         return cls(
             camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
         )
@@ -54,9 +56,13 @@ class ViewerState:
             layer_attributes = layer.as_layer_data_tuple()[1]
             for attribute_name, value in layer_state.items():
                 original_value = layer_attributes[attribute_name]
-                # Only set if value differs to avoid expensive redraws
-                if not np.array_equal(original_value, value):
-                    setattr(layer, attribute_name, value)
+                # Only setattr if value has changed to avoid expensive redraws
+                # dicts can hold arrays, e.g. `color`, requiring comparisons of key/value pairs
+                if layer_attribute_changed(value, original_value):
+                    try:
+                        setattr(layer, attribute_name, value)
+                    except AttributeError:
+                        pass
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True

@@ -1,4 +1,4 @@
-from numbers import Number
+from numbers import Integral, Number, Real
 from typing import Sequence, Tuple, TypeVar
 
 import numpy as np
@@ -58,9 +58,13 @@ def interpolate_sequence(
     Interpolated sequence between a and b at fraction.
     """
     seq_cls = type(a)
-    return seq_cls(
-        default_interpolation(v0, v1, fraction) for v0, v1 in zip(a, b)
-    )
+    gen = (default_interpolation(v0, v1, fraction) for v0, v1 in zip(a, b))
+    try:
+        seq = seq_cls(gen)
+    except TypeError:
+        # some interables, like NamedTuple, want the arguments separately
+        seq = seq_cls(*gen)
+    return seq
 
 
 def interpolate_num(a: Number, b: Number, fraction: float) -> Number:
@@ -81,6 +85,8 @@ def interpolate_num(a: Number, b: Number, fraction: float) -> Number:
     Interpolated value between a and b at fraction.
     """
     number_cls = type(a)
+    if isinstance(b, Real) and isinstance(a, Integral):
+        number_cls = type(b)
     return number_cls(a + (b - a) * fraction)
 
 
