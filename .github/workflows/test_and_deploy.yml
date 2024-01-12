@@ -73,7 +73,7 @@ jobs:
       - name: Test with tox
         uses: aganders3/headless-gui@v1
         with:
-            run: tox -a
+            run: tox
         env:
           PLATFORM: ${{ matrix.platform }}
 
