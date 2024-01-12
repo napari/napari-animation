@@ -9,4 +9,5 @@ repos:
     rev: v0.1.9
     hooks:
     - id: ruff
+      args: [ --fix ]
       exclude: _vendor|vendored
