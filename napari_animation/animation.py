@@ -142,7 +142,7 @@ class Animation:
         filename,
         fps=20,
         quality=5,
-        format=None,
+        file_format=None,
         canvas_only=True,
         scale_factor=None,
     ):
@@ -158,7 +158,7 @@ class Animation:
         quality: float
             number from 1 (lowest quality) to 9
             only applies to non-gif extensions
-        format: str
+        file_format: str
             The format to use to write the file. By default imageio selects the appropriate
             for you based on the filename.
         canvas_only : bool
@@ -202,14 +202,14 @@ class Animation:
                         filename,
                         fps=fps,
                         quality=quality,
-                        format=format,
+                        format=file_format,
                         output_params=output_params,
                     )
                 else:
                     writer = imageio.get_writer(
                         filename,
                         duration=duration,
-                        format=format,
+                        format=file_format,
                     )
             except ValueError as err:
                 print(err)

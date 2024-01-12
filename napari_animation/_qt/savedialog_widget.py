@@ -35,12 +35,12 @@ class SaveDialogWidget(QFileDialog):
         self,
         parent=None,
         caption="Select a file :",
-        dir=".",
+        directory=".",
         options=None,
     ):
         # Set dialog parameters
         self.setWindowTitle(caption)
-        self.setDirectory(dir)
+        self.setDirectory(directory)
         self.setNameFilter(self._qt_file_name_filters)
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)

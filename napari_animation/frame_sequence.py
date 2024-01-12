@@ -125,10 +125,10 @@ class FrameSequence(Sequence[ViewerState]):
         if key not in self._cache:
             try:
                 kf0, kf1, frac = self._keyframe_index[key]
-            except KeyError:
+            except KeyError as err:
                 raise IndexError(
                     f"Frame index ({key}) out of range ({len(self)} frames)"
-                )
+                ) from err
             if frac == 0:
                 self._cache[key] = kf0.viewer_state
             else:
@@ -148,7 +148,7 @@ class FrameSequence(Sequence[ViewerState]):
         scale_factor: float = None,
     ) -> Iterator[np.ndarray]:
         """Iterate over interpolated viewer states, and yield rendered frames."""
-        for i, state in enumerate(self):
+        for _i, state in enumerate(self):
             frame = state.render(viewer, canvas_only=canvas_only)
             if scale_factor not in (None, 1):
                 from scipy import ndimage as ndi

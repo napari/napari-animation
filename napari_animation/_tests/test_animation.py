@@ -139,7 +139,7 @@ def test_animation_file_metadata(animation_with_key_frames, tmp_path, ext):
 def test_layer_attribute_capture(layer_state, attribute):
     """Test that 'attribute' is captured in the layer state dictionary"""
     for layer_state_dict in layer_state.values():
-        assert attribute in layer_state_dict.keys()
+        assert attribute in layer_state_dict
 
 
 def test_end_state_reached(image_animation):
