@@ -152,7 +152,6 @@ class AnimationWidget(QWidget):
                 self.animation.set_movie_frame_index(frame_index)
 
     def _save_callback(self, event=None):
-
         saveDialogWidget = SaveDialogWidget(self)
         animation_kwargs = saveDialogWidget.getAnimationParameters(
             self, "Save animation", str(Path.home())
