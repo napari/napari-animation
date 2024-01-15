@@ -43,6 +43,6 @@ def layer_attribute_changed(value, original_value):
             return True
         return any(
             layer_attribute_changed(value[key], original_value[key])
-            for key in value.keys()
+            for key in value
         )
     return not np.array_equal(value, original_value)

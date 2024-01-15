@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [flake8, black, isort]
+        task: [black, ruff]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.8

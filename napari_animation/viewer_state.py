@@ -1,3 +1,4 @@
+import contextlib
 from dataclasses import dataclass
 
 import napari
@@ -59,10 +60,8 @@ class ViewerState:
                 # Only setattr if value has changed to avoid expensive redraws
                 # dicts can hold arrays, e.g. `color`, requiring comparisons of key/value pairs
                 if layer_attribute_changed(value, original_value):
-                    try:
+                    with contextlib.suppress(AttributeError):
                         setattr(layer, attribute_name, value)
-                    except AttributeError:
-                        pass
 
     def render(
         self, viewer: napari.viewer.Viewer, canvas_only: bool = True

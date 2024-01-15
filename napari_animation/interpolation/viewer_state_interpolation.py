@@ -43,7 +43,7 @@ def interpolate_viewer_state(
         v0 = nested_get(initial_state, keys)
         v1 = nested_get(final_state, keys)
 
-        all_keys_are_strings = all([isinstance(key, str) for key in keys])
+        all_keys_are_strings = all(isinstance(key, str) for key in keys)
         if interpolation_map is not None and all_keys_are_strings:
             attribute_name = ".".join(keys)
             interpolation_function = interpolation_map.get(

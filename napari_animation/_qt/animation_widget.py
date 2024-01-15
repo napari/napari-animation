@@ -10,7 +10,8 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ..animation import Animation
+from napari_animation.animation import Animation
+
 from .frame_widget import FrameWidget
 from .keyframelistcontrol_widget import KeyFrameListControlWidget
 from .keyframeslist_widget import KeyFramesListWidget
