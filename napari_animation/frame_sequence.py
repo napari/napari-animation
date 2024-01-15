@@ -80,6 +80,7 @@ class FrameSequence(Sequence[ViewerState]):
         self.state_interpolation_map: InterpolationMap = {
             "camera.angles": Interpolation.SLERP,
             "camera.zoom": Interpolation.LOG,
+            "dims.ndisplay": Interpolation.BOOL,
         }
 
         # cache of interpolated viewer states

@@ -151,6 +151,16 @@ def test_end_state_reached(image_animation):
     assert last_state == image_animation.key_frames[-1].viewer_state
 
 
+def test_ndisplay_interpolation(image_animation):
+    """Check that dims.ndisplay interpolation is boolean"""
+    image_animation.capture_keyframe()
+    image_animation.viewer.dims.ndisplay = 3
+    image_animation.capture_keyframe(steps=3)
+    assert image_animation._frames[0].dims["ndisplay"] == 2
+    assert image_animation._frames[1].dims["ndisplay"] == 3
+    assert image_animation._frames[-1].dims["ndisplay"] == 3
+
+
 @pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
 def test_attributes_for_all_layer_types(
     make_napari_viewer, layer_class, data, ndim

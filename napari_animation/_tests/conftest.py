@@ -42,7 +42,7 @@ def frame_sequence(animation_with_key_frames):
 @pytest.fixture
 def image_animation(make_napari_viewer):
     viewer = make_napari_viewer()
-    viewer.add_image(np.random.random((28, 28)))
+    viewer.add_image(np.random.random((2, 28, 28)))
     return Animation(viewer)
 
 
