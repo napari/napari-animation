@@ -1,5 +1,6 @@
-import napari
 from pathlib import Path
+
+import napari
 from mkdocs_gallery.gen_gallery import DefaultResetArgv
 from mkdocs_gallery import scrapers
 
