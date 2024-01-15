@@ -5,7 +5,7 @@ repos:
     - id: isort
       exclude: _vendor|vendored|examples 
 -   repo: https://github.com/python/black
-    rev: 22.3.0
+    rev: 23.12.1
     hooks:
     - id: black
       pass_filenames: true

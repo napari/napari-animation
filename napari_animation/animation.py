@@ -269,7 +269,9 @@ class Animation:
 
     def _repr_html_(self):
         if self._filename is None:
-            return 'Video animation not yet available (use the "animate" method to generate it).'
+            html = 'Video animation not yet available (use the "animate" method to generate it).'
+        elif str(self._filename).endswith(".gif"):
+            html = f'<img src="{self._filename}">'
         else:
             html = f'<video width="100%" height="100%" controls> <source src="{self._filename}"> </video>'
-            return html
+        return html
