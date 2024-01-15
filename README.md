@@ -39,8 +39,8 @@ pip install napari-animation
 ```
 
 > [!WARNING]
-> `napari-animation` uses `ffmpeg` to export animations. If you are using a macOS arm64 computer (e.g. M1, M2 processor)
-> the PyPI package does not include the needed binary for your platform. You will need to install `ffmpeg` from using
+> `napari-animation` uses `ffmpeg` to export animations. If you are using a macOS arm64 computer (Apple Silicon e.g. M1, M2 processor)
+> the PyPI package does not include the needed binary for your platform. You will need to install `ffmpeg` using
 > `conda` from the [conda-forge channel](https://conda-forge.org/docs/#what-is-conda-forge) (`conda install -c conda-forge ffmpeg`)
 > or using [`homebrew`](https://brew.sh) (`brew install ffmpeg`).
 
