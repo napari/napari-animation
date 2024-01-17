@@ -18,7 +18,7 @@ def empty_animation(make_napari_viewer):
 
 @pytest.fixture
 def animation_with_key_frames(empty_animation):
-    for i in range(2):
+    for _i in range(2):
         empty_animation.capture_keyframe()
         empty_animation.viewer.camera.zoom *= 2
     return empty_animation
@@ -42,7 +42,7 @@ def frame_sequence(animation_with_key_frames):
 @pytest.fixture
 def image_animation(make_napari_viewer):
     viewer = make_napari_viewer()
-    viewer.add_image(np.random.random((28, 28)))
+    viewer.add_image(np.random.random((2, 28, 28)))
     return Animation(viewer)
 
 

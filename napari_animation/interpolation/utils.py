@@ -67,8 +67,8 @@ def keys_to_list(input_dict):
 
 def nested_assert_close(a, b):
     """Assert close on nested dicts."""
-    a_keys = [key for key in keys_to_list(a)]
-    b_keys = [key for key in keys_to_list(b)]
+    a_keys = list(keys_to_list(a))
+    b_keys = list(keys_to_list(b))
 
     assert a_keys == b_keys
 

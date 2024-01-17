@@ -142,7 +142,7 @@ class Animation:
         filename,
         fps=20,
         quality=5,
-        format=None,
+        file_format=None,
         canvas_only=True,
         scale_factor=None,
     ):
@@ -158,7 +158,7 @@ class Animation:
         quality: float
             number from 1 (lowest quality) to 9
             only applies to non-gif extensions
-        format: str
+        file_format: str
             The format to use to write the file. By default imageio selects the appropriate
             for you based on the filename.
         canvas_only : bool
@@ -202,14 +202,14 @@ class Animation:
                         filename,
                         fps=fps,
                         quality=quality,
-                        format=format,
+                        format=file_format,
                         output_params=output_params,
                     )
                 else:
                     writer = imageio.get_writer(
                         filename,
                         duration=duration,
-                        format=format,
+                        format=file_format,
                     )
             except ValueError as err:
                 print(err)
@@ -269,7 +269,9 @@ class Animation:
 
     def _repr_html_(self):
         if self._filename is None:
-            return 'Video animation not yet available (use the "animate" method to generate it).'
+            html = 'Video animation not yet available (use the "animate" method to generate it).'
+        elif str(self._filename).endswith(".gif"):
+            html = f'<img src="{self._filename}">'
         else:
             html = f'<video width="100%" height="100%" controls> <source src="{self._filename}"> </video>'
-            return html
+        return html

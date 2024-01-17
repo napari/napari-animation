@@ -139,7 +139,7 @@ def test_animation_file_metadata(animation_with_key_frames, tmp_path, ext):
 def test_layer_attribute_capture(layer_state, attribute):
     """Test that 'attribute' is captured in the layer state dictionary"""
     for layer_state_dict in layer_state.values():
-        assert attribute in layer_state_dict.keys()
+        assert attribute in layer_state_dict
 
 
 def test_end_state_reached(image_animation):
@@ -149,6 +149,16 @@ def test_end_state_reached(image_animation):
     image_animation.capture_keyframe(steps=2)
     last_state = image_animation._frames[-1]
     assert last_state == image_animation.key_frames[-1].viewer_state
+
+
+def test_ndisplay_interpolation(image_animation):
+    """Check that dims.ndisplay interpolation is boolean"""
+    image_animation.capture_keyframe()
+    image_animation.viewer.dims.ndisplay = 3
+    image_animation.capture_keyframe(steps=3)
+    assert image_animation._frames[0].dims["ndisplay"] == 2
+    assert image_animation._frames[1].dims["ndisplay"] == 3
+    assert image_animation._frames[-1].dims["ndisplay"] == 3
 
 
 @pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)

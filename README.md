@@ -38,6 +38,19 @@ This plugin remains under development and contributions are very welcome, please
 pip install napari-animation
 ```
 
+> [!WARNING]
+> `napari-animation` uses `ffmpeg` to export animations. If you are using a macOS arm64 computer (Apple Silicon e.g. M1, M2 processor)
+> the PyPI package does not include the needed binary for your platform. You will need to install `ffmpeg` using
+> `conda` from the [conda-forge channel](https://conda-forge.org/docs/#what-is-conda-forge) (`conda install -c conda-forge ffmpeg`)
+> or using [`homebrew`](https://brew.sh) (`brew install ffmpeg`).
+
+### Conda
+`napari-animation` is also available for install using `conda` through the [conda-forge channel](https://conda-forge.org/docs/#what-is-conda-forge).
+
+```sh
+conda install -c conda-forge napari-animation
+```
+
 ### Local
 You can clone this repository and install locally with
 
@@ -106,10 +119,9 @@ You can make sure your `[dev]` installation is working properly by running
 `pytest .` from within the repository.
 
 > [!NOTE]
-> We use [`pre-commit`](https://pre-commit.com) to sort imports with
-> [`isort`](https://github.com/timothycrosley/isort), format code with
-> [`black`](https://github.com/psf/black), and lint with
-> [`flake8`](https://github.com/PyCQA/flake8) automatically prior to each commit.
+> We use [`pre-commit`](https://pre-commit.com) to sort imports and lint with
+> [`ruff`](https://github.com/astral-sh/ruff) and format code with
+> [`black`](https://github.com/psf/black) automatically prior to each commit.
 > To minmize test errors when submitting pull requests, please install `pre-commit`
 > in your environment as follows:
 > ```sh
