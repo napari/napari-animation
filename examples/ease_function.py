@@ -1,3 +1,7 @@
+"""
+Ease function
+=============
+"""
 import napari
 from skimage import data
 from napari_animation import Animation

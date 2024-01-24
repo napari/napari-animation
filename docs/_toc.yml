@@ -1,0 +1,4 @@
+root: index
+subtrees:
+- entries:
+  - file: gallery

@@ -1,4 +1,7 @@
 """
+Animate 2D
+==========
+
 Display a labels layer above of an image layer using the add_labels and
 add_image APIs
 """
@@ -10,12 +13,12 @@ import napari
 
 
 blobs = data.binary_blobs(length=128, volume_fraction=0.1, n_dim=3)
-viewer = napari.view_image(blobs.astype(float), name='blobs')
+viewer = napari.view_image(blobs.astype(float), name="blobs")
 labeled = ndi.label(blobs)[0]
-viewer.add_labels(labeled, name='blob ID')
+viewer.add_labels(labeled, name="blob ID")
 
 animation = Animation(viewer)
-viewer.update_console({'animation': animation})
+viewer.update_console({"animation": animation})
 
 animation.capture_keyframe()
 viewer.camera.zoom = 0.2
@@ -29,5 +32,4 @@ viewer.dims.current_step = (0, 0, 0)
 animation.capture_keyframe(steps=60)
 viewer.reset_view()
 animation.capture_keyframe()
-animation.animate('demo2D.mov', canvas_only=False)
-
+animation.animate("demo2D.mov", canvas_only=False)

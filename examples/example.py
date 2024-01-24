@@ -1,3 +1,7 @@
+"""
+Camera example
+==============
+"""
 from scipy import ndimage as ndi
 from napari_animation import Animation
 import napari
