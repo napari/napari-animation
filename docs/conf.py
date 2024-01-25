@@ -14,14 +14,11 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-from glob import glob
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import imageio.v2 as iio
-import napari
-from sphinx_gallery import scrapers
 from sphinx_gallery.sorting import ExampleTitleSortKey
 
 from napari_animation._version import version as napari_animation_version
@@ -162,7 +159,7 @@ exclude_patterns = [
 # -- Examples gallery scrapers -------------------------------------------------
 
 
-class VideoScraper(object):
+class VideoScraper:
     """Video file scraper class.
     Scrapes video files that were saved to disk by the example scripts.
     Based on the sphinx example scraper "Example 2: detecting image files on disk"
@@ -191,7 +188,7 @@ class VideoScraper(object):
         )
 
         # Iterate through the videos, copy them to the sphinx-gallery output directory
-        video_names = list()
+        video_names = []
         image_path_iterator = block_vars["image_path_iterator"]
         rst = ""
         for video in video_paths:
