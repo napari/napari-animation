@@ -1,6 +1,6 @@
 """
-Layer plane example
-===================
+Layer planes
+============
 """
 from scipy import ndimage as ndi
 from napari_animation import Animation
@@ -59,5 +59,5 @@ animation.capture_keyframe(steps=30)
 image_layer.plane.position = (0, 0, 0)
 animation.capture_keyframe(steps=30)
 
-animation.animate("layer_plane_example.mp4", canvas_only=True)
+animation.animate("layer_planes.mp4", canvas_only=True)
 image_layer.plane.position = (0, 0, 0)
