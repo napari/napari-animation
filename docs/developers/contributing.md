@@ -161,7 +161,7 @@ To read more about the docs, how they're organized, and built, read {ref}`docs-d
 
 ## Code of conduct
 
-`napari` has a [Code of Conduct](CODE_OF_CONDUCT.md) that should be honored by everyone who participates in the `napari` community.
+`napari` has a [Code of Conduct](https://napari.org/stable/community/code_of_conduct.html) that should be honored by everyone who participates in the `napari` community.
 
 ## Questions, comments, and feedback
 
