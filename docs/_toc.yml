@@ -2,3 +2,4 @@ root: index
 subtrees:
 - entries:
   - file: gallery
+  - file: developers/contributing
