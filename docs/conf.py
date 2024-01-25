@@ -22,7 +22,7 @@ from sphinx_gallery.sorting import ExampleTitleSortKey
 from napari_animation._version import version as napari_animation_version
 
 release = napari_animation_version
-if "dev" in release:
+if "dev" in release:  # noqa: SIM108
     version = "dev"
 else:
     version = release
@@ -30,7 +30,7 @@ else:
 # -- Project information -----------------------------------------------------
 
 project = "napari-animation"
-copyright = "2024, The napari team"
+copyright = "2024, The napari team"  # noqa: A001
 author = "The napari team"
 
 # -- General configuration ---------------------------------------------------
