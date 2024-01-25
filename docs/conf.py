@@ -14,9 +14,14 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+from glob import glob
+import os
 from pathlib import Path
+import shutil
 
-# from sphinx_gallery import scrapers
+import imageio.v2 as iio
+import napari
+from sphinx_gallery import scrapers
 from sphinx_gallery.sorting import ExampleTitleSortKey
 
 from napari_animation._version import version as napari_animation_version
@@ -47,6 +52,7 @@ extensions = [
     "sphinx_favicon",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
+    "sphinxcontrib.video",
 ]
 
 external_toc_path = "_toc.yml"
@@ -153,17 +159,80 @@ exclude_patterns = [
     "jupyter_execute",
 ]
 
-# def reset_napari(gallery_conf, fname):
-#     from napari.settings import get_settings
-#     from qtpy.QtWidgets import QApplication
+# -- Examples gallery scrapers -------------------------------------------------
 
-#     settings = get_settings()
-#     settings.appearance.theme = 'dark'
 
-#     # Disabling `QApplication.exec_` means example scripts can call `exec_`
-#     # (scripts work when run normally) without blocking example execution by
-#     # sphinx-gallery. (from qtgallery)
-#     QApplication.exec_ = lambda _: None
+class VideoScraper(object):
+    """Video file scraper class.
+    Scrapes video files that were saved to disk by the example scripts.
+    Based on the sphinx example scraper "Example 2: detecting image files on disk"
+    https://sphinx-gallery.github.io/stable/advanced.html#example-2-detecting-image-files-on-disk
+    """
+    def __init__(self):
+        self.seen = set()
+
+    def __repr__(self):
+        return 'VideoScraper'
+
+    def __call__(self, block, block_vars, gallery_conf):
+        """Video file scraper.
+        Scrapes video files that were saved to disk by the example scripts.
+        Based on the sphinx example scraper "Example 2: detecting image files on disk"
+        https://sphinx-gallery.github.io/stable/advanced.html#example-2-detecting-image-files-on-disk
+        """
+        # Find all video files in the directory of this example.
+        video_file_extensions = [".mp4", ".mov"]
+        path_current_example = os.path.dirname(block_vars['src_file'])
+        video_paths = sorted(str(p.resolve()) for p in Path(path_current_example).glob("**/*") if p.suffix in video_file_extensions)
+
+        # Iterate through the videos, copy them to the sphinx-gallery output directory
+        video_names = list()
+        image_path_iterator = block_vars['image_path_iterator']
+        rst = ""
+        for video in video_paths:
+            if video not in self.seen:
+                self.seen |= set(video)
+                this_video_path = image_path_iterator.next()
+                this_video_path = os.path.splitext(this_video_path)[0] + os.path.splitext(video)[1]
+                video_names.append(this_video_path)
+                shutil.move(video, this_video_path)
+                self.video_thumbnail(this_video_path)
+                rst += self.rst_video_template(this_video_path)
+
+        # Use the `figure_rst` helper function to generate reST for image files
+        # result = figure_rst(video_names, gallery_conf['src_dir'])
+        return rst
+
+    def video_thumbnail(self, video_filename):
+        """Save PNG screenshot of the first video frame."""
+        reader = iio.get_reader(video_filename)
+        first_frame = reader.get_data(0)
+        first_frame_filename = os.path.splitext(video_filename)[0] + ".png"
+        iio.imwrite(first_frame_filename, first_frame)
+        return first_frame
+
+    def rst_video_template(self, video_filepath):
+        """Template HTML for embedding video into webpage."""
+        rst = f""".. video:: {video_filepath}
+        :autoplay:
+        :loop:
+        :width: 600
+        :poster: {os.path.splitext(video_filepath)[0] + ".png"}
+    """
+        return rst
+
+
+def reset_napari(gallery_conf, fname):
+    from napari.settings import get_settings
+    from qtpy.QtWidgets import QApplication
+
+    settings = get_settings()
+    settings.appearance.theme = 'dark'
+
+    # Disabling `QApplication.exec_` means example scripts can call `exec_`
+    # (scripts work when run normally) without blocking example execution by
+    # sphinx-gallery. (from qtgallery)
+    QApplication.exec_ = lambda _: None
 
 
 # def napari_scraper(block, block_vars, gallery_conf):
@@ -205,8 +274,8 @@ sphinx_gallery_conf = {
     "download_all_examples": False,
     "only_warn_on_example_error": False,
     "abort_on_example_error": True,
-    #'image_scrapers': ("matplotlib", napari_scraper,),
-    #'reset_modules': (reset_napari,),
+    'image_scrapers': ("matplotlib", VideoScraper(),),
+    'reset_modules': (reset_napari,),
     "reference_url": {"napari": None},
     "within_subsection_order": ExampleTitleSortKey,
 }
