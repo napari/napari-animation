@@ -168,11 +168,12 @@ class VideoScraper(object):
     Based on the sphinx example scraper "Example 2: detecting image files on disk"
     https://sphinx-gallery.github.io/stable/advanced.html#example-2-detecting-image-files-on-disk
     """
+
     def __init__(self):
         self.seen = set()
 
     def __repr__(self):
-        return 'VideoScraper'
+        return "VideoScraper"
 
     def __call__(self, block, block_vars, gallery_conf):
         """Video file scraper.
@@ -182,18 +183,25 @@ class VideoScraper(object):
         """
         # Find all video files in the directory of this example.
         video_file_extensions = [".mp4", ".mov"]
-        path_current_example = os.path.dirname(block_vars['src_file'])
-        video_paths = sorted(str(p.resolve()) for p in Path(path_current_example).glob("**/*") if p.suffix in video_file_extensions)
+        path_current_example = os.path.dirname(block_vars["src_file"])
+        video_paths = sorted(
+            str(p.resolve())
+            for p in Path(path_current_example).glob("**/*")
+            if p.suffix in video_file_extensions
+        )
 
         # Iterate through the videos, copy them to the sphinx-gallery output directory
         video_names = list()
-        image_path_iterator = block_vars['image_path_iterator']
+        image_path_iterator = block_vars["image_path_iterator"]
         rst = ""
         for video in video_paths:
             if video not in self.seen:
                 self.seen |= set(video)
                 this_video_path = image_path_iterator.next()
-                this_video_path = os.path.splitext(this_video_path)[0] + os.path.splitext(video)[1]
+                this_video_path = (
+                    os.path.splitext(this_video_path)[0]
+                    + os.path.splitext(video)[1]
+                )
                 video_names.append(this_video_path)
                 shutil.move(video, this_video_path)
                 self.video_thumbnail(this_video_path)
@@ -227,7 +235,7 @@ def reset_napari(gallery_conf, fname):
     from qtpy.QtWidgets import QApplication
 
     settings = get_settings()
-    settings.appearance.theme = 'dark'
+    settings.appearance.theme = "dark"
 
     # Disabling `QApplication.exec_` means example scripts can call `exec_`
     # (scripts work when run normally) without blocking example execution by
@@ -274,8 +282,11 @@ sphinx_gallery_conf = {
     "download_all_examples": False,
     "only_warn_on_example_error": False,
     "abort_on_example_error": True,
-    'image_scrapers': ("matplotlib", VideoScraper(),),
-    'reset_modules': (reset_napari,),
+    "image_scrapers": (
+        "matplotlib",
+        VideoScraper(),
+    ),
+    "reset_modules": (reset_napari,),
     "reference_url": {"napari": None},
     "within_subsection_order": ExampleTitleSortKey,
 }
