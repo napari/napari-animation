@@ -102,7 +102,7 @@ We use unit tests and integration tests to ensure that
 napari-animation works as intended. Writing tests for new code is a critical part of
 keeping napari-animation maintainable as it grows.
 
-Check out the dedicated documentation on testing over at [napari.org](https://napari.org/developers/testing.html) that we recommend you
+Check out the dedicated documentation on testing over at [napari.org](https://napari.org/dev/developers/testing.html) that we recommend you
 read as you're working on your first contribution.
 
 ### Help us make sure it's you
@@ -114,26 +114,26 @@ To set it, use `git config --global user.email your-address@example.com`.
 
 ## Keeping your branches up-to-date
 
-Switch to the `master` branch:
+Switch to the `main` branch:
 ```sh
-git checkout master
+git checkout main
 ```
 
-Fetch changes and update `master`:
+Fetch changes and update `main`:
 ```sh
-git pull upstream master --tags
+git pull upstream main --tags
 ```
 
 This is shorthand for:
 ```sh
-git fetch upstream master --tags
-git merge upstream/master
+git fetch upstream main --tags
+git merge upstream/main
 ```
 
 Update your other branches:
 ```sh
 git checkout your-branch-name
-git merge master
+git merge main
 ```
 
 ## Sharing your changes
@@ -143,7 +143,7 @@ Update your remote branch:
 git push -u origin your-branch-name
 ```
 
-You can then make a [pull-request](https://guides.github.com/activities/forking/#making-a-pull-request) to `napari`'s `master` branch.
+You can then make a [pull-request](https://guides.github.com/activities/forking/#making-a-pull-request) to `napari-animation`'s `main` branch.
 
 ## Building the docs
 
@@ -155,17 +155,15 @@ make docs
 The docs will be built at `docs/_build/html`.
 
 Most web browsers will allow you to preview HTML pages.
-Try entering `file:///absolute/path/to/napari/docs/_build/html/index.html` in your address bar.
-
-To read more about the docs, how they're organized, and built, read {ref}`docs-dev`.
+Try entering `file:///absolute/path/to/napari-animation/docs/_build/html/index.html` in your address bar.
 
 ## Code of conduct
 
-`napari` has a [Code of Conduct](https://napari.org/stable/community/code_of_conduct.html) that should be honored by everyone who participates in the `napari` community.
+`napari` has a [Code of Conduct](https://napari.org/stable/community/code_of_conduct.html) that should be honored by everyone who participates in the `napari` community, including `napari-animation`.
 
 ## Questions, comments, and feedback
 
 If you have questions, comments, suggestions for improvement, or any other inquiries
-regarding the project, feel free to open an [issue](https://github.com/napari/napari/issues).
+regarding the project, feel free to open an [issue](https://github.com/napari/napari-animation/issues).
 
 Issues and pull-requests are written in [Markdown](https://guides.github.com/features/mastering-markdown/#what). You can find a comprehensive guide [here](https://guides.github.com/features/mastering-markdown/#syntax).
