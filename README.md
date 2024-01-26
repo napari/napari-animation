@@ -96,7 +96,7 @@ animation.animate('demo.mov', canvas_only=False)
 ```
 
 ## Examples
-Examples can be found in our [examples](examples) folder. Simple examples for both interactive and headless 
+Examples can be found in our [Examples gallery](https://napari-animation.github.io/gallery) folder. Simple examples for both interactive and headless 
 use of the plugin follow.
 
 ## Contributing
@@ -157,7 +157,6 @@ Distributed under the terms of the [BSD-3 license](http://opensource.org/license
 
 If you encounter any problems, please [file an issue](https://github.com/napari/napari-animation/issues) along with a detailed description.
 
-[napari]: https://github.com/napari/napari
 [Cookiecutter]: https://github.com/audreyr/cookiecutter
 [@napari]: https://github.com/napari
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
