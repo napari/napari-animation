@@ -299,29 +299,3 @@ def setup(app):
 
     """
     app.registry.source_suffix.pop(".ipynb", None)
-
-
-# def rewrite_github_anchor(app, uri: str):
-#     """Rewrite anchor name of the hyperlink to github.com
-
-#     The hyperlink anchors in github.com are dynamically generated.  This rewrites
-#     them before checking and makes them comparable.
-#     """
-#     parsed = urlparse(uri)
-#     if parsed.hostname == "github.com" and parsed.fragment:
-#         for text in [
-#             "L",
-#             "readme",
-#             "pullrequestreview",
-#             "issuecomment",
-#             "issue",
-#         ]:
-#             if parsed.fragment.startswith(text):
-#                 return None
-#         if re.match(r'r\d+', parsed.fragment):
-#             return None
-#         prefixed = parsed.fragment.startswith('user-content-')
-#         if not prefixed:
-#             fragment = f'user-content-{parsed.fragment}'
-#             return urlunparse(parsed._replace(fragment=fragment))
-#     return None
