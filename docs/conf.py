@@ -301,15 +301,6 @@ def setup(app):
     app.registry.source_suffix.pop(".ipynb", None)
 
 
-# linkcheck_anchors_ignore = [r'^!', r'L\d+-L\d+', r'r\d+', r'issuecomment-\d+']
-
-# linkcheck_ignore = [
-#     'https://napari.zulipchat.com/',
-#     '../_tags',
-#     'https://en.wikipedia.org/wiki/Napari#/media/File:Tabuaeran_Kiribati.jpg',
-# ]
-
-
 # def rewrite_github_anchor(app, uri: str):
 #     """Rewrite anchor name of the hyperlink to github.com
 
