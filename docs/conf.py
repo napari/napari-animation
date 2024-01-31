@@ -19,6 +19,8 @@ import shutil
 from pathlib import Path
 
 import imageio.v2 as iio
+import napari
+from sphinx_gallery import scrapers
 from sphinx_gallery.sorting import ExampleTitleSortKey
 
 from napari_animation._version import version as napari_animation_version
@@ -204,8 +206,13 @@ class VideoScraper:
                 self.video_thumbnail(this_video_path)
                 rst += self.rst_video_template(this_video_path)
 
-        # Use the `figure_rst` helper function to generate reST for image files
-        # result = figure_rst(video_names, gallery_conf['src_dir'])
+        # We want to display either a video OR a napari screenshot, not both!
+        # If any video files are found, VideoScraper() closes any open napari windows
+        # so that the static screenshot napari_scraper will not find anything
+        # For this to work, VideoScraper() must come BEFORE napari_scraper in sphinx_gallery_conf
+        if len(video_paths) > 0:
+            napari.Viewer.close_all()
+
         return rst
 
     def video_thumbnail(self, video_filename):
@@ -227,6 +234,34 @@ class VideoScraper:
         return rst
 
 
+def napari_scraper(block, block_vars, gallery_conf):
+    """Basic napari window scraper.
+
+    Looks for any QtMainWindow instances and takes a screenshot of them.
+
+    `app.processEvents()` allows Qt events to propagateo and prevents hanging.
+    """
+    imgpath_iter = block_vars["image_path_iterator"]
+
+    if app := napari.qt.get_app():
+        app.processEvents()
+    else:
+        return ""
+
+    img_paths = []
+    for win, img_path in zip(
+        reversed(napari._qt.qt_main_window._QtMainWindow._instances),
+        imgpath_iter,
+    ):
+        img_paths.append(img_path)
+        win._window.screenshot(img_path, canvas_only=False)
+
+    napari.Viewer.close_all()
+    app.processEvents()
+
+    return scrapers.figure_rst(img_paths, gallery_conf["src_dir"])
+
+
 def reset_napari(gallery_conf, fname):
     from napari.settings import get_settings
     from qtpy.QtWidgets import QApplication
@@ -238,34 +273,6 @@ def reset_napari(gallery_conf, fname):
     # (scripts work when run normally) without blocking example execution by
     # sphinx-gallery. (from qtgallery)
     QApplication.exec_ = lambda _: None
-
-
-# def napari_scraper(block, block_vars, gallery_conf):
-#     """Basic napari window scraper.
-
-#     Looks for any QtMainWindow instances and takes a screenshot of them.
-
-#     `app.processEvents()` allows Qt events to propagateo and prevents hanging.
-#     """
-#     imgpath_iter = block_vars['image_path_iterator']
-
-#     if app := napari.qt.get_app():
-#         app.processEvents()
-#     else:
-#         return ""
-
-#     img_paths = []
-#     for win, img_path in zip(
-#         reversed(napari._qt.qt_main_window._QtMainWindow._instances),
-#         imgpath_iter,
-#     ):
-#         img_paths.append(img_path)
-#         win._window.screenshot(img_path, canvas_only=False)
-
-#     napari.Viewer.close_all()
-#     app.processEvents()
-
-#     return scrapers.figure_rst(img_paths, gallery_conf['src_dir'])
 
 
 sphinx_gallery_conf = {
@@ -282,6 +289,11 @@ sphinx_gallery_conf = {
     "image_scrapers": (
         "matplotlib",
         VideoScraper(),
+        # We want to display either a video OR a napari screenshot, not both!
+        # If any video files are found, VideoScraper() closes any open napari windows
+        # so that the static screenshot napari_scraper will not find anything
+        # For this to work, VideoScraper() must come BEFORE napari_scraper in sphinx_gallery_conf
+        napari_scraper,
     ),
     "reset_modules": (reset_napari,),
     "reference_url": {"napari": None},
@@ -294,8 +306,5 @@ def setup(app):
 
     * Ignores .ipynb files to prevent sphinx from complaining about multiple
       files found for document when generating the gallery
-    * Rewrites github anchors to be comparable
-    * Adds google calendar api key to meetings schedule page
-
     """
     app.registry.source_suffix.pop(".ipynb", None)
