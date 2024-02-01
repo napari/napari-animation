@@ -203,8 +203,19 @@ class VideoScraper:
                 )
                 video_names.append(this_video_path)
                 shutil.move(video, this_video_path)
+                assert os.path.exists(this_video_path)
                 self.video_thumbnail(this_video_path)
-                rst += self.rst_video_template(this_video_path)
+                relative_path = (
+                    ".."
+                    + os.sep
+                    + ".."
+                    + os.sep
+                    + gallery_conf.get("gallery_dirs").strip()
+                    + this_video_path.split(gallery_conf.get("gallery_dirs"))[
+                        -1
+                    ].strip()
+                )
+                rst += self.rst_video_template(relative_path)
 
         # We want to display either a video OR a napari screenshot, not both!
         # If any video files are found, VideoScraper() closes any open napari windows
