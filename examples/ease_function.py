@@ -1,3 +1,7 @@
+"""
+Ease function
+=============
+"""
 import napari
 from skimage import data
 from napari_animation import Animation
@@ -16,4 +20,4 @@ animation.capture_keyframe(steps=30, ease=Easing.QUADRATIC)
 
 animation.capture_keyframe(steps=60)
 
-animation.animate("hello.mp4", canvas_only=True, fps=60)
+animation.animate("ease_function.mp4", canvas_only=True, fps=60)

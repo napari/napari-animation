@@ -6,7 +6,7 @@
 [![tests](https://github.com/napari/napari-animation/actions/workflows/test_and_deploy.yml/badge.svg)](https://github.com/napari/napari-animation/actions)
 [![codecov](https://codecov.io/gh/napari/napari-animation/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/napari-animation)
 
-**napari-animation** is a plugin for making animations in [napari].
+**napari-animation** is a plugin for making animations in [napari](https://napari.org).
 
 <p align="center">
   <img width="500" src="https://user-images.githubusercontent.com/7307488/196110138-6c4663b1-67b2-4c79-97b7-57b706d1d49c.gif">
@@ -18,14 +18,16 @@
 
 ----------------------------------
 
-This plugin is built on [naparimovie](https://github.com/guiwitz/naparimovie) from @guiwitz. naparimovie was submitted to napari in [PR#851](https://github.com/napari/napari/pull/780) before napari plugin infrastructure existed.
+This plugin is built on [`naparimovie`](https://github.com/guiwitz/naparimovie) from [@guiwitz](https://github.com/guiwitz). `naparimovie` was submitted to napari in [PR#851](https://github.com/napari/napari/pull/780) before napari plugin infrastructure existed.
 
 ----------------------------------
+
 ## Overview
 
-**napari-animation** provides a framework for the creation of animations in napari, the plugin contains:
-- an easy to use GUI for creating animations interactively
-- a Python package for the programmatic creation of animations
+**napari-animation** provides a framework for the creation of animations in napari. The plugin contains:
+
+- an easy to use GUI for creating animations interactively;
+- a Python package for the programmatic creation of animations.
 
 This plugin remains under development and contributions are very welcome, please open an issue to discuss potential improvements.
 
@@ -38,11 +40,12 @@ This plugin remains under development and contributions are very welcome, please
 pip install napari-animation
 ```
 
-> [!WARNING]
-> `napari-animation` uses `ffmpeg` to export animations. If you are using a macOS arm64 computer (Apple Silicon e.g. M1, M2 processor)
-> the PyPI package does not include the needed binary for your platform. You will need to install `ffmpeg` using
-> `conda` from the [conda-forge channel](https://conda-forge.org/docs/#what-is-conda-forge) (`conda install -c conda-forge ffmpeg`)
-> or using [`homebrew`](https://brew.sh) (`brew install ffmpeg`).
+```{warning}
+`napari-animation` uses `ffmpeg` to export animations. If you are using a macOS arm64 computer (Apple Silicon e.g. M1, M2 processor)
+the PyPI package does not include the needed binary for your platform. You will need to install `ffmpeg` using
+`conda` from the [conda-forge channel](https://conda-forge.org/docs/#what-is-conda-forge) (`conda install -c conda-forge ffmpeg`)
+or using [`homebrew`](https://brew.sh) (`brew install ffmpeg`).
+```
 
 ### Conda
 `napari-animation` is also available for install using `conda` through the [conda-forge channel](https://conda-forge.org/docs/#what-is-conda-forge).
@@ -71,8 +74,8 @@ To activate the GUI, select **napari-animation: wizard** from the *plugins menu*
   <img width="200" src="https://user-images.githubusercontent.com/7307488/196114466-56cb5985-0d79-4cfa-96f1-38cf3ccfbc48.png">
 </p>
 
-### Headless
-**napari-animation** can also be run headless, allowing for reproducible, scripted creation of animations.
+### Scripting
+**napari-animation** can also be run programatically, allowing for reproducible, scripted creation of animations.
 
 ```python
 from napari_animation import Animation
@@ -95,7 +98,7 @@ animation.animate('demo.mov', canvas_only=False)
 ```
 
 ## Examples
-Examples can be found in our [examples](examples) folder. Simple examples for both interactive and headless 
+Examples can be found in our [Examples gallery](https://napari-animation.github.io/gallery) folder. Simple examples for both interactive and headless 
 use of the plugin follow.
 
 ## Contributing
@@ -103,9 +106,14 @@ use of the plugin follow.
 Contributions are very welcome and a detailed contributing guide is coming soon.
 In the meantime, clone this repository and install it in editable mode using `pip`. 
 We recommend using a virtual environment, for example `conda`.
-> [!IMPORTANT]
-> Ensure you have a suitable Qt backend for napari! We recommend `PyQt5`.
-> For more information, see the napari [Qt backend installation guide](https://napari.org/stable/tutorials/fundamentals/installation.html#choosing-a-different-qt-backend)
+
+
+```{important}
+Ensure you have a suitable Qt backend for napari! We recommend `PyQt5`.
+For more information, see the napari [Qt backend installation guide](https://napari.org/stable/tutorials/fundamentals/installation.html#choosing-a-different-qt-backend)
+```
+
+To set up your development installation, clone this repository, navigate to the clone folder, and install napari-animation in editable mode using `pip`.
 
 ```sh
 conda create -n nap-anim python=3.10
@@ -118,26 +126,42 @@ Tests are run with `pytest`.
 You can make sure your `[dev]` installation is working properly by running
 `pytest .` from within the repository.
 
-> [!NOTE]
-> We use [`pre-commit`](https://pre-commit.com) to sort imports and lint with
-> [`ruff`](https://github.com/astral-sh/ruff) and format code with
-> [`black`](https://github.com/psf/black) automatically prior to each commit.
-> To minmize test errors when submitting pull requests, please install `pre-commit`
-> in your environment as follows:
-> ```sh
-> pre-commit install
-> ```
+```{note}
+We use [`pre-commit`](https://pre-commit.com) to sort imports and lint with
+[`ruff`](https://github.com/astral-sh/ruff) and format code with
+[`black`](https://github.com/psf/black) automatically prior to each commit.
+To minmize test errors when submitting pull requests, please install `pre-commit`
+in your environment as follows:
+
+`pre-commit install`
+```
+
+## Documentation
+
+The documentation for napari-animation is built with [Sphinx](https://www.spinx-doc.org). After installing the documentation dependencies with
+
+```sh
+pip install ".[doc]"
+```
+
+you can see a local version of the documentation by running
+
+```sh
+make docs
+```
+
+Open up the `docs/_build/index.html` file in your browser, and you'll see the home page of the docs being displayed.
+
 
 ## License
 
-Distributed under the terms of the [BSD-3] license,
-"napari-animation" is free and open source software
+Distributed under the terms of the [BSD-3 license](http://opensource.org/licenses/BSD-3-Clause),
+`napari-animation` is free and open source software.
 
 ## Issues
 
-If you encounter any problems, please [file an issue] along with a detailed description.
+If you encounter any problems, please [file an issue](https://github.com/napari/napari-animation/issues) along with a detailed description.
 
-[napari]: https://github.com/napari/napari
 [Cookiecutter]: https://github.com/audreyr/cookiecutter
 [@napari]: https://github.com/napari
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
