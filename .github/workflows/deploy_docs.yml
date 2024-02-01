@@ -1,4 +1,4 @@
-name: Build and Deploy Docs
+name: Deploy Documentation
 
 on:
   push:
@@ -18,32 +18,46 @@ jobs:
   build-and-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
+
     permissions:
       contents: write  # so we can write to github pages without a token
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
 
     steps:
-      - name: Clone repo
-        uses: actions/checkout@v4
+    - name: Clone repo
+      uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
 
-      - uses: tlambert03/setup-qt-libs@v1
+    - uses: tlambert03/setup-qt-libs@v1
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install "napari[all]"
-          python -m pip install -e ".[doc]"
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install "napari[all]"
+        python -m pip install -e ".[doc]"
 
-      - name: Build Docs
-        uses: aganders3/headless-gui@v2
-        with:
-          run: make docs
+    - name: Build Docs
+      uses: aganders3/headless-gui@v2
+      with:
+        run: make docs
 
-      - name: Deploy Docs
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          publish_dir: docs/_build
-          publish_branch: gh-pages
+    - name: Check file tree contents
+      run: tree
+
+    # At a minimum this job should upload artifacts using actions/upload-pages-artifact
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-artifact@v4.3.0
+      with:
+        name: github-pages
+        path: |
+          docs/_build/
+          docs/_static/
+          docs/gallery/
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
