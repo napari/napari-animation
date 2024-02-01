@@ -18,6 +18,9 @@ jobs:
   build-and-deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # so we can write to github pages without a token
+
     steps:
       - name: Clone repo
         uses: actions/checkout@v4
@@ -34,11 +37,6 @@ jobs:
           python -m pip install "napari[all]"
           python -m pip install -e ".[doc]"
 
-      - name: Testing
-        run: |
-          python -c 'import napari; print(napari.__version__)'
-          python -c 'import napari.layers; print(napari.layers.__doc__)'
-
       - name: Build Docs
         uses: aganders3/headless-gui@v2
         with:
@@ -47,7 +45,5 @@ jobs:
       - name: Deploy Docs
         uses: peaceiris/actions-gh-pages@v3
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_dir: docs/_build
           publish_branch: gh-pages
-          destination_dir: dev
