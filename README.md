@@ -31,6 +31,8 @@ This plugin is built on [`naparimovie`](https://github.com/guiwitz/naparimovie) 
 
 This plugin remains under development and contributions are very welcome, please open an issue to discuss potential improvements.
 
+You can read the documentation at [https://napari.org/napari-animation](https://napari.org/napari-animation)
+
 ## Installation
 
 ### PyPI
@@ -75,6 +77,7 @@ To activate the GUI, select **napari-animation: wizard** from the *plugins menu*
 </p>
 
 ### Scripting
+
 **napari-animation** can also be run programatically, allowing for reproducible, scripted creation of animations.
 
 ```python
@@ -98,13 +101,14 @@ animation.animate('demo.mov', canvas_only=False)
 ```
 
 ## Examples
-Examples can be found in our [Examples gallery](https://napari-animation.github.io/gallery) folder. Simple examples for both interactive and headless 
+
+Examples can be found in our [Examples gallery](https://napari.org/napari-animation/gallery), generated from [our example scripts](https://github.com/napari/napari-animation/tree/main/examples). Simple examples for both interactive and headless
 use of the plugin follow.
 
 ## Contributing
 
 Contributions are very welcome and a detailed contributing guide is coming soon.
-In the meantime, clone this repository and install it in editable mode using `pip`. 
+In the meantime, clone this repository and install it in editable mode using `pip`.
 We recommend using a virtual environment, for example `conda`.
 
 
@@ -138,7 +142,13 @@ in your environment as follows:
 
 ## Documentation
 
-The documentation for napari-animation is built with [Sphinx](https://www.spinx-doc.org). After installing the documentation dependencies with
+The documentation is available at [https://napari.org/napari-animation](https://napari.org/napari-animation)
+
+The documentation for napari-animation is built with [Sphinx](https://www.spinx-doc.org).
+
+### Building docs locally
+
+After installing the documentation dependencies with
 
 ```sh
 pip install ".[doc]"
@@ -152,6 +162,13 @@ make docs
 
 Open up the `docs/_build/index.html` file in your browser, and you'll see the home page of the docs being displayed.
 
+### Deploying docs
+
+The napari-animation documentation is automatically built and deployed to the website
+whenever the main branch is updated, or a new release is tagged.
+This is controlled by the [deploy_docs.yml](https://github.com/napari/napari-animation/blob/main/.github/workflows/deploy_docs.yml) github actions script.
+
+You can also manually trigger a documenation re-build and deployment [from the github actions tab](https://github.com/napari/napari-animation/actions/workflows/deploy_docs.yml).
 
 ## License
 
