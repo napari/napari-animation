@@ -206,15 +206,13 @@ class VideoScraper:
                 assert os.path.exists(this_video_path)
                 self.video_thumbnail(this_video_path)
                 relative_path = (
-                    ".."
-                    + os.sep
-                    + ".."
-                    + os.sep
-                    + gallery_conf.get("gallery_dirs").strip()
+                    "."
                     + this_video_path.split(gallery_conf.get("gallery_dirs"))[
                         -1
                     ].strip()
                 )
+                # Makefile copy-gallery-videos rule copies movies to _build folder
+                # so this relative path works correctly in the built documentation
                 rst += self.rst_video_template(relative_path)
 
         # We want to display either a video OR a napari screenshot, not both!

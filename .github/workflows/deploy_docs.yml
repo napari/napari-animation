@@ -50,13 +50,10 @@ jobs:
 
     # At a minimum this job should upload artifacts using actions/upload-pages-artifact
     - name: Upload GitHub Pages artifact
-      uses: actions/upload-artifact@v4.3.0
+      uses: actions/upload-pages-artifact@v3
       with:
         name: github-pages
-        path: |
-          docs/_build/
-          docs/_static/
-          docs/gallery/
+        path: docs/_build
 
     - name: Deploy to GitHub Pages
       id: deployment
