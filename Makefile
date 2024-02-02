@@ -10,7 +10,8 @@ clean:
 	echo clean
 	echo $(current_dir)
 	rm -rf $(docs_dir)/_build/
-	rm -rf $(docs_dir)/gallery/*
+	rm -rf $(docs_dir)/gallery/
+	rm -f $(docs_dir)/sg_execution_times.rst
 
 docs-build:
 	NAPARI_CONFIG="" NAPARI_APPLICATION_IPY_INTERACTIVE=0 sphinx-build -b html docs/ docs/_build $(SPHINXOPTS)
@@ -43,5 +44,3 @@ linkcheck-files:
 
 copy-gallery-videos:
 	rsync -rupE docs/gallery/images docs/_build/gallery
-
-.PHONY: docs/_build/gallery
