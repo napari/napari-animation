@@ -144,7 +144,7 @@ in your environment as follows:
 
 The documentation is available at [https://napari.org/napari-animation](https://napari.org/napari-animation)
 
-The documentation for napari-animation is built with [Sphinx](https://www.spinx-doc.org).
+The documentation for napari-animation is built with [Sphinx](https://www.spinx-doc.org) and the [napari Sphinx Theme](https://github.com/napari/napari-sphinx-theme).
 
 ### Building docs locally
 
