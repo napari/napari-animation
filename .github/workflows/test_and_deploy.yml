@@ -93,7 +93,7 @@ jobs:
       id-token: write
     environment:
       name: pypi
-      url: https://pypi.org/p/<your-pypi-project-name>
+      url: https://pypi.org/project/napari-animation
     if: contains(github.ref, 'tags')
     steps:
       - uses: actions/checkout@v4
