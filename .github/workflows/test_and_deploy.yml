@@ -33,13 +33,15 @@ jobs:
         with:
           python-version: 3.8
 
-        # Temporary fix for 'pip install imageio-ffmpeg'
-        # not including the FFMPEG binary on Apple Silicon macs
-        # This step can be removed when issue is fixed in imageio-ffmpeg
-        # https://github.com/imageio/imageio-ffmpeg/issues/71
-      - name: brew install ffmpeg
+      # Temporary fix for 'pip install imageio-ffmpeg'
+      # not including the FFMPEG binary on Apple Silicon macs
+      # This step can be removed when issue is fixed in imageio-ffmpeg
+      # https://github.com/imageio/imageio-ffmpeg/issues/71
+      - name: Homebrew github action
         if: runner.os == 'macOS'
         uses: artemnovichkov/action-homebrew@0.1.0
+      - name: brew install ffmpeg
+        if: runner.os == 'macOS'
         run: |
           brew update
           brew install ffmpeg
@@ -78,13 +80,15 @@ jobs:
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
           if (Test-Path -Path "C:\Windows\system32\opengl32.dll" -PathType Leaf) {Exit 0} else {Exit 1}
 
-        # Temporary fix for 'pip install imageio-ffmpeg'
-        # not including the FFMPEG binary on Apple Silicon macs
-        # This step can be removed when issue is fixed in imageio-ffmpeg
-        # https://github.com/imageio/imageio-ffmpeg/issues/71
-      - name: brew install ffmpeg
+      # Temporary fix for 'pip install imageio-ffmpeg'
+      # not including the FFMPEG binary on Apple Silicon macs
+      # This step can be removed when issue is fixed in imageio-ffmpeg
+      # https://github.com/imageio/imageio-ffmpeg/issues/71
+      - name: Homebrew github action
         if: runner.os == 'macOS'
         uses: artemnovichkov/action-homebrew@0.1.0
+      - name: brew install ffmpeg
+        if: runner.os == 'macOS'
         run: |
           brew update
           brew install ffmpeg
