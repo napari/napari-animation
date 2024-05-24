@@ -108,7 +108,7 @@ jobs:
       - name: Build python package
         run: |
           git tag
-          python setup.py sdist bdist_wheel
+          python -m build
       - name: Publish package distributions to PyPI
         # This action uploads everything from the dist/ folder to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
