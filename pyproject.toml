@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.black]
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py39', 'py310', 'py311', 'py312']
 line-length = 79
 exclude = '''
 (
@@ -53,5 +53,5 @@ ignore = [
     "SIM117", # flake8-simplify - some of merged with statements are not looking great with black, reanble after drop python 3.9
 ]
 
-target-version = "py38"
+target-version = "py312"
 fix = true
