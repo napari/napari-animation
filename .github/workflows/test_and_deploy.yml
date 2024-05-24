@@ -37,14 +37,9 @@ jobs:
       # not including the FFMPEG binary on Apple Silicon macs
       # This step can be removed when issue is fixed in imageio-ffmpeg
       # https://github.com/imageio/imageio-ffmpeg/issues/71
-      - name: Homebrew github action
+      - name: Setup FFmpeg
         if: runner.os == 'macOS'
-        uses: artemnovichkov/action-homebrew@0.1.0
-      - name: brew install ffmpeg
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install ffmpeg
+        uses: AnimMouse/setup-ffmpeg@v1
 
       - name: Install dependencies
         run: |
@@ -84,14 +79,9 @@ jobs:
       # not including the FFMPEG binary on Apple Silicon macs
       # This step can be removed when issue is fixed in imageio-ffmpeg
       # https://github.com/imageio/imageio-ffmpeg/issues/71
-      - name: Homebrew github action
+      - name: Setup FFmpeg
         if: runner.os == 'macOS'
-        uses: artemnovichkov/action-homebrew@0.1.0
-      - name: brew install ffmpeg
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install ffmpeg
+        uses: AnimMouse/setup-ffmpeg@v1
 
       - name: Install dependencies
         run: |
