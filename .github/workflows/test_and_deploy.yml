@@ -45,6 +45,19 @@ jobs:
       matrix:
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        # napari is experiencing CI failures with PySide backends
+        # on Windows platforms for all versions of python, and
+        # on all platforms with python 3.11
+        # See issues:
+        # Python 3.11 PySide problems https://github.com/napari/napari/issues/6381
+        # and https://github.com/napari/napari/issues/5884#issuecomment-1584160532
+        # Windows PySide problems https://github.com/napari/napari/pull/6721/files
+        # and https://github.com/napari/napari/pull/6711/
+        exclude:
+          - python: "3.11"
+            backend: pyside2
+          - platform: windows-latest
+            backend: pyside2
 
     steps:
       - uses: actions/checkout@v4
