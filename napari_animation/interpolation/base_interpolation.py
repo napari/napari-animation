@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from numbers import Integral, Number, Real
-from typing import Sequence, Tuple, TypeVar
+from typing import TypeVar
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -31,7 +32,7 @@ def default_interpolation(a: _T, b: _T, fraction: float) -> _T:
     elif isinstance(a, Number) and isinstance(b, Number):
         return interpolate_num(a, b, fraction)
 
-    elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
+    elif isinstance(a, list | tuple) and isinstance(b, list | tuple):
         return interpolate_sequence(a, b, fraction)
 
     else:
@@ -58,7 +59,10 @@ def interpolate_sequence(
     Interpolated sequence between a and b at fraction.
     """
     seq_cls = type(a)
-    gen = (default_interpolation(v0, v1, fraction) for v0, v1 in zip(a, b))
+    gen = (
+        default_interpolation(v0, v1, fraction)
+        for v0, v1 in zip(a, b, strict=False)
+    )
     try:
         seq = seq_cls(gen)
     except TypeError:
@@ -135,10 +139,10 @@ def interpolate_log(a: float, b: float, fraction: float) -> float:
 
 
 def slerp(
-    a: Tuple[float, float, float],
-    b: Tuple[float, float, float],
+    a: tuple[float, float, float],
+    b: tuple[float, float, float],
     fraction: float,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Compute Spherical linear interpolation from Euler angles,
     compatible with the napari view.
 
