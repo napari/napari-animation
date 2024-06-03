@@ -28,16 +28,27 @@ jobs:
         task: [black, ruff]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.8
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: "3.x"
+
+      # Temporary fix for 'pip install imageio-ffmpeg'
+      # not including the FFMPEG binary on Apple Silicon macs
+      # This step can be removed when issue is fixed in imageio-ffmpeg
+      # https://github.com/imageio/imageio-ffmpeg/issues/71
+      - name: Setup FFmpeg
+        if: runner.os == 'macOS'
+        uses: AnimMouse/setup-ffmpeg@v1
+
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install tox
-      - name: Run task
+
+      - name: Run tox
         run: tox -e ${{ matrix.task }}
+  
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
@@ -63,6 +74,14 @@ jobs:
           git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
           if (Test-Path -Path "C:\Windows\system32\opengl32.dll" -PathType Leaf) {Exit 0} else {Exit 1}
+
+      # Temporary fix for 'pip install imageio-ffmpeg'
+      # not including the FFMPEG binary on Apple Silicon macs
+      # This step can be removed when issue is fixed in imageio-ffmpeg
+      # https://github.com/imageio/imageio-ffmpeg/issues/71
+      - name: Setup FFmpeg
+        if: runner.os == 'macOS'
+        uses: AnimMouse/setup-ffmpeg@v1
 
       - name: Install dependencies
         run: |
@@ -92,7 +111,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - name: Install dependencies
