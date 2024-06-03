@@ -55,7 +55,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ ubuntu-latest, windows-latest, macos-latest ]
+        # Upgrade to macos-latest when ffmpeg binaries are available for Mac arm-64
+        # https://github.com/imageio/imageio-ffmpeg/issues/71
+        platform: [ ubuntu-latest, windows-latest, macos-13 ]
         python-version: [ "3.9", "3.10", "3.11", "3.12" ]
 
     steps:
@@ -75,14 +77,6 @@ jobs:
           git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
           if (Test-Path -Path "C:\Windows\system32\opengl32.dll" -PathType Leaf) {Exit 0} else {Exit 1}
-
-      # Temporary fix for 'pip install imageio-ffmpeg'
-      # not including the FFMPEG binary on Apple Silicon macs
-      # This step can be removed when issue is fixed in imageio-ffmpeg
-      # https://github.com/imageio/imageio-ffmpeg/issues/71
-      - name: Setup FFmpeg
-        if: runner.os == 'macOS'
-        uses: AnimMouse/setup-ffmpeg@v1
 
       - name: Install dependencies
         run: |
