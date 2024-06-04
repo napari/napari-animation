@@ -38,8 +38,10 @@ jobs:
       # This step can be removed when issue is fixed in imageio-ffmpeg
       # https://github.com/imageio/imageio-ffmpeg/issues/71
       - name: Setup FFmpeg
-        if: runner.os == 'macOS'
-        uses: AnimMouse/setup-ffmpeg@v1
+        if: runner.name == 'macos-latest'
+        run: |
+          brew update
+          brew install ffmpeg
 
       - name: Install dependencies
         run: |
@@ -53,6 +55,7 @@ jobs:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     strategy:
+      fail-fast: false
       matrix:
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
         python-version: [ "3.8", "3.9", "3.10", "3.11" ]
