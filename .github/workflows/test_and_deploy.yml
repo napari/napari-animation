@@ -70,7 +70,7 @@ jobs:
       # This step can be removed when issue is fixed in imageio-ffmpeg
       # https://github.com/imageio/imageio-ffmpeg/issues/71
       - name: Setup FFmpeg
-        if: runner.name == 'macos-latest'
+        if: ${{ runner.os == 'macOS' && runner.arch == 'ARM64' }}
         run: |
           brew update
           brew install ffmpeg
