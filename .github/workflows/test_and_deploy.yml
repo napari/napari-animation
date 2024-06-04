@@ -28,10 +28,10 @@ jobs:
         task: [black, ruff]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.8
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: "3.x"
       - name: Install dependencies
         run: |
           pip install --upgrade pip
@@ -42,9 +42,10 @@ jobs:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     strategy:
+      fail-fast: true
       matrix:
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
+        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
 
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +64,16 @@ jobs:
           git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
           powershell gl-ci-helpers/appveyor/install_opengl.ps1
           if (Test-Path -Path "C:\Windows\system32\opengl32.dll" -PathType Leaf) {Exit 0} else {Exit 1}
+
+      # Temporary fix for 'pip install imageio-ffmpeg'
+      # not including the FFMPEG binary on Apple Silicon macs
+      # This step can be removed when issue is fixed in imageio-ffmpeg
+      # https://github.com/imageio/imageio-ffmpeg/issues/71
+      - name: Setup FFmpeg
+        if: ${{ runner.os == 'macOS' && runner.arch == 'ARM64' }}
+        run: |
+          brew update
+          brew install ffmpeg
 
       - name: Install dependencies
         run: |
