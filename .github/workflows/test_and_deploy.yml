@@ -33,6 +33,16 @@ jobs:
         with:
           python-version: "3.x"
 
+      # Temporary fix for 'pip install imageio[ffmpeg]'
+      # not including the FFMPEG binary on Apple Silicon macs
+      # This step can be removed when issue is fixed in imageio-ffmpeg
+      # https://github.com/imageio/imageio-ffmpeg/issues/71
+      - name: brew install ffmpeg
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install ffmpeg
+
       - name: Install dependencies
         run: |
           pip install --upgrade pip
@@ -47,9 +57,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Upgrade to macos-latest when ffmpeg binaries are available for Mac arm-64
-        # https://github.com/imageio/imageio-ffmpeg/issues/71
-        platform: [ ubuntu-latest, windows-latest, macos-13 ]
+        # PySide currently unavailable for MacOS arm64, test with macos-13
+        platform: [ ubuntu-latest, windows-latest, macos-latest, macos-13 ]
         python-version: [ "3.9", "3.10", "3.11", "3.12" ]
 
     steps:
