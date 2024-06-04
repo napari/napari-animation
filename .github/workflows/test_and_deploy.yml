@@ -45,7 +45,7 @@ jobs:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         # Upgrade to macos-latest when ffmpeg binaries are available for Mac arm-64
         # https://github.com/imageio/imageio-ffmpeg/issues/71
