@@ -49,6 +49,7 @@ jobs:
       matrix:
         # Upgrade to macos-latest when ffmpeg binaries are available for Mac arm-64
         # https://github.com/imageio/imageio-ffmpeg/issues/71
+        # and when PySide is made available for Apple Silicon macos arm64
         platform: [ ubuntu-latest, windows-latest, macos-13 ]
         python-version: [ "3.9", "3.10", "3.11", "3.12" ]
 
