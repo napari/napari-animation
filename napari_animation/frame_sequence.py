@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import TYPE_CHECKING, Dict, Iterator, Sequence, Tuple
+from collections.abc import Iterator, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from napari.utils.events import EmitterGroup
@@ -84,10 +85,10 @@ class FrameSequence(Sequence[ViewerState]):
         }
 
         # cache of interpolated viewer states
-        self._cache: Dict[int, ViewerState] = LRUDict(cache_size=cache_size)
+        self._cache: dict[int, ViewerState] = LRUDict(cache_size=cache_size)
 
         # map of frame number -> (kf0, kf1, fraction)
-        self._keyframe_index: Dict[int, Tuple[KeyFrame, KeyFrame, float]] = {}
+        self._keyframe_index: dict[int, tuple[KeyFrame, KeyFrame, float]] = {}
         self._rebuild_keyframe_index()
 
     def _rebuild_keyframe_index(self, event=None):
