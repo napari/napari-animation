@@ -1,4 +1,4 @@
-# This workflows will upload a Python Package using Twine when a release is created
+# This workflows will upload a Python Package using Trusted Publishing when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 name: tests
@@ -95,10 +95,16 @@ jobs:
 
   deploy:
     # this will run when you have tagged a commit, starting with "v*"
-    # and requires that you have put your twine API key in your 
-    # github secrets (see readme for details)
+    # and requires that you have setup PyPI Trusted Publishing
+    # (see https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
     needs: [ test ]
     runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    environment:
+      name: pypi
+      url: https://pypi.org/project/napari-animation
     if: contains(github.ref, 'tags')
     steps:
       - uses: actions/checkout@v4
@@ -109,12 +115,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -U setuptools setuptools_scm wheel twine
-      - name: Build and publish
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_API_KEY }}
+          python -m pip install build setuptools setuptools_scm
+      - name: Build python package
         run: |
           git tag
-          python setup.py sdist bdist_wheel
-          twine upload dist/*
+          python -m build
+      - name: Publish package distributions to PyPI
+        # This action uploads everything from the dist/ folder to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
