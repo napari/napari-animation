@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from numbers import Integral, Number, Real
-from typing import Sequence, Tuple, TypeVar
+from typing import TypeVar
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -135,10 +136,10 @@ def interpolate_log(a: float, b: float, fraction: float) -> float:
 
 
 def slerp(
-    a: Tuple[float, float, float],
-    b: Tuple[float, float, float],
+    a: tuple[float, float, float],
+    b: tuple[float, float, float],
     fraction: float,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Compute Spherical linear interpolation from Euler angles,
     compatible with the napari view.
 
