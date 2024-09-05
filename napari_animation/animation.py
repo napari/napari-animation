@@ -46,6 +46,8 @@ class Animation:
 
         self.key_frames = KeyFrameList()
 
+        self._frames = FrameSequence(self.key_frames)
+
         self.key_frames.events.removed.connect(self._on_keyframe_removed)
 
         self.key_frames.events.changed.connect(self._on_keyframe_changed)
@@ -56,7 +58,7 @@ class Animation:
 
         self._keyframe_counter = count()  # track number of frames created
 
-        self._frames = FrameSequence(self.key_frames)
+
 
         self._filename = None
 
