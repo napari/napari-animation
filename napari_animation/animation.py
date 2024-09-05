@@ -2,6 +2,7 @@ import os
 from itertools import count
 from pathlib import Path
 from time import sleep
+from typing import Optional
 
 import imageio
 import numpy as np
@@ -61,9 +62,9 @@ class Animation:
         self._filename = None
 
     def capture_keyframe(
-        self, steps=15, ease=Easing.LINEAR, insert=True, position: int = None
+        self, steps=15, ease=Easing.LINEAR, position: Optional[int] = None
     ):
-        """Record current key-frame
+        """Record current key-frame and insert into list
 
         Parameters
         ----------
@@ -73,9 +74,6 @@ class Animation:
             If provided this method should make from `[0, 1]` to `[0, 1]` and will
             be used as an easing function for the transition between the last state
             and captured one.
-        insert : bool
-            If captured key-frame should insert into current list or replace the current
-            keyframe.
         position : int, optional
             If provided, place new frame at this index. By default, inserts at current
             active frame.
@@ -86,18 +84,12 @@ class Animation:
             if active_keyframe:
                 position = self.key_frames.index(active_keyframe)
             else:
-                if insert:
-                    position = -1
-                else:
-                    raise ValueError("No selected keyframe to replace !")
+                position = -1
 
         new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
         new_frame.name = f"Key Frame {next(self._keyframe_counter)}"
 
-        if insert:
-            self.key_frames.insert(position + 1, new_frame)
-        else:
-            self.key_frames[position] = new_frame
+        self.key_frames.insert(position + 1, new_frame)
 
     def set_to_keyframe(self, frame: int):
         """Set the viewer to a given key-frame

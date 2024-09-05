@@ -114,7 +114,13 @@ class AnimationWidget(QWidget):
 
     def _replace_keyframe_callback(self, event=None):
         """Replace current key-frame with new view"""
-        self.animation.capture_keyframe(**self._input_state(), insert=False)
+        if self.animation.key_frames.selection.active:
+            self.animation.capture_keyframe(**self._input_state())
+            self.animation.key_frames.select_previous()
+            self.animation.key_frames.remove_selected()
+            self.animation.key_frames.select_next()
+        else:
+            raise ValueError("No selected keyframe to replace !")
 
     def _delete_keyframe_callback(self, event=None):
         """Delete current key-frame"""
