@@ -30,7 +30,7 @@ class ViewerState:
     def from_viewer(cls, viewer: napari.viewer.Viewer):
         """Create a ViewerState from a viewer instance."""
         layers = {
-            layer.name: layer.as_layer_data_tuple()[1]
+            layer.name: dict(layer.as_layer_data_tuple()[1])
             for layer in viewer.layers
         }
         for layer_attributes in layers.values():
