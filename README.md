@@ -187,7 +187,7 @@ If you encounter any problems, please [file an issue](https://github.com/napari/
 [@napari]: https://github.com/napari
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
 [cookiecutter-napari-plugin]: https://github.com/napari/cookiecutter-napari-plugin
-[file an issue]: https://github.com/sofroniewn/napari-animation/issues
+[file an issue]: https://github.com/napari/napari-animation/issues
 [napari]: https://github.com/napari/napari
 [tox]: https://tox.readthedocs.io/en/latest/
 [pip]: https://pypi.org/project/pip/
