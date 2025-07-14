@@ -78,9 +78,8 @@ def test_wrap_enum_member_python_313_simulation():
 
     partial_func = partial(test_func)
 
-    # Test Python 3.13 behavior when enum.member is available
     if _HAS_ENUM_MEMBER:
-        # Python 3.11+ has enum.member
+        # Test successful wrapping when enum.member is available
         with (
             patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
             patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True),
@@ -89,8 +88,9 @@ def test_wrap_enum_member_python_313_simulation():
             # Should return enum.member wrapped version
             assert type(wrapped).__name__ == "member"
     else:
-        # Python 3.10 doesn't have enum.member, so we mock it
+        # Test with mock member function
         def mock_member(value):
+            """Mock enum member for Python 3.10"""
             return f"wrapped_{value}"
 
         with (
@@ -104,6 +104,26 @@ def test_wrap_enum_member_python_313_simulation():
         ):
             wrapped = wrap_enum_member(partial_func)
             assert wrapped == f"wrapped_{partial_func}"
+
+
+def test_wrap_enum_member_error_case():
+    """Test wrap_enum_member raises error when needed but not available."""
+    import pytest
+
+    def test_func(x):
+        return x * 2
+
+    partial_func = partial(test_func)
+
+    # Simulate Python 3.13+ without enum.member (broken environment)
+    with (
+        patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
+        patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", False),
+    ):
+        with pytest.raises(
+            RuntimeError, match="requires enum.member but it's not available"
+        ):
+            wrap_enum_member(partial_func)
 
 
 def test_easing_enum_functionality():
