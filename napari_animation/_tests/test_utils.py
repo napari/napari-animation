@@ -5,7 +5,7 @@ from ..interpolation.utils import keys_to_list, nested_get
 input_dict = [{"a": 1, "b": {"c": "d"}}]
 keys = [["b", "c"]]
 expected = ["d"]
-test_set = list(zip(input_dict, keys, expected))
+test_set = list(zip(input_dict, keys, expected, strict=False))
 
 
 @pytest.mark.parametrize("input_dict,keys,expected", test_set)
@@ -16,7 +16,7 @@ def test_nested_get(input_dict, keys, expected):
 
 input_dict = [{"a": 1, "b": {"c": "d"}, "e": {}}]
 expected = [[["a"], ["b", "c"], ["e"]]]
-test_set = list(zip(input_dict, expected))
+test_set = list(zip(input_dict, expected, strict=False))
 
 
 @pytest.mark.parametrize("input_dict,expected", test_set)

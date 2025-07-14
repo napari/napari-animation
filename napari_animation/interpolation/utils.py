@@ -81,8 +81,8 @@ def nested_assert_close(a, b):
 
 def nested_seq_assert_close(a, b):
     """Assert close to scalar or potentially nested qequences of numeric types and others."""
-    if isinstance(a, (list, tuple)) or isinstance(b, (list, tuple)):
-        for a_v, b_v in zip(a, b):
+    if isinstance(a, list | tuple) or isinstance(b, list | tuple):
+        for a_v, b_v in zip(a, b, strict=False):
             nested_seq_assert_close(a_v, b_v)
     else:
         if isinstance(a, Number):
