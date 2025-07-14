@@ -85,10 +85,17 @@ def test_wrap_enum_member_python_313_simulation():
     ):
         # Mock enum.member if not available
         if not _HAS_ENUM_MEMBER:
-            with patch("napari_animation._enum_compat.member") as mock_member:
-                mock_member.return_value = f"wrapped_{partial_func}"
+            # Create a mock member function
+            def mock_member(value):
+                return f"wrapped_{value}"
+
+            # Patch the module to add the member attribute
+            with patch.object(
+                sys.modules["napari_animation._enum_compat"],
+                "member",
+                mock_member,
+            ):
                 wrapped = wrap_enum_member(partial_func)
-                mock_member.assert_called_once_with(partial_func)
                 assert wrapped == f"wrapped_{partial_func}"
         else:
             wrapped = wrap_enum_member(partial_func)
