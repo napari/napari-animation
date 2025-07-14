@@ -2,6 +2,7 @@
 discovery at test time.
 https://docs.pytest.org/en/stable/fixture.html
 """
+
 import numpy as np
 import pytest
 

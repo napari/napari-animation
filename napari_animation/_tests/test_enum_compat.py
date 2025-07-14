@@ -59,9 +59,10 @@ def test_wrap_enum_member_python_310_simulation():
     partial_func = partial(test_func)
 
     # Simulate Python 3.10 environment
-    with patch(
-        "napari_animation._enum_compat._NEEDS_ENUM_MEMBER", False
-    ), patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", False):
+    with (
+        patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", False),
+        patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", False),
+    ):
         wrapped = wrap_enum_member(partial_func)
 
         # Should return the original partial function
@@ -78,9 +79,10 @@ def test_wrap_enum_member_python_313_simulation():
     partial_func = partial(test_func)
 
     # Simulate Python 3.13 environment
-    with patch(
-        "napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True
-    ), patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True):
+    with (
+        patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
+        patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True),
+    ):
         # Mock enum.member if not available
         if not _HAS_ENUM_MEMBER:
             with patch("napari_animation._enum_compat.member") as mock_member:

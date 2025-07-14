@@ -1,4 +1,5 @@
 """Compatibility layer for enum behavior across Python versions."""
+
 import sys
 
 # Check if enum.member is available (Python 3.11+)
