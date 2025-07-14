@@ -78,29 +78,32 @@ def test_wrap_enum_member_python_313_simulation():
 
     partial_func = partial(test_func)
 
-    # Simulate Python 3.13 environment
-    with (
-        patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
-        patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True),
-    ):
-        # Mock enum.member if not available
-        if not _HAS_ENUM_MEMBER:
-            # Create a mock member function
-            def mock_member(value):
-                return f"wrapped_{value}"
-
-            # Patch the module to add the member attribute
-            with patch.object(
-                sys.modules["napari_animation._enum_compat"],
-                "member",
-                mock_member,
-            ):
-                wrapped = wrap_enum_member(partial_func)
-                assert wrapped == f"wrapped_{partial_func}"
-        else:
+    # Test Python 3.13 behavior when enum.member is available
+    if _HAS_ENUM_MEMBER:
+        # Python 3.11+ has enum.member
+        with (
+            patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
+            patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True),
+        ):
             wrapped = wrap_enum_member(partial_func)
             # Should return enum.member wrapped version
             assert type(wrapped).__name__ == "member"
+    else:
+        # Python 3.10 doesn't have enum.member, so we mock it
+        def mock_member(value):
+            return f"wrapped_{value}"
+
+        with (
+            patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
+            patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True),
+            patch.object(
+                sys.modules["napari_animation._enum_compat"],
+                "member",
+                mock_member,
+            ),
+        ):
+            wrapped = wrap_enum_member(partial_func)
+            assert wrapped == f"wrapped_{partial_func}"
 
 
 def test_easing_enum_functionality():
