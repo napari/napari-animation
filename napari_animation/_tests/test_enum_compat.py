@@ -4,7 +4,7 @@ import sys
 from functools import partial
 from unittest.mock import patch
 
-from pytest import skip
+import pytest
 
 from napari_animation._enum_compat import (
     _HAS_ENUM_MEMBER,
@@ -52,7 +52,7 @@ def test_wrap_enum_member_basic():
     assert result == 10
 
 
-@skip
+@pytest.mark.skip(reason="Troubleshooting")
 def test_wrap_enum_member_python_310_simulation():
     """Test wrap_enum_member behavior simulating Python 3.10."""
 
@@ -73,7 +73,7 @@ def test_wrap_enum_member_python_310_simulation():
         assert wrapped(5) == 10
 
 
-@skip
+@pytest.mark.skip(reason="Not implemented yet")
 def test_wrap_enum_member_python_313_simulation():
     """Test wrap_enum_member behavior simulating Python 3.13."""
 
