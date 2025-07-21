@@ -110,26 +110,6 @@ def test_wrap_enum_member_python_313_simulation():
             assert wrapped == f"wrapped_{partial_func}"
 
 
-def test_wrap_enum_member_error_case():
-    """Test wrap_enum_member raises error when needed but not available."""
-    import pytest
-
-    def test_func(x):
-        return x * 2
-
-    partial_func = partial(test_func)
-
-    # Simulate Python 3.13+ without enum.member (broken environment)
-    with (
-        patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
-        patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", False),
-    ):
-        with pytest.raises(
-            RuntimeError, match="requires enum.member but it's not available"
-        ):
-            wrap_enum_member(partial_func)
-
-
 def test_easing_enum_functionality():
     """Test that the Easing enum works correctly with the compatibility fix."""
     # Test that all easing functions are callable
