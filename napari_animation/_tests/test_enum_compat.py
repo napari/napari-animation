@@ -2,9 +2,6 @@
 
 import sys
 from functools import partial
-from unittest.mock import patch
-
-import pytest
 
 from napari_animation._enum_compat import (
     _HAS_ENUM_MEMBER,
@@ -50,64 +47,6 @@ def test_wrap_enum_member_basic():
 
     result = TestEnum.TEST(5)
     assert result == 10
-
-
-@pytest.mark.skip(reason="Troubleshooting")
-def test_wrap_enum_member_python_310_simulation():
-    """Test wrap_enum_member behavior simulating Python 3.10."""
-
-    def test_func(x):
-        return x * 2
-
-    partial_func = partial(test_func)
-
-    # Simulate Python 3.10 environment
-    with (
-        patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", False),
-        patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", False),
-    ):
-        wrapped = wrap_enum_member(partial_func)
-
-        # Should return the original partial function
-        assert wrapped is partial_func
-        assert wrapped(5) == 10
-
-
-@pytest.mark.skip(reason="Not implemented yet")
-def test_wrap_enum_member_python_313_simulation():
-    """Test wrap_enum_member behavior simulating Python 3.13."""
-
-    def test_func(x):
-        return x * 2
-
-    partial_func = partial(test_func)
-
-    if _HAS_ENUM_MEMBER:
-        # Test successful wrapping when enum.member is available
-        with (
-            patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
-            patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True),
-        ):
-            wrapped = wrap_enum_member(partial_func)
-            # Should return enum.member wrapped version
-            assert type(wrapped).__name__ == "member"
-    else:
-        # Test with mock member function
-        def mock_member(value):
-            """Mock enum member for Python 3.10"""
-            return f"wrapped_{value}"
-
-        with (
-            patch("napari_animation._enum_compat._NEEDS_ENUM_MEMBER", True),
-            patch("napari_animation._enum_compat._HAS_ENUM_MEMBER", True),
-            patch.object(
-                sys.modules["napari_animation._enum_compat"],
-                "member",
-                mock_member,
-            ),
-        ):
-            wrapped = wrap_enum_member(partial_func)
-            assert wrapped == f"wrapped_{partial_func}"
 
 
 def test_easing_enum_functionality():

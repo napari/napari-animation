@@ -34,3 +34,5 @@ def wrap_enum_member(value):
             return value
         # Needed for Python 3.11+
         return member(value)
+    # python 3.10 common case
+    return value
