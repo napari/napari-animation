@@ -4,7 +4,7 @@ Python 3.13 introduced stricter enum handling requiring `enum.member()` wrapper 
 This compatibility layer detects Python version and conditionally wraps enum values.
 - Python 3.10:
 - Python 3.11 added `member`
-- Python 3.13+: No wrapper required.
+- Python 3.13+: member is required.
 
 Enum members have a name and a value.
 """
