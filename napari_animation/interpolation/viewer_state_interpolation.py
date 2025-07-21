@@ -1,5 +1,4 @@
 from dataclasses import asdict
-from typing import Optional
 
 from ..viewer_state import ViewerState
 from .interpolation_constants import Interpolation
@@ -11,7 +10,7 @@ def interpolate_viewer_state(
     initial_state: ViewerState,
     final_state: ViewerState,
     fraction: float,
-    interpolation_map: Optional[InterpolationMap] = None,
+    interpolation_map: InterpolationMap | None = None,
 ) -> ViewerState:
     """Interpolate a state between two states
 
