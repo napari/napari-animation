@@ -4,8 +4,8 @@ import sys
 from functools import partial
 
 from napari_animation._enum_compat import (
-    _HAS_ENUM_MEMBER,
-    _NEEDS_ENUM_MEMBER,
+    _ENUM_MEMBER_AVAILABLE,
+    _ENUM_MEMBER_REQUIRED,
     wrap_enum_member,
 )
 from napari_animation.easing import Easing
@@ -17,14 +17,14 @@ from napari_animation.interpolation.interpolation_constants import (
 def test_enum_member_detection():
     """Test that enum.member availability is correctly detected."""
     if sys.version_info >= (3, 11):
-        assert _HAS_ENUM_MEMBER is True
+        assert _ENUM_MEMBER_AVAILABLE is True
     else:
-        assert _HAS_ENUM_MEMBER is False
+        assert _ENUM_MEMBER_AVAILABLE is False
 
     if sys.version_info >= (3, 13):
-        assert _NEEDS_ENUM_MEMBER is True
+        assert _ENUM_MEMBER_REQUIRED is True
     else:
-        assert _NEEDS_ENUM_MEMBER is False
+        assert _ENUM_MEMBER_REQUIRED is False
 
 
 def test_wrap_enum_member_basic():

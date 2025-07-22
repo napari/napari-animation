@@ -17,19 +17,20 @@ try:
     from enum import member
 
     # member is importable (Python 3.11+)
-    _HAS_ENUM_MEMBER = True
+    _ENUM_MEMBER_AVAILABLE = True
 except ImportError:
     # Python 3.10 has no member support
-    _HAS_ENUM_MEMBER = False
+    _ENUM_MEMBER_AVAILABLE = False
 
 # Check if enum.member is required (Python 3.13+)
-_NEEDS_ENUM_MEMBER = sys.version_info >= (3, 13)
+_ENUM_MEMBER_REQUIRED = sys.version_info >= (3, 13)
 
 
 def wrap_enum_member(value):
     """Conditionally wrap a value with enum.member if needed."""
-    if _NEEDS_ENUM_MEMBER:
-        # Needed for Python 3.11+
+    # Enum member is required for Python 3.13+, and available for 3.11+
+    if _ENUM_MEMBER_REQUIRED or _ENUM_MEMBER_AVAILABLE:
         return member(value)
-    # python 3.10 common case
-    return value
+    # For python 3.10 and older, just return the value directly
+    if not _ENUM_MEMBER_AVAILABLE:
+        return value
