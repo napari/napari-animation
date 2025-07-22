@@ -29,9 +29,6 @@ _NEEDS_ENUM_MEMBER = sys.version_info >= (3, 13)
 def wrap_enum_member(value):
     """Conditionally wrap a value with enum.member if needed."""
     if _NEEDS_ENUM_MEMBER:
-        if not _HAS_ENUM_MEMBER:
-            # python 3.10 does not have member so we cannot wrap
-            return value
         # Needed for Python 3.11+
         return member(value)
     # python 3.10 common case
