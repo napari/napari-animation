@@ -20,6 +20,8 @@ from pathlib import Path
 
 import imageio.v2 as iio
 import napari
+from napari.settings import get_settings
+from qtpy.QtWidgets import QApplication
 from sphinx_gallery import scrapers
 from sphinx_gallery.sorting import ExampleTitleSortKey
 
@@ -248,12 +250,12 @@ def napari_scraper(block, block_vars, gallery_conf):
 
     Looks for any QtMainWindow instances and takes a screenshot of them.
 
-    `app.processEvents()` allows Qt events to propagateo and prevents hanging.
+    `processEvents()` allows Qt events to propagateo and prevents hanging.
     """
     imgpath_iter = block_vars["image_path_iterator"]
 
-    if app := napari.qt.get_qapp():
-        app.processEvents()
+    if napari._qt.qt_main_window._QtMainWindow._instances:
+        QApplication.processEvents()
     else:
         return ""
 
@@ -267,15 +269,12 @@ def napari_scraper(block, block_vars, gallery_conf):
         win._window.screenshot(img_path, canvas_only=False)
 
     napari.Viewer.close_all()
-    app.processEvents()
+    QApplication.processEvents()
 
     return scrapers.figure_rst(img_paths, gallery_conf["src_dir"])
 
 
 def reset_napari(gallery_conf, fname):
-    from napari.settings import get_settings
-    from qtpy.QtWidgets import QApplication
-
     settings = get_settings()
     settings.appearance.theme = "dark"
 
