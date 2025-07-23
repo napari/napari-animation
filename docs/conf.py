@@ -252,7 +252,7 @@ def napari_scraper(block, block_vars, gallery_conf):
     """
     imgpath_iter = block_vars["image_path_iterator"]
 
-    if app := napari.qt.get_app():
+    if app := napari.qt.get_qapp():
         app.processEvents()
     else:
         return ""
