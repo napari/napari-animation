@@ -32,7 +32,7 @@ def default_interpolation(a: _T, b: _T, fraction: float) -> _T:
     elif isinstance(a, Number) and isinstance(b, Number):
         return interpolate_num(a, b, fraction)
 
-    elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
+    elif isinstance(a, list | tuple) and isinstance(b, list | tuple):
         return interpolate_sequence(a, b, fraction)
 
     else:
@@ -59,7 +59,10 @@ def interpolate_sequence(
     Interpolated sequence between a and b at fraction.
     """
     seq_cls = type(a)
-    gen = (default_interpolation(v0, v1, fraction) for v0, v1 in zip(a, b))
+    gen = (
+        default_interpolation(v0, v1, fraction)
+        for v0, v1 in zip(a, b, strict=False)
+    )
     try:
         seq = seq_cls(gen)
     except TypeError:

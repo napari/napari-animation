@@ -261,6 +261,7 @@ def napari_scraper(block, block_vars, gallery_conf):
     for win, img_path in zip(
         reversed(napari._qt.qt_main_window._QtMainWindow._instances),
         imgpath_iter,
+        strict=False,
     ):
         img_paths.append(img_path)
         win._window.screenshot(img_path, canvas_only=False)
