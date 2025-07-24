@@ -250,14 +250,11 @@ def napari_scraper(block, block_vars, gallery_conf):
 
     Looks for any QtMainWindow instances and takes a screenshot of them.
 
-    `processEvents()` allows Qt events to propagateo and prevents hanging.
+    `processEvents()` allows Qt events to propagate and prevents hanging.
     """
     imgpath_iter = block_vars["image_path_iterator"]
 
-    if napari._qt.qt_main_window._QtMainWindow._instances:
-        QApplication.processEvents()
-    else:
-        return ""
+    QApplication.processEvents()
 
     img_paths = []
     for win, img_path in zip(
