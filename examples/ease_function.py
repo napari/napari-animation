@@ -8,7 +8,8 @@ from napari_animation import Animation
 from napari_animation.easing import Easing
 
 cat = data.cat()
-viewer = napari.view_image(cat, rgb=True)
+viewer = napari.Viewer()
+viewer.add_image(cat, rgb=True)
 
 
 animation = Animation(viewer)

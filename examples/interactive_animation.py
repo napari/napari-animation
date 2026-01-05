@@ -12,7 +12,8 @@ import napari
 
 
 blobs = data.binary_blobs(length=128, volume_fraction=0.1, n_dim=3)
-viewer = napari.view_image(blobs.astype(float), name='blobs')
+viewer = napari.Viewer()
+viewer.add_image(blobs.astype(float), name='blobs')
 labeled = ndi.label(blobs)[0]
 viewer.add_labels(labeled, name='blob ID')
 
