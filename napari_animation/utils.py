@@ -35,6 +35,16 @@ def pairwise(iterable):
 
 def layer_attribute_changed(value, original_value):
     """Recursively check if a layer attribute has changed."""
+    if hasattr(value, "model_dump") or hasattr(original_value, "model_dump"):
+        if not (
+            hasattr(value, "model_dump")
+            and hasattr(original_value, "model_dump")
+        ):
+            return True
+        return layer_attribute_changed(
+            value.model_dump(), original_value.model_dump()
+        )
+
     if isinstance(value, dict):
         if (
             not isinstance(original_value, dict)
