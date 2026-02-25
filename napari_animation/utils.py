@@ -35,6 +35,17 @@ def pairwise(iterable):
 
 def layer_attribute_changed(value, original_value):
     """Recursively check if a layer attribute has changed."""
+    # Handle EventedModel-like objects (napari 0.7.x has model_dump, 0.6.x has dict)
+    value_dump = getattr(value, "model_dump", None)
+    if callable(value_dump):
+        return layer_attribute_changed(
+            value_dump(), original_value.model_dump()
+        )
+
+    value_dict = getattr(value, "dict", None)
+    if callable(value_dict):
+        return layer_attribute_changed(value_dict(), original_value.dict())
+
     if isinstance(value, dict):
         if (
             not isinstance(original_value, dict)
@@ -44,5 +55,14 @@ def layer_attribute_changed(value, original_value):
         return any(
             layer_attribute_changed(value[key], original_value[key])
             for key in value
+        )
+    if isinstance(value, tuple):
+        if not isinstance(original_value, tuple) or len(value) != len(
+            original_value
+        ):
+            return True
+        return any(
+            layer_attribute_changed(v, ov)
+            for v, ov in zip(value, original_value, strict=False)
         )
     return not np.array_equal(value, original_value)
