@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from napari.utils.colormaps import DirectLabelColormap
 
@@ -49,3 +50,25 @@ def test_layer_attribute_changed_direct_label_colormap_changed():
     )
 
     assert layer_attribute_changed(cmap1, cmap2)
+
+
+class DictOnlyModel:
+    def __init__(self, data):
+        self._data = data
+
+    def dict(self):
+        return self._data
+
+
+def test_layer_attribute_changed_dict_model_equal():
+    model1 = DictOnlyModel({'color_dict': {1: np.array([1, 0, 0, 1])}})
+    model2 = DictOnlyModel({'color_dict': {1: np.array([1, 0, 0, 1])}})
+
+    assert not layer_attribute_changed(model1, model2)
+
+
+def test_layer_attribute_changed_dict_model_changed():
+    model1 = DictOnlyModel({'color_dict': {1: np.array([1, 0, 0, 1])}})
+    model2 = DictOnlyModel({'color_dict': {1: np.array([0, 1, 0, 1])}})
+
+    assert layer_attribute_changed(model1, model2)
