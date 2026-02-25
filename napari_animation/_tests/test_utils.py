@@ -52,6 +52,24 @@ def test_layer_attribute_changed_direct_label_colormap_changed():
     assert layer_attribute_changed(cmap1, cmap2)
 
 
+def test_layer_attribute_changed_tuple_equal():
+    """Tuples (like _label_mapping_and_color_dict) should be compared element-by-element."""
+    arr = np.array([1.0, 0.0, 0.0, 1.0])
+    t1 = ({None: 0, 1: 1}, {0: arr, 1: arr})
+    t2 = ({None: 0, 1: 1}, {0: arr, 1: arr})
+
+    assert not layer_attribute_changed(t1, t2)
+
+
+def test_layer_attribute_changed_tuple_changed():
+    arr1 = np.array([1.0, 0.0, 0.0, 1.0])
+    arr2 = np.array([0.0, 1.0, 0.0, 1.0])
+    t1 = ({None: 0, 1: 1}, {0: arr1, 1: arr1})
+    t2 = ({None: 0, 1: 1}, {0: arr2, 1: arr2})
+
+    assert layer_attribute_changed(t1, t2)
+
+
 class DictOnlyModel:
     def __init__(self, data):
         self._data = data

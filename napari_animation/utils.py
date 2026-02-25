@@ -56,4 +56,13 @@ def layer_attribute_changed(value, original_value):
             layer_attribute_changed(value[key], original_value[key])
             for key in value
         )
+    if isinstance(value, tuple):
+        if not isinstance(original_value, tuple) or len(value) != len(
+            original_value
+        ):
+            return True
+        return any(
+            layer_attribute_changed(v, ov)
+            for v, ov in zip(value, original_value, strict=False)
+        )
     return not np.array_equal(value, original_value)
