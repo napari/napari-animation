@@ -37,7 +37,7 @@ else:
 # -- Project information -----------------------------------------------------
 
 project = "napari-animation"
-copyright = f'{datetime.now().year}, The napari team'  # noqa: A001
+copyright = f"{datetime.now().year}, The napari team"  # noqa: A001
 author = "The napari team"
 
 # -- General configuration ---------------------------------------------------
