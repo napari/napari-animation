@@ -136,8 +136,7 @@ You can make sure your `[dev]` installation is working properly by running
 
 ```{note}
 We use [`pre-commit`](https://pre-commit.com) to sort imports and lint with
-[`ruff`](https://github.com/astral-sh/ruff) and format code with
-[`black`](https://github.com/psf/black) automatically prior to each commit.
+[`ruff`](https://github.com/astral-sh/ruff) automatically prior to each commit.
 To minmize test errors when submitting pull requests, please install `pre-commit`
 in your environment as follows:
 
@@ -155,7 +154,7 @@ The documentation for napari-animation is built with [Sphinx](https://www.spinx-
 After installing the documentation dependencies with
 
 ```sh
-pip install ".[doc]"
+pip install -e . --group doc
 ```
 
 you can see a local version of the documentation by running
