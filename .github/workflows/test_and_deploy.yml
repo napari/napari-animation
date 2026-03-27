@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: hynek/build-and-inspect-python-package@ba1fdf688bf0f2029cb627086993f5aed9b8c463 # v2.13.0
+      - uses: hynek/build-and-inspect-python-package@efb823f52190ad02594531168b7a2d5790e66516 # v2.14.0
 
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{ matrix.qt_package }}
