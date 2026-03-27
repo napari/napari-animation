@@ -111,7 +111,7 @@ Contributions are very welcome and a detailed contributing guide is coming soon.
 In the meantime, clone this repository and install it in editable mode using `pip`:
 
 ```
-pip install -e .
+pip install -e . --group dev
 ```
 We recommend using a virtual environment.
 
