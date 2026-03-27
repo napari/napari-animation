@@ -15,6 +15,7 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import os
+from datetime import datetime
 import shutil
 from pathlib import Path
 
@@ -36,7 +37,7 @@ else:
 # -- Project information -----------------------------------------------------
 
 project = "napari-animation"
-copyright = "2026, The napari team"  # noqa: A001
+copyright = f'{datetime.now().year}, The napari team'  # noqa: A001
 author = "The napari team"
 
 # -- General configuration ---------------------------------------------------
