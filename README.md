@@ -113,20 +113,20 @@ In the meantime, clone this repository and install it in editable mode using `pi
 ```
 pip install -e .
 ```
-We recommend using a virtual environment, for example `conda`.
+We recommend using a virtual environment.
 
 
 ```{important}
-Ensure you have a suitable Qt backend for napari! We recommend `PyQt5`.
+Ensure you have a suitable Qt backend for napari! We recommend `PyQt6`.
 For more information, see the napari [Qt backend installation guide](https://napari.org/stable/tutorials/fundamentals/installation.html#choosing-a-different-qt-backend)
 ```
 
 To set up your development installation, clone this repository, navigate to the clone folder, and install napari-animation in editable mode using `pip`.
 
 ```sh
-conda create -n nap-anim python=3.10
+conda create -n nap-anim python=3.13
 conda activate nap-anim
-pip install -e ".[dev]" PyQt5
+pip install -e . --group dev pyqt6
 
 ```
 
