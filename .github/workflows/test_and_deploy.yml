@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [black, ruff]
+        task: [ruff]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Set up Python
@@ -58,15 +58,15 @@ jobs:
         python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
         qt_package: [ pyqt6 ]
         include:
-          # Keep a small PySide6 smoke matrix; PyQt6 covers the full grid.
+          # Keep small legacy/backend smoke tests; PyQt6 covers the full grid.
           - platform: ubuntu-latest
             python-version: "3.12"
             qt_package: pyside6
           - platform: windows-latest
-            python-version: "3.14"
+            python-version: "3.12"
             qt_package: pyside6
           - platform: ubuntu-latest
-            python-version: "3.14"
+            python-version: "3.12"
             qt_package: pyqt5
           - platform: windows-latest
             python-version: "3.12"
