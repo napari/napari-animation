@@ -1,7 +1,12 @@
 repos:
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.3
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.7
     hooks:
-    - id: ruff
-      args: [ --fix ]
-      exclude: _vendor|vendored|examples
+      - id: ruff-check
+        exclude: _vendor|vendored|examples
+      - id: ruff-format
+        exclude: _vendor|vendored|examples
+  - repo: https://github.com/napari/napari-plugin-checks
+    rev: v0.3.0
+    hooks:
+      - id: napari-plugin-checks
