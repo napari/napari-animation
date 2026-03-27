@@ -38,23 +38,33 @@ jobs:
           pip install tox
       - name: Run task
         run: tox -e ${{ matrix.task }}
+
+  build-and-inspect-package:
+    name: Build & inspect package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: hynek/build-and-inspect-python-package@ba1fdf688bf0f2029cb627086993f5aed9b8c463 # v2.13.0
+
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{ matrix.qt_package }}
     runs-on: ${{ matrix.platform }}
+    permissions:
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
-        qt_package: [ pyqt ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        qt_package: [ pyqt6 ]
         include:
-          # Add PySide2 only for Python 3.10 on Linux and Windows
+          # Keep a small PySide6 smoke matrix; PyQt6 covers the full grid.
           - platform: ubuntu-latest
-            python-version: "3.10"
-            qt_package: pyside
+            python-version: "3.14"
+            qt_package: pyside6
           - platform: windows-latest
-            python-version: "3.10"
-            qt_package: pyside
+            python-version: "3.14"
+            qt_package: pyside6
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -89,13 +99,13 @@ jobs:
       - name: Coverage
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
 
   deploy:
     # this will run when you have tagged a commit, starting with "v*"
     # and requires that you have setup PyPI Trusted Publishing
     # (see https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
-    needs: [ test ]
+    needs: [ test, build-and-inspect-package ]
     runs-on: ubuntu-latest
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
