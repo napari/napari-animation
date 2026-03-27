@@ -77,7 +77,6 @@ doc = [
 dev = [
   {include-group = "testing"},
   {include-group = "doc"},
-  "black",
   "check-manifest",
   "pre-commit",
   "ruff",
@@ -95,33 +94,6 @@ napari_animation = ["napari.yaml"]
 
 [tool.setuptools_scm]
 write_to = "napari_animation/_version.py"
-
-
-[tool.black]
-target-version = ['py310', 'py311', 'py312', 'py313', 'py314']
-line-length = 79
-# Don't change quote style - keep whatever quotes are already used
-skip-string-normalization = true
-exclude = '''
-(
-  /(
-      \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | examples
-    | vendored
-    | _vendor
-  )/
-  | 
-)
-'''
 
 [tool.ruff]
 line-length = 79
@@ -147,6 +119,9 @@ lint.ignore = [
 
 target-version = "py310"  # we set to the lowest version that we support
 fix = true
+
+[tool.ruff.format]
+quote-style = "preserve"
 
 [tool.pytest.ini_options]
 addopts = "--durations=10"
