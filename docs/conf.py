@@ -36,7 +36,7 @@ else:
 # -- Project information -----------------------------------------------------
 
 project = "napari-animation"
-copyright = "2024, The napari team"  # noqa: A001
+copyright = "2026, The napari team"  # noqa: A001
 author = "The napari team"
 
 # -- General configuration ---------------------------------------------------
