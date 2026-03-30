@@ -64,10 +64,10 @@ jobs:
             python-version: "3.12"
             qt_package: pyqt5
           - platform: ubuntu-latest
-            python-version: "3.12"
+            python-version: "3.10"
             qt_package: pyside2
-          - platform: macos-latest
-            python-version: "3.12"
+          - platform: windows-latest
+            python-version: "3.10"
             qt_package: pyside2
 
     steps:
