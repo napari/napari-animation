@@ -71,6 +71,12 @@ jobs:
           - platform: windows-latest
             python-version: "3.12"
             qt_package: pyqt5
+          - platform: ubuntu-latest
+            python-version: "3.12"
+            qt_package: pyside2
+          - platform: macos-latest
+            python-version: "3.12"
+            qt_package: pyside2
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
