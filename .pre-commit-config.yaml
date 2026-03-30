@@ -10,9 +10,9 @@ repos:
     rev: v0.15.7
     hooks:
       - id: ruff-check
-        exclude: _vendor|vendored|examples
+        exclude: _vendor|vendored|examples|docs/conf\.py
       - id: ruff-format
-        exclude: _vendor|vendored|examples
+        exclude: _vendor|vendored|examples|docs/conf\.py
   - repo: https://github.com/napari/napari-plugin-checks
     rev: v0.3.0
     hooks:
