@@ -7,9 +7,10 @@ repos:
       - id: trailing-whitespace
       - id: check-yaml # checks for correct yaml syntax for github actions ex.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.7
+    rev: v0.15.8
     hooks:
       - id: ruff-check
+        args: [--fix]
         exclude: _vendor|vendored|examples|docs/conf\.py
       - id: ruff-format
         exclude: _vendor|vendored|examples|docs/conf\.py

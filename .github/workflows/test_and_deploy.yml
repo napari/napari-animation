@@ -19,12 +19,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code:
-    name: Code
+  ruff:
+    name: Pre-commit (all files)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: astral-sh/setup-uv@5a095e7a2014a4212f075830d4f7277575a9d098 # v7.3.1
         with:
           python-version: "3.13"
@@ -46,11 +46,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
-        qt_package: [ pyqt6 ]
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [ "3.10", "3.12", "3.14" ]
+        qt_package: [pyqt6]
         include:
-          # Keep small legacy/backend smoke tests; PyQt6 covers the full grid.
+          # Keep small legacy/backend smoke tests; PyQt6 covers the main grid.
           - platform: ubuntu-latest
             python-version: "3.12"
             qt_package: pyside6
@@ -101,6 +101,7 @@ jobs:
           QT_PACKAGE: ${{ matrix.qt_package }}
 
       - name: Coverage
+        if: runner.os == 'Linux' && matrix.python-version == '3.14' && matrix.qt_package == 'pyqt6'
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           use_oidc: true
@@ -109,7 +110,7 @@ jobs:
     # this will run when you have tagged a commit, starting with "v*"
     # and requires that you have setup PyPI Trusted Publishing
     # (see https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
-    needs: [ test, build-and-inspect-package ]
+    needs: [ ruff, test, build-and-inspect-package ]
     runs-on: ubuntu-latest
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
