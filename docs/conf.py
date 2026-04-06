@@ -21,11 +21,10 @@ from pathlib import Path
 import imageio.v2 as iio
 import napari
 from napari.settings import get_settings
+from napari_animation._version import version as napari_animation_version
 from qtpy.QtWidgets import QApplication
 from sphinx_gallery import scrapers
 from sphinx_gallery.sorting import ExampleTitleSortKey
-
-from napari_animation._version import version as napari_animation_version
 
 release = napari_animation_version
 if "dev" in release:  # noqa: SIM108
