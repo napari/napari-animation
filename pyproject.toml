@@ -1,37 +1,99 @@
 [build-system]
-requires = [
-  "build",
-  "setuptools >= 42",
-  "setuptools_scm[toml]>=3.4"
-]
+requires = ["setuptools>=77.0.3", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "napari-animation"
+description = "A plugin for making animations in napari"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Nicholas Sofroniew" },
+  { name = "Alister Burt" },
+  { name = "Guillaume Witz" },
+  { name = "Faris Abouakil" },
+  { name = "Talley Lambert" },
+  { name = "napari contributors" },
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Framework :: napari",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "imageio",
+  "imageio-ffmpeg",
+  "napari>=0.5",
+  "npe2",
+  "numpy",
+  "qtpy",
+  "scipy",
+  "superqt",
+  "tqdm>=4.56.0",
+]
+dynamic = ["version"]
 
-[tool.black]
-target-version = ['py310', 'py311', 'py312', 'py313']
-line-length = 79
-# Don't change quote style - keep whatever quotes are already used
-skip-string-normalization = true
-exclude = '''
-(
-  /(
-      \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | examples
-    | vendored
-    | _vendor
-  )/
-  | 
-)
-'''
+[project.urls]
+Homepage = "https://github.com/napari/napari-animation"
+Download = "https://github.com/napari/napari-animation"
+Documentation = "https://napari.org/napari-animation"
+"Bug Tracker" = "https://github.com/napari/napari-animation/issues"
+Source = "https://github.com/napari/napari-animation"
+
+[project.entry-points."napari.manifest"]
+napari-animation = "napari_animation:napari.yaml"
+
+[dependency-groups]
+testing = [
+  "pytest",
+  "pytest-cov",
+  "pytest-qt",
+  "tox",
+]
+doc = [
+  "matplotlib",
+  "myst-nb",
+  "napari-sphinx-theme>=0.3.0",
+  "sphinx>6",
+  "sphinx-autobuild",
+  "sphinx-copybutton",
+  "sphinx-external-toc",
+  "sphinx-favicon",
+  "sphinx-gallery",
+  "sphinxcontrib-video",
+]
+dev = [
+  {include-group = "testing"},
+  {include-group = "doc"},
+  "check-manifest",
+  "pre-commit",
+  "ruff",
+]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["napari_animation*"]
+
+[tool.setuptools.package-data]
+napari_animation = ["napari.yaml"]
+
+[tool.setuptools_scm]
+write_to = "napari_animation/_version.py"
 
 [tool.ruff]
 line-length = 79
@@ -57,3 +119,26 @@ lint.ignore = [
 
 target-version = "py310"  # we set to the lowest version that we support
 fix = true
+
+[tool.ruff.format]
+quote-style = "preserve"
+
+[tool.pytest.ini_options]
+addopts = "--durations=10"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError()",
+]
+
+[tool.check-manifest]
+ignore = [
+  ".pre-commit-config.yaml",
+  "napari_animation/_version.py",
+  "tox.ini",
+]
