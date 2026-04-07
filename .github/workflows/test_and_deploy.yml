@@ -19,42 +19,56 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code:
-    name: Code
+  ruff:
+    name: Pre-commit (all files)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        task: [black, ruff]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: astral-sh/setup-uv@5a095e7a2014a4212f075830d4f7277575a9d098 # v7.3.1
         with:
-          python-version: "3.x"
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install tox
-      - name: Run task
-        run: tox -e ${{ matrix.task }}
+          python-version: "3.13"
+      - name: Run pre-commit
+        run: uvx pre-commit run --all-files --show-diff-on-failure
+
+  build-and-inspect-package:
+    name: Build & inspect package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: hynek/build-and-inspect-python-package@efb823f52190ad02594531168b7a2d5790e66516 # v2.14.0
+
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{ matrix.qt_package }}
     runs-on: ${{ matrix.platform }}
+    permissions:
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
-        platform: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
-        qt_package: [ pyqt ]
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [ "3.10", "3.12", "3.14" ]
+        qt_package: [pyqt6]
         include:
-          # Add PySide2 only for Python 3.10 on Linux and Windows
+          # Keep small legacy/backend smoke tests; PyQt6 covers the main grid.
+          - platform: ubuntu-latest
+            python-version: "3.12"
+            qt_package: pyside6
+          - platform: windows-latest
+            python-version: "3.12"
+            qt_package: pyside6
+          - platform: ubuntu-latest
+            python-version: "3.12"
+            qt_package: pyqt5
+          - platform: windows-latest
+            python-version: "3.12"
+            qt_package: pyqt5
           - platform: ubuntu-latest
             python-version: "3.10"
-            qt_package: pyside
+            qt_package: pyside2
           - platform: windows-latest
             python-version: "3.10"
-            qt_package: pyside
+            qt_package: pyside2
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -87,15 +101,17 @@ jobs:
           QT_PACKAGE: ${{ matrix.qt_package }}
 
       - name: Coverage
+        if: runner.os == 'Linux' && matrix.python-version == '3.14' && matrix.qt_package == 'pyqt6'
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
 
   deploy:
+    name: Deploy to PyPI
     # this will run when you have tagged a commit, starting with "v*"
     # and requires that you have setup PyPI Trusted Publishing
     # (see https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
-    needs: [ test ]
+    needs: [ ruff, test, build-and-inspect-package ]
     runs-on: ubuntu-latest
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing

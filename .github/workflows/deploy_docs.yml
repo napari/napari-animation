@@ -38,7 +38,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install "napari[all]"
-        python -m pip install -e ".[doc]"
+        python -m pip install -e . --group doc
 
     - name: Build Docs
       uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
