@@ -107,6 +107,7 @@ jobs:
           use_oidc: true
 
   deploy:
+    name: Deploy to PyPI
     # this will run when you have tagged a commit, starting with "v*"
     # and requires that you have setup PyPI Trusted Publishing
     # (see https://docs.pypi.org/trusted-publishers/adding-a-publisher/)
