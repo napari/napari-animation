@@ -9,7 +9,7 @@ from napari._tests.utils import (
 )
 
 from napari_animation import Animation, ViewerState
-from napari_animation.utils import make_thumbnail
+from napari_animation.utils import make_thumbnail, _model_dump
 
 CAPTURED_IMAGE_LAYER_ATTRIBUTES = [
     'name',
@@ -75,8 +75,8 @@ def test_set_viewer_state(animation_with_key_frames, viewer_state):
     current_state = ViewerState.from_viewer(animation.viewer)
     viewer_state.apply(animation.viewer)
 
-    animation_dims_state = animation.viewer.dims.model_dump()
-    animation_camera_state = animation.viewer.camera.model_dump()
+    animation_dims_state = _model_dump(animation.viewer.dims)()
+    animation_camera_state = _model_dump(animation.viewer.camera)()
 
     assert animation_dims_state == current_state.dims
     for key in ('center', 'angles', 'mouse_pan', 'mouse_zoom'):

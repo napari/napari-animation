@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import napari
 import numpy as np
 
-from napari_animation.utils import layer_attribute_changed
+from napari_animation.utils import layer_attribute_changed, _model_dump
 
 
 @dataclass(frozen=True)
@@ -37,8 +37,8 @@ class ViewerState:
             layer_attributes.pop('metadata')
 
         return cls(
-            camera=viewer.camera.model_dump(),
-            dims=viewer.dims.model_dump(),
+            camera=_model_dump(viewer.camera)(),
+            dims=_model_dump(viewer.dims.model_dump)(),
             layers=layers,
         )
 
