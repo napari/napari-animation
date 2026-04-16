@@ -38,7 +38,7 @@ class ViewerState:
 
         return cls(
             camera=_model_dump(viewer.camera)(),
-            dims=_model_dump(viewer.dims.model_dump)(),
+            dims=_model_dump(viewer.dims)(),
             layers=layers,
         )
 
