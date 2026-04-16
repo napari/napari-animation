@@ -9,7 +9,7 @@ from napari._tests.utils import (
 )
 
 from napari_animation import Animation, ViewerState
-from napari_animation.utils import make_thumbnail, _model_dump
+from napari_animation.utils import _model_dump, make_thumbnail
 
 CAPTURED_IMAGE_LAYER_ATTRIBUTES = [
     'name',

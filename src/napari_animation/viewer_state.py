@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import napari
 import numpy as np
 
-from napari_animation.utils import layer_attribute_changed, _model_dump
+from napari_animation.utils import _model_dump, layer_attribute_changed
 
 
 @dataclass(frozen=True)
