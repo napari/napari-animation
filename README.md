@@ -1,26 +1,19 @@
 # napari-animation
 
-[![License](https://img.shields.io/pypi/l/napari-animation.svg?color=green)](https://github.com/napari/napari-animation/raw/main/LICENSE)
+[![License BSD-3](https://img.shields.io/pypi/l/napari-animation.svg?color=green)](https://github.com/brisvag/napari-animation/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-animation.svg?color=green)](https://pypi.org/project/napari-animation)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-animation.svg?color=green)](https://python.org)
-[![tests](https://github.com/napari/napari-animation/actions/workflows/test_and_deploy.yml/badge.svg)](https://github.com/napari/napari-animation/actions)
-[![codecov](https://codecov.io/gh/napari/napari-animation/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/napari-animation)
+[![tests](https://github.com/brisvag/napari-animation/workflows/tests/badge.svg)](https://github.com/brisvag/napari-animation/actions)
+[![codecov](https://codecov.io/gh/brisvag/napari-animation/branch/main/graph/badge.svg)](https://codecov.io/gh/brisvag/napari-animation)
+[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-animation)](https://napari-hub.org/plugins/napari-animation)
+[![npe2](https://img.shields.io/badge/plugin-npe2-blue?link=https://napari.org/stable/plugins/index.html)](https://napari.org/stable/plugins/index.html)
+[![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-purple.json)](https://github.com/copier-org/copier)
 
 **napari-animation** is a plugin for making animations in [napari](https://napari.org).
 
 <p align="center">
   <img width="500" src="https://user-images.githubusercontent.com/7307488/196110138-6c4663b1-67b2-4c79-97b7-57b706d1d49c.gif">
 </p>
-
-----------------------------------
-
-[Merlin Lange](https://twitter.com/Merlin_Lange) used *napari-animation* to create one of [Nature's best science images for September 2022](https://www.nature.com/immersive/d41586-022-03051-6/index.html)
-
-----------------------------------
-
-This plugin is built on [`naparimovie`](https://github.com/guiwitz/naparimovie) from [@guiwitz](https://github.com/guiwitz). `naparimovie` was submitted to napari in [PR#851](https://github.com/napari/napari/pull/780) before napari plugin infrastructure existed.
-
-----------------------------------
 
 ## Overview
 
@@ -35,11 +28,16 @@ You can read the documentation at [https://napari.org/napari-animation](https://
 
 ## Installation
 
-### PyPI
-`napari-animation` is available through the Python package index and can be installed using `pip`.
+You can install `napari-animation` via [pip]:
 
-```sh
+```bash
 pip install napari-animation
+```
+
+If napari is not already installed, you can install `napari-animation` with napari and Qt via:
+
+```bash
+pip install "napari-animation[all]"
 ```
 
 ```{warning}
@@ -55,11 +53,6 @@ or using [`homebrew`](https://brew.sh) (`brew install ffmpeg`).
 ```sh
 conda install -c conda-forge napari-animation
 ```
-
-### Local
-You can clone this repository and install locally with
-
-    pip install -e .
 
 ### Interactive use
 **napari-animation** can be used interactively.
@@ -130,9 +123,9 @@ pip install -e . --group dev pyqt6
 
 ```
 
-Tests are run with `pytest`.
+Tests are run with `tox`.
 You can make sure your `[dev]` installation is working properly by running
-`pytest .` from within the repository.
+`tox` from within the repository.
 
 ```{note}
 We use [`pre-commit`](https://pre-commit.com) to sort imports and lint with
@@ -173,21 +166,32 @@ This is controlled by the [deploy_docs.yml](https://github.com/napari/napari-ani
 
 You can also manually trigger a documenation re-build and deployment [from the github actions tab](https://github.com/napari/napari-animation/actions/workflows/deploy_docs.yml).
 
+
 ## License
 
-Distributed under the terms of the [BSD-3 license](http://opensource.org/licenses/BSD-3-Clause),
-`napari-animation` is free and open source software.
+Distributed under the terms of the [BSD-3] license,
+"napari-animation" is free and open source software
 
 ## Issues
 
-If you encounter any problems, please [file an issue](https://github.com/napari/napari-animation/issues) along with a detailed description.
+If you encounter any problems, please [file an issue] along with a detailed description.
 
-[Cookiecutter]: https://github.com/audreyr/cookiecutter
-[@napari]: https://github.com/napari
-[BSD-3]: http://opensource.org/licenses/BSD-3-Clause
-[cookiecutter-napari-plugin]: https://github.com/napari/cookiecutter-napari-plugin
-[file an issue]: https://github.com/napari/napari-animation/issues
+## Acknowledgements
+
+[Merlin Lange](https://twitter.com/Merlin_Lange) used *napari-animation* to create one of [Nature's best science images for September 2022](https://www.nature.com/immersive/d41586-022-03051-6/index.html).
+
+This plugin is built on [`naparimovie`](https://github.com/guiwitz/naparimovie) from [@guiwitz](https://github.com/guiwitz). `naparimovie` was submitted to napari in [PR#851](https://github.com/napari/napari/pull/780) before napari plugin infrastructure existed.
+
 [napari]: https://github.com/napari/napari
+[copier]: https://copier.readthedocs.io/en/stable/
+[MIT]: http://opensource.org/licenses/MIT
+[BSD-3]: http://opensource.org/licenses/BSD-3-Clause
+[GNU GPL v3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
+[GNU LGPL v3.0]: http://www.gnu.org/licenses/lgpl-3.0.txt
+[Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
+[Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
+[napari-plugin-template]: https://github.com/napari/napari-plugin-template
+
 [tox]: https://tox.readthedocs.io/en/latest/
 [pip]: https://pypi.org/project/pip/
 [PyPI]: https://pypi.org/

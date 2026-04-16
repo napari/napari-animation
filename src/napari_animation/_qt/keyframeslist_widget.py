@@ -40,4 +40,4 @@ class KeyFramesListWidget(QtListView):
     def __init__(self, root, parent=None):
         super().__init__(root, parent=parent)
         self.setModel(KeyFrameModel(root))
-        self.setStyleSheet("KeyFramesListWidget::item { padding: 0px; }")
+        self.setStyleSheet('KeyFramesListWidget::item { padding: 0px; }')

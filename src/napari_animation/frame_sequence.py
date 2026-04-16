@@ -70,10 +70,10 @@ class FrameSequence(Sequence[ViewerState]):
         self._key_frames = key_frames
         key_frames.events.inserted.connect(self._rebuild_keyframe_index)
         key_frames.events.removed.connect(
-            self._rebuild_keyframe_index, position="first"
+            self._rebuild_keyframe_index, position='first'
         )
         key_frames.events.changed.connect(
-            self._rebuild_keyframe_index, position="first"
+            self._rebuild_keyframe_index, position='first'
         )
         key_frames.events.reordered.connect(self._rebuild_keyframe_index)
 
@@ -83,9 +83,9 @@ class FrameSequence(Sequence[ViewerState]):
         )
 
         self.state_interpolation_map: InterpolationMap = {
-            "camera.angles": Interpolation.SLERP,
-            "camera.zoom": Interpolation.LOG,
-            "dims.ndisplay": Interpolation.BOOL,
+            'camera.angles': Interpolation.SLERP,
+            'camera.zoom': Interpolation.LOG,
+            'dims.ndisplay': Interpolation.BOOL,
         }
 
         # cache of interpolated viewer states
@@ -133,7 +133,7 @@ class FrameSequence(Sequence[ViewerState]):
                 kf0, kf1, frac = self._keyframe_index[key]
             except KeyError as err:
                 raise IndexError(
-                    f"Frame index ({key}) out of range ({len(self)} frames)"
+                    f'Frame index ({key}) out of range ({len(self)} frames)'
                 ) from err
             if frac == 0:
                 self._cache[key] = kf0.viewer_state

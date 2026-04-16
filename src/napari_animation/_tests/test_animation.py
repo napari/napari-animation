@@ -12,19 +12,19 @@ from napari_animation import Animation, ViewerState
 from napari_animation.utils import make_thumbnail
 
 CAPTURED_IMAGE_LAYER_ATTRIBUTES = [
-    "name",
-    "scale",
-    "translate",
-    "rotate",
-    "shear",
-    "opacity",
-    "blending",
-    "visible",
+    'name',
+    'scale',
+    'translate',
+    'rotate',
+    'shear',
+    'opacity',
+    'blending',
+    'visible',
 ]
 
 NOT_CAPTURED_LAYER_ATTRIBUTES = [
-    "metadata",
-    "data",
+    'metadata',
+    'data',
 ]
 
 
@@ -75,11 +75,11 @@ def test_set_viewer_state(animation_with_key_frames, viewer_state):
     current_state = ViewerState.from_viewer(animation.viewer)
     viewer_state.apply(animation.viewer)
 
-    animation_dims_state = animation.viewer.dims.dict()
-    animation_camera_state = animation.viewer.camera.dict()
+    animation_dims_state = animation.viewer.dims.model_dump()
+    animation_camera_state = animation.viewer.camera.model_dump()
 
     assert animation_dims_state == current_state.dims
-    for key in ("center", "angles", "mouse_pan", "mouse_zoom"):
+    for key in ('center', 'angles', 'mouse_pan', 'mouse_zoom'):
         assert animation_camera_state[key] == current_state.camera[key]
 
 
@@ -97,45 +97,45 @@ def test_thumbnail_generation(empty_animation):
     assert thumbnail.min() >= 0
 
 
-@patch("napari_animation.animation.imsave")
-@patch("imageio.get_writer")
+@patch('napari_animation.animation.imsave')
+@patch('imageio.get_writer')
 @patch(
-    "napari_animation.frame_sequence.FrameSequence.iter_frames",
-    return_value=["frame"] * 30,
+    'napari_animation.frame_sequence.FrameSequence.iter_frames',
+    return_value=['frame'] * 30,
 )
-@pytest.mark.parametrize("ext", [".mp4", ".mov", ".gif", ""])
+@pytest.mark.parametrize('ext', ['.mp4', '.mov', '.gif', ''])
 def test_animate_filenames(
     frame_gen, get_writer, imsave, animation_with_key_frames, ext, tmp_path
 ):
     """Test that Animation.animate() produces files with correct filenames"""
-    output_filename = tmp_path / f"test{ext}"
+    output_filename = tmp_path / f'test{ext}'
     animation_with_key_frames.animate(output_filename)
-    if ext in (".mp4", ".mov", ".gif"):
+    if ext in ('.mp4', '.mov', '.gif'):
         expected_filename = output_filename
         saved_filename = get_writer.call_args[0][0]
         assert saved_filename == expected_filename
-    elif ext == "":
-        expected = [output_filename / f"test_{i:06d}.png" for i in range(30)]
+    elif ext == '':
+        expected = [output_filename / f'test_{i:06d}.png' for i in range(30)]
         saved_files = [call[0][0] for call in imsave.call_args_list]
         assert saved_files == expected
 
 
-@pytest.mark.parametrize("ext", [".mp4", ".mov", ".avi"])
+@pytest.mark.parametrize('ext', ['.mp4', '.mov', '.avi'])
 def test_animation_file_metadata(animation_with_key_frames, tmp_path, ext):
     """Test output video file contians napari version metadata()"""
     animation = animation_with_key_frames
-    output_filename = tmp_path / f"test{ext}"
+    output_filename = tmp_path / f'test{ext}'
     animation.animate(output_filename)
     # Read metadata back in, and check for napari version information
     # We expect to see a metadata line in the metadata like this:
     # title="napari version 0.4.17 https://napari.org/"
-    with open(output_filename, "rb") as f:
+    with open(output_filename, 'rb') as f:
         content = f.read()
-    assert b"napari version" in content
-    assert b"https://napari.org" in content
+    assert b'napari version' in content
+    assert b'https://napari.org' in content
 
 
-@pytest.mark.parametrize("attribute", CAPTURED_IMAGE_LAYER_ATTRIBUTES)
+@pytest.mark.parametrize('attribute', CAPTURED_IMAGE_LAYER_ATTRIBUTES)
 def test_layer_attribute_capture(layer_state, attribute):
     """Test that 'attribute' is captured in the layer state dictionary"""
     for layer_state_dict in layer_state.values():
@@ -156,12 +156,12 @@ def test_ndisplay_interpolation(image_animation):
     image_animation.capture_keyframe()
     image_animation.viewer.dims.ndisplay = 3
     image_animation.capture_keyframe(steps=3)
-    assert image_animation._frames[0].dims["ndisplay"] == 2
-    assert image_animation._frames[1].dims["ndisplay"] == 3
-    assert image_animation._frames[-1].dims["ndisplay"] == 3
+    assert image_animation._frames[0].dims['ndisplay'] == 2
+    assert image_animation._frames[1].dims['ndisplay'] == 3
+    assert image_animation._frames[-1].dims['ndisplay'] == 3
 
 
-@pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
+@pytest.mark.parametrize('layer_class, data, ndim', layer_test_data)
 def test_attributes_for_all_layer_types(
     make_napari_viewer, layer_class, data, ndim
 ):
@@ -184,7 +184,7 @@ def test_attributes_for_all_layer_types(
     assert_layer_state_equal(animation_state, layer_state)
 
 
-@pytest.mark.parametrize("layer_class, data, ndim", layer_test_data)
+@pytest.mark.parametrize('layer_class, data, ndim', layer_test_data)
 def test_animating_all_layer_types(
     make_napari_viewer, layer_class, data, ndim
 ):

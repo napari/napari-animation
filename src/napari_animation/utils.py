@@ -13,7 +13,7 @@ def make_thumbnail(image: np.ndarray, shape=(30, 30, 4)) -> np.ndarray:
 
     padding_needed = np.subtract(shape, intermediate_image.shape)
     pad_amounts = [(p // 2, (p + 1) // 2) for p in padding_needed]
-    thumbnail = np.pad(intermediate_image, pad_amounts, mode="constant")
+    thumbnail = np.pad(intermediate_image, pad_amounts, mode='constant')
     thumbnail = convert_to_uint8(thumbnail)
 
     # blend thumbnail with opaque black background
@@ -36,13 +36,13 @@ def pairwise(iterable):
 def layer_attribute_changed(value, original_value):
     """Recursively check if a layer attribute has changed."""
     # Handle EventedModel-like objects (napari 0.7.x has model_dump, 0.6.x has dict)
-    value_dump = getattr(value, "model_dump", None)
+    value_dump = getattr(value, 'model_dump', None)
     if callable(value_dump):
         return layer_attribute_changed(
             value_dump(), original_value.model_dump()
         )
 
-    value_dict = getattr(value, "dict", None)
+    value_dict = getattr(value, 'dict', None)
     if callable(value_dict):
         return layer_attribute_changed(value_dict(), original_value.dict())
 

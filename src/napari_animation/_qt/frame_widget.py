@@ -28,7 +28,7 @@ class FrameWidget(QWidget):
         # init ease
         self.easeComboBox = QComboBox()
         self.easeComboBox.addItems([e.name.lower() for e in Easing])
-        self.easeComboBox.setCurrentText("linear")
+        self.easeComboBox.setCurrentText('linear')
 
         # add callbacks
         self.stepsSpinBox.valueChanged.connect(self._update_animation_steps)
@@ -38,8 +38,8 @@ class FrameWidget(QWidget):
 
         # layout
         self.setLayout(QFormLayout())
-        self.layout().addRow("Steps", self.stepsSpinBox)
-        self.layout().addRow("Ease", self.easeComboBox)
+        self.layout().addRow('Steps', self.stepsSpinBox)
+        self.layout().addRow('Ease', self.easeComboBox)
 
     def _on_active_keyframe_changed(self, event):
         """update state of self to reflect animation state at active key frame"""

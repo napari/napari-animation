@@ -44,7 +44,7 @@ def interpolate_viewer_state(
 
         all_keys_are_strings = all(isinstance(key, str) for key in keys)
         if interpolation_map is not None and all_keys_are_strings:
-            attribute_name = ".".join(keys)
+            attribute_name = '.'.join(keys)
             interpolation_function = interpolation_map.get(
                 attribute_name, Interpolation.DEFAULT
             )

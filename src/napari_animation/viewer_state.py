@@ -34,10 +34,12 @@ class ViewerState:
             for layer in viewer.layers
         }
         for layer_attributes in layers.values():
-            layer_attributes.pop("metadata")
+            layer_attributes.pop('metadata')
 
         return cls(
-            camera=viewer.camera.dict(), dims=viewer.dims.dict(), layers=layers
+            camera=viewer.camera.model_dump(),
+            dims=viewer.dims.model_dump(),
+            layers=layers,
         )
 
     def apply(self, viewer: napari.viewer.Viewer):

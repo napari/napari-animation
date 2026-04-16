@@ -39,7 +39,7 @@ class KeyFrame:
     thumbnail: np.ndarray
     steps: int = 15
     ease: Easing = Easing.LINEAR
-    name: str = "KeyFrame"
+    name: str = 'KeyFrame'
 
     def __str__(self):
         return self.name
@@ -59,7 +59,7 @@ class KeyFrame:
         )
 
     def __repr__(self) -> str:
-        return f"<KeyFrame: {self.name}>"
+        return f'<KeyFrame: {self.name}>'
 
     def __hash__(self) -> int:
         return id(self)

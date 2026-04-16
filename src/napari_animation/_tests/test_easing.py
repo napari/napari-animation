@@ -5,8 +5,8 @@ from napari_animation.easing import Easing
 
 
 @pytest.mark.parametrize(
-    "easing_func",
-    [e.value for e in Easing if e.name not in ("ELASTIC", "BACK", "SINE")],
+    'easing_func',
+    [e.value for e in Easing if e.name not in ('ELASTIC', 'BACK', 'SINE')],
 )
 def test_limits(easing_func):
     """Check that easing functions produce output between 0 and 1 for input in the same range"""

@@ -1,12 +1,8 @@
-[build-system]
-requires = ["setuptools>=77.0.3", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "napari-animation"
-description = "A plugin for making animations in napari"
+dynamic = ["version"]
+description = "A plugin for making animations in napari."
 readme = "README.md"
-requires-python = ">=3.10"
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 authors = [
@@ -32,36 +28,29 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
   "Operating System :: OS Independent",
 ]
+requires-python = ">=3.10"
+# napari can be included in dependencies if napari imports are required.
+# However, you should not include napari[all], napari[qt],
+# or any other Qt bindings directly (e.g. PyQt5, PySide2).
+# See best practices: https://napari.org/stable/plugins/building_a_plugin/best_practices.html
 dependencies = [
-  "imageio",
-  "imageio-ffmpeg",
-  "napari>=0.5",
-  "npe2",
-  "numpy",
-  "qtpy",
-  "scipy",
-  "superqt",
-  "tqdm>=4.56.0",
+    "imageio",
+    "imageio-ffmpeg",
+    "napari>=0.5",
+    "npe2",
+    "numpy",
+    "qtpy",
+    "scipy",
+    "superqt",
+    "tqdm>=4.56.0",
 ]
-dynamic = ["version"]
 
-[project.urls]
-Homepage = "https://github.com/napari/napari-animation"
-Download = "https://github.com/napari/napari-animation"
-Documentation = "https://napari.org/napari-animation"
-"Bug Tracker" = "https://github.com/napari/napari-animation/issues"
-Source = "https://github.com/napari/napari-animation"
-
-[project.entry-points."napari.manifest"]
-napari-animation = "napari_animation:napari.yaml"
+[project.optional-dependencies]
+# Allow easily installation with the full, default napari installation
+# (including Qt backend) using napari-animation[all].
+all = ["napari[all]"]
 
 [dependency-groups]
-testing = [
-  "pytest",
-  "pytest-cov",
-  "pytest-qt",
-  "tox",
-]
 doc = [
   "matplotlib",
   "myst-nb",
@@ -75,29 +64,57 @@ doc = [
   "sphinxcontrib-video",
 ]
 dev = [
-  {include-group = "testing"},
-  {include-group = "doc"},
-  "check-manifest",
-  "pre-commit",
-  "ruff",
+    {include-group = "doc"},
+    "check-manifest",
+    "tox-uv",
+    "pytest",  # https://docs.pytest.org/en/latest/contents.html
+    "pytest-cov",  # https://pytest-cov.readthedocs.io/en/latest/
+    "pytest-qt",
 ]
+
+[project.entry-points."napari.manifest"]
+napari-animation = "napari_animation:napari.yaml"
+
+[project.urls]
+    Homepage = "https://github.com/napari/napari-animation"
+    Download = "https://github.com/napari/napari-animation"
+    Documentation = "https://napari.org/napari-animation"
+    "Bug Tracker" = "https://github.com/napari/napari-animation/issues"
+    Source = "https://github.com/napari/napari-animation"
+
+[build-system]
+requires = ["setuptools>=77.0.3", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
-zip-safe = false
 
 [tool.setuptools.packages.find]
-include = ["napari_animation*"]
+where = ["src"]
 
 [tool.setuptools.package-data]
-napari_animation = ["napari.yaml"]
+"*" = ["*.yaml"]
 
 [tool.setuptools_scm]
-write_to = "napari_animation/_version.py"
+write_to = "src/napari_animation/_version.py"
+fallback_version = "0.0.1+nogit"
 
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+# filterwarnings = ["error"]  # recommended by PP309; deprecation warnings cause failures so leaving for the user to enable if desired
+log_cli_level = "INFO"
+testpaths = ["tests"]
 [tool.ruff]
 line-length = 79
-lint.select = [
+fix = true
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = [
     "E", "F", "W", #flake8
     "UP", # pyupgrade
     "I", # isort
@@ -110,23 +127,10 @@ lint.select = [
     "PIE", # flake8-pie
     "SIM", # flake8-simplify
 ]
-lint.ignore = [
+ignore = [
     "A004",  # Import `pow` is shadowing a Python builtin, we want to use the math module's pow
-    "E501", # line too long. let black handle this
+    "E501", # line too long. handled by formatter
     "UP006", "UP007", # type annotation. As using magicgui require runtime type annotation then we disable this.
-    "SIM117", # flake8-simplify - some of merged with statements are not looking great with black, reanble after drop python 3.9
-]
-
-target-version = "py310"  # we set to the lowest version that we support
-fix = true
-
-[tool.ruff.format]
-quote-style = "preserve"
-
-[tool.pytest.ini_options]
-addopts = "--durations=10"
-filterwarnings = [
-  "ignore::DeprecationWarning",
 ]
 
 [tool.coverage.report]
