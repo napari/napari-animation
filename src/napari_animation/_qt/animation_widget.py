@@ -48,10 +48,10 @@ class AnimationWidget(QWidget):
             self.animation.key_frames, parent=self
         )
         self.frameWidget = FrameWidget(parent=self)
-        self.saveButton = QPushButton("Save Animation", parent=self)
+        self.saveButton = QPushButton('Save Animation', parent=self)
         self.saveButton.setEnabled(len(self.animation.key_frames) > 1)
         self.animationSlider = QSlider(Qt.Horizontal, parent=self)
-        self.animationSlider.setToolTip("Scroll through animation")
+        self.animationSlider.setToolTip('Scroll through animation')
         self.animationSlider.setRange(0, len(self.animation._frames) - 1)
 
         # Create layout
@@ -69,11 +69,11 @@ class AnimationWidget(QWidget):
     def _add_keybind_callbacks(self):
         """Bind keys"""
         self._keybindings = [
-            ("Alt-f", self._capture_keyframe_callback),
-            ("Alt-r", self._replace_keyframe_callback),
-            ("Alt-d", self._delete_keyframe_callback),
-            ("Alt-a", lambda e: self.animation.key_frames.select_next()),
-            ("Alt-b", lambda e: self.animation.key_frames.select_previous()),
+            ('Alt-f', self._capture_keyframe_callback),
+            ('Alt-r', self._replace_keyframe_callback),
+            ('Alt-d', self._delete_keyframe_callback),
+            ('Alt-a', lambda e: self.animation.key_frames.select_next()),
+            ('Alt-b', lambda e: self.animation.key_frames.select_previous()),
         ]
         for key, cb in self._keybindings:
             self.viewer.bind_key(key, cb, overwrite=True)
@@ -104,8 +104,8 @@ class AnimationWidget(QWidget):
     def _input_state(self):
         """Get current state of input widgets as {key->value} parameters."""
         return {
-            "steps": int(self.frameWidget.stepsSpinBox.value()),
-            "ease": self.frameWidget.get_easing_func(),
+            'steps': int(self.frameWidget.stepsSpinBox.value()),
+            'ease': self.frameWidget.get_easing_func(),
         }
 
     def _capture_keyframe_callback(self, event=None):
@@ -121,7 +121,7 @@ class AnimationWidget(QWidget):
         if self.animation.key_frames.selection.active:
             self.animation.key_frames.remove_selected()
         else:
-            raise ValueError("No selected keyframe to delete !")
+            raise ValueError('No selected keyframe to delete !')
 
     def _on_keyframes_changed(self, event=None):
         n_keyframes = len(self.animation.key_frames)
@@ -155,10 +155,10 @@ class AnimationWidget(QWidget):
     def _save_callback(self, event=None):
         saveDialogWidget = SaveDialogWidget(self)
         animation_kwargs = saveDialogWidget.getAnimationParameters(
-            self, "Save animation", str(Path.home())
+            self, 'Save animation', str(Path.home())
         )
 
-        if animation_kwargs.get("filename", None) is not None:
+        if animation_kwargs.get('filename', None) is not None:
             try:
                 self.animation.animate(**animation_kwargs)
             except ValueError as err:

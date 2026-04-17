@@ -25,7 +25,7 @@ def test_frame_seq_caching(frame_sequence: FrameSequence):
     fs = frame_sequence
     # index into the sequence and watch whether interpolate is called
     with patch(
-        "napari_animation.frame_sequence.interpolate_viewer_state",
+        'napari_animation.frame_sequence.interpolate_viewer_state',
     ) as mock:
         _ = fs[5]
 
@@ -36,7 +36,7 @@ def test_frame_seq_caching(frame_sequence: FrameSequence):
 
     # indexing the same frame again will not require re-interpolation
     with patch(
-        "napari_animation.frame_sequence.interpolate_viewer_state"
+        'napari_animation.frame_sequence.interpolate_viewer_state'
     ) as mock:
         _ = fs[5]
         mock.assert_not_called()

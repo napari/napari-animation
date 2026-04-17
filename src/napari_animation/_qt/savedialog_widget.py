@@ -15,17 +15,17 @@ from superqt import QLabeledSlider
 
 class SaveDialogWidget(QFileDialog):
     _valid_file_extensions = (
-        ".mp4",
-        ".gif",
-        ".mov",
-        ".mkv",
+        '.mp4',
+        '.gif',
+        '.mov',
+        '.mkv',
     )
     _qt_file_name_filters = (
-        "mp4 (*.mp4)"
-        ";;gif (*.gif)"
-        ";;mov (*.mov)"
-        ";;mkv (*.mkv)"
-        ";;folder of png files (*)"  # sep filters with ";;"
+        'mp4 (*.mp4)'
+        ';;gif (*.gif)'
+        ';;mov (*.mov)'
+        ';;mkv (*.mkv)'
+        ';;folder of png files (*)'  # sep filters with ";;"
     )
 
     def __init__(self, *args, **kwargs):
@@ -34,8 +34,8 @@ class SaveDialogWidget(QFileDialog):
     def getAnimationParameters(
         self,
         parent=None,
-        caption="Select a file :",
-        directory=".",
+        caption='Select a file :',
+        directory='.',
         options=None,
     ):
         # Set dialog parameters
@@ -59,11 +59,11 @@ class SaveDialogWidget(QFileDialog):
         # Get info back from user
         if self.exec_():
             animation_kwargs = {
-                "filename": self.get_file_path(),
-                "fps": self.optionsWidget.fpsSpinBox.value(),
-                "quality": int(self.optionsWidget.qualitySlider.value()),
-                "canvas_only": self.optionsWidget.canvasCheckBox.isChecked(),
-                "scale_factor": self.optionsWidget.scaleSpinBox.value(),
+                'filename': self.get_file_path(),
+                'fps': self.optionsWidget.fpsSpinBox.value(),
+                'quality': int(self.optionsWidget.qualitySlider.value()),
+                'canvas_only': self.optionsWidget.canvasCheckBox.isChecked(),
+                'scale_factor': self.optionsWidget.scaleSpinBox.value(),
             }
         else:
             animation_kwargs = {}
@@ -84,7 +84,7 @@ class SaveDialogWidget(QFileDialog):
     @staticmethod
     def qt_filter_to_extension(name_filter: str) -> str:
         """Get an extension from the qt name filter."""
-        return name_filter.split()[-1].strip("()*")
+        return name_filter.split()[-1].strip('()*')
 
 
 class OptionsWidget(QWidget):
@@ -94,7 +94,7 @@ class OptionsWidget(QWidget):
         layout = QHBoxLayout()
 
         # "Canvas only" check box
-        self.canvasCheckBox = QCheckBox("Canvas only", self)
+        self.canvasCheckBox = QCheckBox('Canvas only', self)
         self.canvasCheckBox.toggle()
         layout.addWidget(self.canvasCheckBox)
 
@@ -108,11 +108,11 @@ class OptionsWidget(QWidget):
 
         self.qualitySlider._label.setAlignment(Qt.AlignCenter)
         self.qualitySlider._label.setStyleSheet(
-            "SliderLabel {background:transparent; border: 0; min-width: 20px; max-width: 20px;}"
-            "SliderLabel::up-button, SliderLabel::down-button {subcontrol-origin: margin; width: 0px; height: 0px; }"
+            'SliderLabel {background:transparent; border: 0; min-width: 20px; max-width: 20px;}'
+            'SliderLabel::up-button, SliderLabel::down-button {subcontrol-origin: margin; width: 0px; height: 0px; }'
         )
 
-        quality_label = QLabel("Quality", self)
+        quality_label = QLabel('Quality', self)
         quality_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(quality_label)
         layout.addWidget(self.qualitySlider)
@@ -121,7 +121,7 @@ class OptionsWidget(QWidget):
         self.fpsSpinBox = QSpinBox(self)
         self.fpsSpinBox.setRange(1, 100000)
         self.fpsSpinBox.setValue(20)
-        fps_label = QLabel("FPS", self)
+        fps_label = QLabel('FPS', self)
         fps_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(fps_label)
         layout.addWidget(self.fpsSpinBox)
@@ -130,7 +130,7 @@ class OptionsWidget(QWidget):
         self.scaleSpinBox = QDoubleSpinBox(self)
         self.scaleSpinBox.setRange(0.001, 1000.0)
         self.scaleSpinBox.setValue(1.0)
-        scale_label = QLabel("Scale factor", self)
+        scale_label = QLabel('Scale factor', self)
         scale_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(scale_label)
         layout.addWidget(self.scaleSpinBox)

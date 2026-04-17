@@ -92,8 +92,8 @@ def test_enum_member_access():
 
     # Test that enum iteration works
     easing_names = [e.name for e in Easing]
-    assert "LINEAR" in easing_names
-    assert "QUADRATIC" in easing_names
+    assert 'LINEAR' in easing_names
+    assert 'QUADRATIC' in easing_names
     assert len(easing_names) == 10
 
 
@@ -105,5 +105,5 @@ def test_enum_in_collection():
     assert Easing.LINEAR in easing_list
 
     # Test that we can use enums in dictionaries
-    easing_dict = {Easing.LINEAR: "linear", Easing.QUADRATIC: "quadratic"}
-    assert easing_dict[Easing.LINEAR] == "linear"
+    easing_dict = {Easing.LINEAR: 'linear', Easing.QUADRATIC: 'quadratic'}
+    assert easing_dict[Easing.LINEAR] == 'linear'

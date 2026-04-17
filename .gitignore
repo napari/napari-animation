@@ -77,7 +77,7 @@ target/
 .DS_Store
 
 # written by setuptools_scm
-*/_version.py
+**/_version.py
 
 # vscode
 .vscode

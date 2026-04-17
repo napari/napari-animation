@@ -1,0 +1,18 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v2.1.0
+_src_path: https://github.com/napari/napari-plugin-template
+display_name: Animation
+email: brisvag@gmail.com
+full_name: Lorenzo Gaifas
+github_repository_url: provide later
+github_username_or_organization: brisvag
+include_reader_plugin: false
+include_sample_data_plugin: false
+include_widget_plugin: false
+include_writer_plugin: false
+install_dependabot: true
+install_precommit: true
+license: BSD-3
+module_name: napari_animation
+plugin_name: napari-animation
+short_description: A napari plugin for making animations.

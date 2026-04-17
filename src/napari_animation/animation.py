@@ -21,10 +21,10 @@ except ImportError:
     except ImportError:
 
         def version(_=None):
-            return "<0.4.15"
+            return '<0.4.15'
 
 
-napari_version = version("napari")
+napari_version = version('napari')
 
 
 class Animation:
@@ -89,10 +89,10 @@ class Animation:
                 if insert:
                     position = -1
                 else:
-                    raise ValueError("No selected keyframe to replace !")
+                    raise ValueError('No selected keyframe to replace !')
 
         new_frame = KeyFrame.from_viewer(self.viewer, steps=steps, ease=ease)
-        new_frame.name = f"Key Frame {next(self._keyframe_counter)}"
+        new_frame.name = f'Key Frame {next(self._keyframe_counter)}'
 
         if insert:
             self.key_frames.insert(position + 1, new_frame)
@@ -112,7 +112,7 @@ class Animation:
     def _validate_animation(self):
         if len(self.key_frames) < 2:
             raise ValueError(
-                f"Must have at least 2 key frames, received {len(self.key_frames)}"
+                f'Must have at least 2 key frames, received {len(self.key_frames)}'
             )
 
     def set_key_frame_index(self, index: int):
@@ -170,8 +170,8 @@ class Animation:
         """
         self._validate_animation()
 
-        description = f"napari version {napari_version} https://napari.org/"
-        output_params = ["-metadata", f'title="{description}"']
+        description = f'napari version {napari_version} https://napari.org/'
+        output_params = ['-metadata', f'title="{description}"']
 
         # create path object
         file_path = Path(filename)
@@ -180,7 +180,7 @@ class Animation:
 
         # if path has no extension, save as fold of PNG
         save_as_folder = False
-        if file_path.suffix == "":
+        if file_path.suffix == '':
             save_as_folder = True
 
         # try to create an ffmpeg writer. If not installed default to folder creation
@@ -190,13 +190,13 @@ class Animation:
                 # create imageio writer. Handle separately imageio-ffmpeg extensions and
                 # gif extension which doesn't accept the quality parameter.
                 if file_path.suffix in [
-                    ".mov",
-                    ".avi",
-                    ".mpg",
-                    ".mpeg",
-                    ".mp4",
-                    ".mkv",
-                    ".wmv",
+                    '.mov',
+                    '.avi',
+                    '.mpg',
+                    '.mpeg',
+                    '.mp4',
+                    '.mkv',
+                    '.wmv',
                 ]:
                     writer = imageio.get_writer(
                         filename,
@@ -213,13 +213,13 @@ class Animation:
                     )
             except ValueError as err:
                 print(err)
-                print("Your file will be saved as a series of PNG files")
+                print('Your file will be saved as a series of PNG files')
                 save_as_folder = True
 
         if save_as_folder:
             # if movie is saved as series of PNG, create a folder
             if folder_path.is_dir():
-                for f in folder_path.glob("*.png"):
+                for f in folder_path.glob('*.png'):
                     os.remove(f)
             else:
                 folder_path.mkdir(exist_ok=True)
@@ -231,13 +231,13 @@ class Animation:
         n_frames = len(self._frames)
 
         # Render frames (with a progress bar)
-        print("Rendering frames...")
+        print('Rendering frames...')
         sleep(0.05)
         with tqdm(total=n_frames) as pbar:
             for frame_index, image in enumerate(frame_generator):
                 if save_as_folder is True:
                     frame_filename = (
-                        folder_path / f"{file_path.stem}_{frame_index:06d}.png"
+                        folder_path / f'{file_path.stem}_{frame_index:06d}.png'
                     )
                     imsave(frame_filename, image)
                 else:
@@ -270,7 +270,7 @@ class Animation:
     def _repr_html_(self):
         if self._filename is None:
             html = 'Video animation not yet available (use the "animate" method to generate it).'
-        elif str(self._filename).endswith(".gif"):
+        elif str(self._filename).endswith('.gif'):
             html = f'<img src="{self._filename}">'
         else:
             html = f'<video width="100%" height="100%" controls> <source src="{self._filename}"> </video>'

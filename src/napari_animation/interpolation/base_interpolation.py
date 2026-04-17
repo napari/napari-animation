@@ -5,7 +5,7 @@ from typing import TypeVar
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-_T = TypeVar("_T")
+_T = TypeVar('_T')
 
 
 def default_interpolation(a: _T, b: _T, fraction: float) -> _T:
@@ -161,9 +161,9 @@ def slerp(
     Interpolated Euler angles between a and b at fraction.
     """
     initial_rotation, final_rotation = R.from_euler(
-        "ZYX", [a, b], degrees=True
+        'ZYX', [a, b], degrees=True
     )
     rotation_vector = (initial_rotation.inv() * final_rotation).as_rotvec()
     rotation_vector *= fraction
     c_rotation = initial_rotation * R.from_rotvec(rotation_vector)
-    return c_rotation.as_euler("ZYX", degrees=True)
+    return c_rotation.as_euler('ZYX', degrees=True)
