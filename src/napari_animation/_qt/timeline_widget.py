@@ -21,6 +21,8 @@ from napari_animation._qt.savedialog_widget import SaveDialogWidget
 if TYPE_CHECKING:
     import napari
 
+EM_DASH = '—'  # helps to minimize wrong splitting errors, unlikely to be used
+
 # centralized whitelisted set of track options.
 # Each key: value pair is in the form:
 #     TrackName: 'attribute_path_from_source_model
@@ -37,20 +39,12 @@ _VIEWER_TRACK_OPTIONS = {
 
 # {layer_name} will be replaced by the actual name
 _LAYER_TRACK_OPTIONS = {
-    '{layer_name} - visibility': 'visible',
-    '{layer_name} - opacity': 'opacity',
-    '{layer_name} - blending': 'blending',
-    '{layer_name} - transform': '_transforms',
-    '{layer_name} - clipping planes': 'experimental_clipping_planes',
+    '{layer_name}visibility': 'visible',
+    '{layer_name}opacity': 'opacity',
+    '{layer_name}blending': 'blending',
+    '{layer_name}transform': '_transforms',
+    '{layer_name}clipping planes': 'experimental_clipping_planes',
 }
-
-
-def _resolve_attr_path(source: Any, path: str) -> tuple[Any, str]:
-    while True:
-        attr, _, path = path.partition('.')
-        if not path:
-            return source, attr
-        source = getattr(source, attr)
 
 
 class AnimationTimelineWidget(QWidget):
@@ -58,7 +52,7 @@ class AnimationTimelineWidget(QWidget):
         self.viewer = viewer
 
         self.viewer_track_options = {
-            name: _resolve_attr_path(viewer, attr_path)
+            name: (viewer, attr_path)
             for (name, attr_path) in _VIEWER_TRACK_OPTIONS.items()
         }
         # add viewer itself as a whole
@@ -111,8 +105,9 @@ class AnimationTimelineWidget(QWidget):
             if layer in self.layer_track_options:
                 continue
             self.layer_track_options[layer] = {
-                name.format(layer_name=layer.name): _resolve_attr_path(
-                    layer, attr_path
+                name.format(layer_name=layer.name + EM_DASH): (
+                    layer,
+                    attr_path,
                 )
                 for (name, attr_path) in _LAYER_TRACK_OPTIONS.items()
             }
@@ -187,9 +182,12 @@ class AnimationTimelineWidget(QWidget):
             fps=self.timeline.animation.play_fps,
         )
 
-        if animation_kwargs.get('filename', None) is not None:
+        if (filename := animation_kwargs.get('filename', None)) is not None:
             try:
-                self.save_movie(**animation_kwargs)
+                if filename.suffix == '.json':
+                    self.save_timeline(filename)
+                else:
+                    self.save_movie(**animation_kwargs)
             except ValueError as err:
                 # Should handle other types, differently maybe
                 error_dialog = QErrorMessage()
@@ -299,5 +297,17 @@ class AnimationTimelineWidget(QWidget):
 
         anim.play_mode = mode
 
-    def save_timeline():
-        pass
+    def save_timeline(self, filename):
+        dump = self.timeline.animation.model_dump_json(indent=4)
+        path = Path(filename)
+        with open(path, 'w') as f:
+            f.write(dump)
+
+    def load_timeline(self, filename):
+        with open(filename) as f:
+            validated = self.timeline.animation.model_validate_json(f.read())
+        for k, v in validated.model_dump().items():
+            setattr(self.timeline.animation, k, v)
+
+        self._update_track_options()
+        self.timeline._update_geometry()

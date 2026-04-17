@@ -19,12 +19,14 @@ class SaveDialogWidget(QFileDialog):
         '.gif',
         '.mov',
         '.mkv',
+        '.json',
     )
     _qt_file_name_filters = (
         'mp4 (*.mp4)'
         ';;gif (*.gif)'
         ';;mov (*.mov)'
         ';;mkv (*.mkv)'
+        ';;json (*.json)'
         ';;folder of png files (*)'  # sep filters with ";;"
     )
 
