@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 from napari.utils.colormaps import DirectLabelColormap
 
-from ..interpolation.utils import keys_to_list, nested_get
-from ..utils import layer_attribute_changed
+from napari_animation.interpolation.utils import keys_to_list, nested_get
+from napari_animation.utils import layer_attribute_changed
 
 input_dict = [{'a': 1, 'b': {'c': 'd'}}]
 keys = [['b', 'c']]
