@@ -7,7 +7,16 @@ from qt_animation_timeline import (
     AnimationTimelineWidget as _AnimationTimelineWidget,
 )
 from qt_animation_timeline import PlayMode
-from qtpy.QtWidgets import QGridLayout, QLabel, QPushButton, QSpinBox, QWidget
+from qtpy.QtWidgets import (
+    QErrorMessage,
+    QGridLayout,
+    QLabel,
+    QPushButton,
+    QSpinBox,
+    QWidget,
+)
+
+from napari_animation._qt.savedialog_widget import SaveDialogWidget
 
 if TYPE_CHECKING:
     import napari
@@ -169,20 +178,61 @@ class AnimationTimelineWidget(QWidget):
         )
 
     def _save_dialogue(self):
-        print('Not implemented')
+        saveDialogWidget = SaveDialogWidget(self)
 
-    def save(
+        animation_kwargs = saveDialogWidget.getAnimationParameters(
+            self,
+            'Save animation',
+            str(Path.home()),
+            fps=self.timeline.animation.play_fps,
+        )
+
+        if animation_kwargs.get('filename', None) is not None:
+            try:
+                self.save_movie(**animation_kwargs)
+            except ValueError as err:
+                # Should handle other types, differently maybe
+                error_dialog = QErrorMessage()
+                error_dialog.showMessage(str(err))
+                error_dialog.exec_()
+
+    def save_movie(
         self,
         filename,
+        fps=20,
         quality=5,
+        file_format=None,
         canvas_only=True,
         scale_factor=None,
     ):
+        """Create a movie based on key-frames
+
+        Parameters
+        -------
+        filename : str
+            path to use for saving the movie (can also be a path). Extension
+            should be one of .gif, .mp4, .mov, .avi, .mpg, .mpeg, .mkv, .wmv
+            If no extension is provided, images are saved as a folder of PNGs
+        fps : int
+            frames per second
+        quality: float
+            number from 1 (lowest quality) to 9
+            only applies to non-gif extensions
+        file_format: str
+            The format to use to write the file. By default imageio selects the appropriate
+            for you based on the filename.
+        canvas_only : bool
+            If True include just includes the canvas, otherwise include the full napari
+            viewer.
+        scale_factor : float
+            Rescaling factor for the image size. Only used without
+            viewer (canvas_only = True).
+        """
         import imageio
         from napari.utils.progress import cancelable_progress
 
         anim = self.timeline.animation
-        fps = anim.play_fps
+        anim.play_fps = fps
 
         file_path = Path(filename)
         folder_path = file_path.absolute().parent.joinpath(file_path.stem)
@@ -248,3 +298,6 @@ class AnimationTimelineWidget(QWidget):
             writer.append_data(frame)
 
         anim.play_mode = mode
+
+    def save_timeline():
+        pass
