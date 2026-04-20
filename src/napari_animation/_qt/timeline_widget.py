@@ -299,14 +299,14 @@ class AnimationTimelineWidget(QWidget):
         anim.play_mode = mode
 
     def save_timeline(self, filename):
-        """Save timeline to a file given a filename"""
+        """Save timeline to a json file given a filename."""
         dump = self.timeline.animation.model_dump_json(indent=4)
         path = Path(filename)
         with open(path, 'w') as f:
             f.write(dump)
 
     def load_timeline(self, filename):
-        """Load a timeline from a file given a filename"""
+        """Load a timeline from a json file given a filename."""
         with open(filename) as f:
             validated = self.timeline.animation.model_validate_json(f.read())
         for k, v in validated.model_dump().items():
