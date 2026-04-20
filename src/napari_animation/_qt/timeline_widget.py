@@ -203,7 +203,7 @@ class AnimationTimelineWidget(QWidget):
         canvas_only=True,
         scale_factor=None,
     ):
-        """Create a movie based on key-frames
+        """Create and save a movie based on key-frames
 
         Parameters
         -------
@@ -220,7 +220,7 @@ class AnimationTimelineWidget(QWidget):
             The format to use to write the file. By default imageio selects the appropriate
             for you based on the filename.
         canvas_only : bool
-            If True include just includes the canvas, otherwise include the full napari
+            If True, save only includes the canvas; otherwise, save includes the full napari
             viewer.
         scale_factor : float
             Rescaling factor for the image size. Only used without
@@ -289,6 +289,7 @@ class AnimationTimelineWidget(QWidget):
                 canvas_only=canvas_only, scale=scale_factor, flash=False
             )
             frames.append(image)
+
         if mode == PlayMode.PINGPONG:
             frames = frames + frames[::-1]
 
@@ -298,12 +299,14 @@ class AnimationTimelineWidget(QWidget):
         anim.play_mode = mode
 
     def save_timeline(self, filename):
+        """Save timeline to a file given a filename"""
         dump = self.timeline.animation.model_dump_json(indent=4)
         path = Path(filename)
         with open(path, 'w') as f:
             f.write(dump)
 
     def load_timeline(self, filename):
+        """Load a timeline from a file given a filename"""
         with open(filename) as f:
             validated = self.timeline.animation.model_validate_json(f.read())
         for k, v in validated.model_dump().items():
