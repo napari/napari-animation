@@ -43,7 +43,7 @@ dependencies = [
     "scipy",
     "superqt",
     "tqdm>=4.56.0",
-    "qt-animation-timeline>=0.1.3",
+    "qt-animation-timeline>=0.1.4",
 ]
 
 [project.optional-dependencies]
