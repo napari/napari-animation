@@ -69,6 +69,10 @@ To activate the GUI, select **napari-animation: wizard** from the *plugins menu*
   <img width="200" src="https://user-images.githubusercontent.com/7307488/196114466-56cb5985-0d79-4cfa-96f1-38cf3ccfbc48.png">
 </p>
 
+When saving an animation from the GUI, the **Canvas only** option controls
+what part of the napari viewer is recorded. Leave it checked to export just the
+rendered canvas, or uncheck it to include the full viewer window and controls.
+
 ### Scripting
 
 **napari-animation** can also be run programatically, allowing for reproducible, scripted creation of animations.
@@ -92,6 +96,9 @@ viewer.camera.angles = (0.0, 0.0, 90.0)
 animation.capture_keyframe()
 animation.animate('demo.mov', canvas_only=False)
 ```
+
+The `canvas_only` argument has the same meaning in scripts: `True` exports only
+the napari canvas, while `False` records the full viewer window.
 
 ## Examples
 
