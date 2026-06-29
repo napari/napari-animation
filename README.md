@@ -93,25 +93,9 @@ animation.capture_keyframe()
 animation.animate('demo.mov', canvas_only=False)
 ```
 
-### Canvas only
-
-Both the GUI and the programmatic API let you choose how much of the napari window
-is captured in the animation, via the `canvas_only` option.
-
-- `canvas_only=True` (the default) exports only the napari canvas, i.e. the layer
-  visualization area, without the surrounding viewer interface. This is useful for
-  clean animations that don't show the rest of the napari UI.
-- `canvas_only=False` includes the full napari viewer, capturing the surrounding
-  interface context as well.
-
-In the GUI Save dialog this corresponds to the **Canvas only** checkbox, which is
-enabled by default.
-
-Programmatically, pass `canvas_only` to `animate`:
-
-```python
-animation.animate("animation.mp4", canvas_only=True, fps=60)
-```
+Set `canvas_only=True` to export only the napari canvas, or `False` to include the
+full viewer interface. In the GUI Save dialog this corresponds to the **Canvas only**
+checkbox, which is enabled by default.
 
 ## Examples
 
