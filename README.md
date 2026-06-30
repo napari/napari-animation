@@ -93,6 +93,10 @@ animation.capture_keyframe()
 animation.animate('demo.mov', canvas_only=False)
 ```
 
+Set `canvas_only=True` to export only the napari canvas, or `False` to include the
+full viewer interface. In the GUI Save dialog this corresponds to the **Canvas only**
+checkbox, which is enabled by default.
+
 ## Examples
 
 Examples can be found in our [Examples gallery](https://napari.org/napari-animation/gallery), generated from [our example scripts](https://github.com/napari/napari-animation/tree/main/examples). Simple examples for both interactive and headless
