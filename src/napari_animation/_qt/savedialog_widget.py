@@ -19,12 +19,14 @@ class SaveDialogWidget(QFileDialog):
         '.gif',
         '.mov',
         '.mkv',
+        '.json',
     )
     _qt_file_name_filters = (
         'mp4 (*.mp4)'
         ';;gif (*.gif)'
         ';;mov (*.mov)'
         ';;mkv (*.mkv)'
+        ';;json (*.json)'
         ';;folder of png files (*)'  # sep filters with ";;"
     )
 
@@ -37,6 +39,7 @@ class SaveDialogWidget(QFileDialog):
         caption='Select a file :',
         directory='.',
         options=None,
+        fps=20,
     ):
         # Set dialog parameters
         self.setWindowTitle(caption)
@@ -51,7 +54,7 @@ class SaveDialogWidget(QFileDialog):
         # add OptionsWidget
         self.setOption(QFileDialog.DontUseNativeDialog, True)
         layout = self.layout()
-        self.optionsWidget = OptionsWidget(self)
+        self.optionsWidget = OptionsWidget(self, fps=fps)
 
         layout.addWidget(self.optionsWidget, 4, 1)
         self.setLayout(layout)
@@ -88,7 +91,7 @@ class SaveDialogWidget(QFileDialog):
 
 
 class OptionsWidget(QWidget):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, fps=20, **kwargs):
         super().__init__(*args, **kwargs)
 
         layout = QHBoxLayout()
@@ -120,7 +123,7 @@ class OptionsWidget(QWidget):
         # fps
         self.fpsSpinBox = QSpinBox(self)
         self.fpsSpinBox.setRange(1, 100000)
-        self.fpsSpinBox.setValue(20)
+        self.fpsSpinBox.setValue(fps)
         fps_label = QLabel('FPS', self)
         fps_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(fps_label)
