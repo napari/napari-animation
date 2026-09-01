@@ -58,7 +58,7 @@ provided by the napari utilities.
 ```python
 from napari.utils.translations import trans
 
-some_string = trans._("Localizable string")
+some_string = trans._('Localizable string')
 ```
 
 To learn more, please see the [translations guide](https://napari.org/guides/stable/translations.html).
