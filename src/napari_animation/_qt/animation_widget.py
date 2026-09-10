@@ -158,9 +158,14 @@ class AnimationWidget(QWidget):
             self, 'Save animation', str(Path.home())
         )
 
-        if animation_kwargs.get('filename', None) is not None:
+        if (filename := animation_kwargs.get('filename', None)) is not None:
             try:
-                self.animation.animate(**animation_kwargs)
+                if filename.suffix == '.json':
+                    raise NotImplementedError(
+                        'Saving animations as json is only implemented for the Timeline widget.'
+                    )
+                else:
+                    self.animation.animate(**animation_kwargs)
             except ValueError as err:
                 # Should handle other types, differently maybe
                 error_dialog = QErrorMessage()

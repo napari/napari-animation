@@ -5,6 +5,11 @@ contributions:
     - id: napari-animation.make_animation_widget
       python_name: napari_animation:AnimationWidget
       title: Make animation widget
+    - id: napari-animation.make_animation_timeline_widget
+      python_name: napari_animation:AnimationTimelineWidget
+      title: Make animation timeline widget
   widgets:
     - command: napari-animation.make_animation_widget
-      display_name: wizard
+      display_name: Animation
+    - command: napari-animation.make_animation_timeline_widget
+      display_name: Animation Timeline
