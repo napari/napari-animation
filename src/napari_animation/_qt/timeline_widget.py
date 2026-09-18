@@ -302,9 +302,9 @@ class AnimationTimelineWidget(QWidget):
         saveDialogWidget = SaveDialogWidget(self)
 
         animation_kwargs = saveDialogWidget.getAnimationParameters(
-            self,
-            'Save animation',
-            str(Path.home()),
+            parent=self,
+            caption='Save animation',
+            directory=str(Path.home()),
             fps=self.timeline.animation.play_fps,
         )
 
@@ -321,10 +321,13 @@ class AnimationTimelineWidget(QWidget):
                 error_dialog.exec_()
 
     def _load_dialogue(self):
-        filename = QFileDialog.getOpenFileName(
-            self, 'Load animation', '.', 'json (*.json)'
+        filename, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Load animation',
+            directory=str(Path.home()),
+            filter='json (*.json)',
         )
-        if filename is not None:
+        if filename:
             try:
                 self.load_timeline(filename)
             except ValidationError as err:
