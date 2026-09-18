@@ -7,11 +7,9 @@ Copyright (c) 2011, Auerhaus Development, LLC
 http://sam.zoy.org/wtfpl/COPYING for more details.
 """
 
-from enum import Enum
+from enum import Enum, member
 from functools import partial
 from math import cos, pi, pow, sin, sqrt
-
-from ._enum_compat import wrap_enum_member
 
 tau = pi * 2
 
@@ -269,16 +267,16 @@ class Easing(Enum):
             * bounce: bounce easing in and out.
     """
 
-    LINEAR = wrap_enum_member(partial(linear_interpolation))
-    QUADRATIC = wrap_enum_member(partial(quadratic_ease_in_out))
-    CUBIC = wrap_enum_member(partial(cubic_ease_in_out))
-    QUINTIC = wrap_enum_member(partial(quintic_ease_in_out))
-    SINE = wrap_enum_member(partial(sine_ease_in_out))
-    CIRCULAR = wrap_enum_member(partial(circular_ease_in_out))
-    EXPONENTIAL = wrap_enum_member(partial(exponential_ease_in_out))
-    ELASTIC = wrap_enum_member(partial(elastic_ease_in_out))
-    BACK = wrap_enum_member(partial(back_ease_in_out))
-    BOUNCE = wrap_enum_member(partial(bounce_ease_in_out))
+    LINEAR = member(partial(linear_interpolation))
+    QUADRATIC = member(partial(quadratic_ease_in_out))
+    CUBIC = member(partial(cubic_ease_in_out))
+    QUINTIC = member(partial(quintic_ease_in_out))
+    SINE = member(partial(sine_ease_in_out))
+    CIRCULAR = member(partial(circular_ease_in_out))
+    EXPONENTIAL = member(partial(exponential_ease_in_out))
+    ELASTIC = member(partial(elastic_ease_in_out))
+    BACK = member(partial(back_ease_in_out))
+    BOUNCE = member(partial(bounce_ease_in_out))
 
     def __call__(self, *args):
         return self.value(*args)
