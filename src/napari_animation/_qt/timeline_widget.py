@@ -3,12 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from pydantic import ValidationError
 from qt_animation_timeline import (
     AnimationTimelineWidget as _AnimationTimelineWidget,
 )
 from qt_animation_timeline import PlayMode
 from qtpy.QtWidgets import (
     QErrorMessage,
+    QFileDialog,
     QGridLayout,
     QLabel,
     QPushButton,
@@ -67,6 +69,7 @@ class AnimationTimelineWidget(QWidget):
         self.fps_spinbox.setRange(1, 600)
         self.duration_label = QLabel()
         self.save_btn = QPushButton('Save animation...')
+        self.load_btn = QPushButton('Load animation...')
         self.timeline = _AnimationTimelineWidget(
             track_options=self.viewer_track_options
         )
@@ -79,6 +82,7 @@ class AnimationTimelineWidget(QWidget):
         layout.addWidget(self.fps_spinbox, 0, 1, 1, 1)
         layout.addWidget(self.duration_label, 1, 0, 1, 2)
         layout.addWidget(self.save_btn, 2, 0, 1, 2)
+        layout.addWidget(self.load_btn, 3, 0, 1, 2)
         layout.addWidget(self.timeline, 0, 2, -1, -1)
         layout.setColumnStretch(
             2, 1000
@@ -96,6 +100,7 @@ class AnimationTimelineWidget(QWidget):
         self.timeline.animation.track_removed.connect(self._update_duration)
 
         self.save_btn.pressed.connect(self._save_dialogue)
+        self.load_btn.pressed.connect(self._load_dialogue)
         self.fps_spinbox.valueChanged.connect(self._update_fps)
 
         self.fps_spinbox.setValue(30)
@@ -171,28 +176,6 @@ class AnimationTimelineWidget(QWidget):
         self.duration_label.setText(
             f'Total duration:\n{self.timeline.animation.duration:.2f}s ({self.timeline.animation.n_frames} frames)'
         )
-
-    def _save_dialogue(self):
-        saveDialogWidget = SaveDialogWidget(self)
-
-        animation_kwargs = saveDialogWidget.getAnimationParameters(
-            self,
-            'Save animation',
-            str(Path.home()),
-            fps=self.timeline.animation.play_fps,
-        )
-
-        if (filename := animation_kwargs.get('filename', None)) is not None:
-            try:
-                if filename.suffix == '.json':
-                    self.save_timeline(filename)
-                else:
-                    self.save_movie(**animation_kwargs)
-            except ValueError as err:
-                # Should handle other types, differently maybe
-                error_dialog = QErrorMessage()
-                error_dialog.showMessage(str(err))
-                error_dialog.exec_()
 
     def save_movie(
         self,
@@ -314,3 +297,37 @@ class AnimationTimelineWidget(QWidget):
 
         self._update_track_options()
         self.timeline._update_geometry()
+
+    def _save_dialogue(self):
+        saveDialogWidget = SaveDialogWidget(self)
+
+        animation_kwargs = saveDialogWidget.getAnimationParameters(
+            self,
+            'Save animation',
+            str(Path.home()),
+            fps=self.timeline.animation.play_fps,
+        )
+
+        if (filename := animation_kwargs.get('filename', None)) is not None:
+            try:
+                if filename.suffix == '.json':
+                    self.save_timeline(filename)
+                else:
+                    self.save_movie(**animation_kwargs)
+            except ValueError as err:
+                # Should handle other types, differently maybe
+                error_dialog = QErrorMessage()
+                error_dialog.showMessage(str(err))
+                error_dialog.exec_()
+
+    def _load_dialogue(self):
+        filename = QFileDialog.getOpenFileName(
+            self, 'Load animation', '.', 'json (*.json)'
+        )
+        if filename is not None:
+            try:
+                self.load_timeline(filename)
+            except ValidationError as err:
+                error_dialog = QErrorMessage()
+                error_dialog.showMessage(str(err))
+                error_dialog.exec_()
