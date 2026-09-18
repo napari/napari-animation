@@ -41,6 +41,13 @@ def test_animation_timeline_widget(make_napari_viewer, qtbot):
     animation.current_frame = 5
     assert viewer.scene.camera.zoom == 15.0
 
+    # adding layers should add tracks
+    pl = viewer.add_points()
+    assert pl in aw.layer_track_options
+    # renaming layers should update them too
+    pl.name = 'test'
+    assert all('test' in track for track in aw.layer_track_options[pl])
+
 
 def test_timeline_custom_track(make_napari_viewer, qtbot):
     viewer = make_napari_viewer()
