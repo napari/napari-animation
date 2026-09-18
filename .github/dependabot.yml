@@ -4,16 +4,6 @@
 
 version: 2
 updates:
-  # Monitor pip dependencies
-  - package-ecosystem: pip
-    directory: "/"
-    schedule:
-      interval: monthly
-    groups:
-      python-packages:
-        patterns:
-          - "*"
-
   # Monitor GitHub Actions and propose updates for security and maintenance
   - package-ecosystem: github-actions
     directory: "/"
