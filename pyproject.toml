@@ -21,14 +21,13 @@ classifiers = [
   "Framework :: napari",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Operating System :: OS Independent",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 # napari can be included in dependencies if napari imports are required.
 # However, you should not include napari[all], napari[qt],
 # or any other Qt bindings directly (e.g. PyQt5, PySide2).
@@ -43,6 +42,7 @@ dependencies = [
     "scipy",
     "superqt",
     "tqdm>=4.56.0",
+    "qt-animation-timeline>=0.2.0",
 ]
 
 [project.optional-dependencies]

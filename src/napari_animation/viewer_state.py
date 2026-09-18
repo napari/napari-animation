@@ -37,7 +37,7 @@ class ViewerState:
             layer_attributes.pop('metadata')
 
         return cls(
-            camera=_model_dump(viewer.camera)(),
+            camera=_model_dump(viewer.scene.camera)(),
             dims=_model_dump(viewer.dims)(),
             layers=layers,
         )
@@ -51,7 +51,7 @@ class ViewerState:
             A napari viewer. (viewer state will be directly modified)
         """
 
-        viewer.camera.update(self.camera)
+        viewer.scene.camera.update(self.camera)
         viewer.dims.update(self.dims)
 
         for layer_name, layer_state in self.layers.items():
