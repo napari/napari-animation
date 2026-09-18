@@ -22,10 +22,10 @@ animation = Animation(viewer)
 viewer.update_console({"animation": animation})
 
 animation.capture_keyframe()
-viewer.camera.zoom = 0.2
+viewer.scene.camera.zoom = 0.2
 animation.capture_keyframe()
-viewer.camera.zoom = 10.0
-viewer.camera.center = (0, 40.0, 10.0)
+viewer.scene.camera.zoom = 10.0
+viewer.scene.camera.center = (0, 40.0, 10.0)
 animation.capture_keyframe()
 viewer.dims.current_step = (60, 0, 0)
 animation.capture_keyframe(steps=60)
