@@ -29,17 +29,17 @@ def test_animation_timeline_widget(make_napari_viewer, qtbot):
 
     animation = aw.timeline.animation
     track = animation.add_track('viewer')
-    viewer.camera.zoom = 10.0
+    viewer.scene.camera.zoom = 10.0
     animation.add_keyframe_from_state('viewer', 0)
     assert len(track.keyframes) == 1
-    viewer.camera.zoom = 20.0
+    viewer.scene.camera.zoom = 20.0
     animation.add_keyframe_from_state('viewer', 10)
     assert len(track.keyframes) == 2
     animation.add_keyframe_from_state('viewer', 20)
     assert len(track.keyframes) == 3
 
     animation.current_frame = 5
-    assert viewer.camera.zoom == 15.0
+    assert viewer.scene.camera.zoom == 15.0
 
 
 def test_timeline_custom_track(make_napari_viewer, qtbot):

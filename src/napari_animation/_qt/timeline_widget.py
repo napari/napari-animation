@@ -33,8 +33,8 @@ _VIEWER_TRACK_OPTIONS = {
     'dims slider': 'dims.point',
     'dims margins': 'dims.thickness',
     'dims ': 'dims.current_step',
-    'view direction': 'camera.view_direction',
-    'zoom': 'camera.zoom',
+    'view direction': 'scene.camera.view_direction',
+    'zoom': 'scene.camera.zoom',
     'dims': 'dims',
     'camera': 'camera',
 }
