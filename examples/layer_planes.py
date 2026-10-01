@@ -9,6 +9,7 @@ import skimage
 import scipy
 
 viewer = napari.Viewer(ndisplay=3)
+viewer.camera.orientation = ('away', 'down', 'right')
 
 nuclei = skimage.data.cells3d()[:,1,...]
 denoised = scipy.ndimage.median_filter(nuclei, size=3)
