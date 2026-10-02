@@ -77,7 +77,7 @@ html_theme_options = {
     "external_links": [{"name": "napari", "url": "https://napari.org"}],
     "github_url": "https://github.com/napari/napari-animation",
     "navbar_start": ["navbar-logo", "navbar-project"],
-    "navbar_end": ["navbar-icon-links"],
+    "navbar_end": ["navbar-icon-links", "theme-switcher"],
     # "switcher": {
     #     "json_url": json_url,
     #     "version_match": version_match,
