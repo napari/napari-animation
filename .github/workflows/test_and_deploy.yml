@@ -47,28 +47,22 @@ jobs:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [ "3.10", "3.12", "3.14" ]
+        python-version: [ "3.11", "3.13", "3.14" ]
         qt_package: [pyqt6]
         include:
           # Keep small legacy/backend smoke tests; PyQt6 covers the main grid.
           - platform: ubuntu-latest
-            python-version: "3.12"
+            python-version: "3.13"
             qt_package: pyside6
           - platform: windows-latest
-            python-version: "3.12"
+            python-version: "3.13"
             qt_package: pyside6
           - platform: ubuntu-latest
-            python-version: "3.12"
+            python-version: "3.13"
             qt_package: pyqt5
           - platform: windows-latest
-            python-version: "3.12"
+            python-version: "3.13"
             qt_package: pyqt5
-          - platform: ubuntu-latest
-            python-version: "3.10"
-            qt_package: pyside2
-          - platform: windows-latest
-            python-version: "3.10"
-            qt_package: pyside2
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
