@@ -77,7 +77,7 @@ html_theme_options = {
     "external_links": [{"name": "napari", "url": "https://napari.org"}],
     "github_url": "https://github.com/napari/napari-animation",
     "navbar_start": ["navbar-logo", "navbar-project"],
-    "navbar_end": ["navbar-icon-links"],
+    "navbar_end": ["navbar-icon-links", "theme-switcher"],
     # "switcher": {
     #     "json_url": json_url,
     #     "version_match": version_match,
@@ -86,7 +86,7 @@ html_theme_options = {
     "header_links_before_dropdown": 6,
     "secondary_sidebar_items": ["page-toc"],
     "pygment_light_style": "napari",
-    "pygment_dark_style": "napari",
+    "pygment_dark_style": "dracula",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
