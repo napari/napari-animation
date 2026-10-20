@@ -168,7 +168,7 @@ The napari-animation documentation is automatically built and deployed to the we
 whenever the main branch is updated, or a new release is tagged.
 This is controlled by the [deploy_docs.yml](https://github.com/napari/napari-animation/blob/main/.github/workflows/deploy_docs.yml) github actions script.
 
-You can also manually trigger a documenation re-build and deployment [from the github actions tab](https://github.com/napari/napari-animation/actions/workflows/deploy_docs.yml).
+You can also manually trigger a documentation re-build and deployment [from the github actions tab](https://github.com/napari/napari-animation/actions/workflows/deploy_docs.yml).
 
 
 ## License
