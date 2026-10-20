@@ -22,15 +22,15 @@ animation = Animation(viewer)
 viewer.update_console({"animation": animation})
 
 viewer.dims.ndisplay = 3
-viewer.camera.angles = (0.0, 0.0, 90.0)
+viewer.scene.camera.angles = (0.0, 0.0, 90.0)
 animation.capture_keyframe()
-viewer.camera.zoom = 2.4
+viewer.scene.camera.zoom = 2.4
 animation.capture_keyframe()
-viewer.camera.angles = (-7.0, 15.7, 62.4)
+viewer.scene.camera.angles = (-7.0, 15.7, 62.4)
 animation.capture_keyframe(steps=60)
-viewer.camera.angles = (2.0, -24.4, -36.7)
+viewer.scene.camera.angles = (2.0, -24.4, -36.7)
 animation.capture_keyframe(steps=60)
 viewer.reset_view()
-viewer.camera.angles = (0.0, 0.0, 90.0)
+viewer.scene.camera.angles = (0.0, 0.0, 90.0)
 animation.capture_keyframe()
 animation.animate("animate3D.mp4", canvas_only=False)
