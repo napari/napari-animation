@@ -1,7 +1,6 @@
-from enum import Enum
+from enum import Enum, member
 from functools import partial
 
-from .._enum_compat import wrap_enum_member
 from .base_interpolation import default_interpolation as _default_interpolation
 from .base_interpolation import interpolate_bool as _interpolate_bool
 from .base_interpolation import interpolate_log as _interpolate_log
@@ -19,10 +18,10 @@ class Interpolation(Enum):
 
     """
 
-    DEFAULT = wrap_enum_member(partial(_default_interpolation))
-    LOG = wrap_enum_member(partial(_interpolate_log))
-    SLERP = wrap_enum_member(partial(_slerp))
-    BOOL = wrap_enum_member(partial(_interpolate_bool))
+    DEFAULT = member(partial(_default_interpolation))
+    LOG = member(partial(_interpolate_log))
+    SLERP = member(partial(_slerp))
+    BOOL = member(partial(_interpolate_bool))
 
     def __call__(self, *args):
         return self.value(*args)
