@@ -76,7 +76,7 @@ def test_set_viewer_state(animation_with_key_frames, viewer_state):
     viewer_state.apply(animation.viewer)
 
     animation_dims_state = _model_dump(animation.viewer.dims)()
-    animation_camera_state = _model_dump(animation.viewer.camera)()
+    animation_camera_state = _model_dump(animation.viewer.scene.camera)()
 
     assert animation_dims_state == current_state.dims
     for key in ('center', 'angles', 'mouse_pan', 'mouse_zoom'):
@@ -193,7 +193,7 @@ def test_animating_all_layer_types(
     add_layer_by_type(viewer, layer_class, data, visible=True)
     layer_animation = Animation(viewer)
     layer_animation.capture_keyframe()
-    layer_animation.viewer.camera.zoom *= 2
+    layer_animation.viewer.scene.camera.zoom *= 2
     layer_animation.capture_keyframe()
     # advance the movie frame, simulating slider movement
     layer_animation.set_movie_frame_index(1)

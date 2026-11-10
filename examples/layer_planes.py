@@ -22,8 +22,8 @@ image_layer = viewer.add_image(nuclei, name="nuclei", depiction="plane",
                                blending='translucent')
 labels_layer = viewer.add_labels(labels_data, name="labels", blending='translucent')
 
-viewer.camera.angles = (-18.23797054423494, 41.97404742075617, 141.96173085742896)
-viewer.camera.zoom *= 0.5
+viewer.scene.camera.angles = (-18.23797054423494, 41.97404742075617, 141.96173085742896)
+viewer.scene.camera.zoom *= 0.5
 
 
 def replace_labels_data():
