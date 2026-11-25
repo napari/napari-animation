@@ -84,7 +84,6 @@ jobs:
         with:
             run: tox
         env:
-          PLATFORM: ${{ matrix.platform }}
           TOX_TESTENV_PASSENV: "QT_PACKAGE"
           QT_PACKAGE: ${{ matrix.qt_package }}
 
